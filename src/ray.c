@@ -113,13 +113,13 @@ void ray_draw(int r, angle r_ang) {
   }
 
   // Fix fisheye
-  float ca = ang_add(r_ang, -g_player.ang);
-  distance = distance * cos(r_ang);
+  float ca = ang_add(g_player.ang, -r_ang);
+  distance = distance * cos(ca);
 
   // Draw 2D ray DEBUG
   // gfx_putline(g_player.pos.x, g_player.pos.y, intersection.x, intersection.y, *color);
   gfx_putline(g_player.pos.x, g_player.pos.y, intersection.x, intersection.y, *color);
-
+ 
   Point v = ang_vector(r_ang, distance);
   gfx_putline(g_player.pos.x, g_player.pos.y, g_player.pos.x + v.x, g_player.pos.y + v.y, COLOR_RED);
 
