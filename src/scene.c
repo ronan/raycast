@@ -40,8 +40,10 @@ gfx_err scn_draw_map()
 
 gfx_err scn_draw_ceiling_and_floor()
 {
-  gfx_putrect(MAP_W, 0, SCREEN_W, SCREEN_H / 2, COLOR_CEILING);
-  gfx_putrect(MAP_W, WINDOW_H / 2, SCREEN_W, SCREEN_H / 2, COLOR_FLOOR);
+  float half_h = (SCREEN_H / 2);
+  float middle_y = SCREEN_Y + half_h;
+  gfx_putrect(SCREEN_X, SCREEN_Y, SCREEN_W, middle_y, COLOR_CEILING);
+  gfx_putrect(SCREEN_X, middle_y, SCREEN_W, half_h, COLOR_FLOOR);
   return GFX_ERR_NONE;
 }
 

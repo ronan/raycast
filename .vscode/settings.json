@@ -7,6 +7,10 @@
     "scene.h": "c",
     "map.h": "c",
     "ray.h": "c",
-    "geometry.h": "c"
+    "geometry.h": "c",
+    "iterator": "c",
+    "ios": "c",
+    "__locale": "c",
+    "common.h": "c"
   }
 }

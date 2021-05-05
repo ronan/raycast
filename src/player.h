@@ -3,12 +3,6 @@
 
 #include "geometry.h"
 
-typedef struct Point
-{
-  float x;
-  float y;
-} Point;
-
 typedef struct Player
 {
   angle ang;

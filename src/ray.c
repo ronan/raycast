@@ -1,213 +1,156 @@
 #include "common.h"
 #include "gfx.h"
 #include "player.h"
-#include "map.h"
 #include "scene.h"
+#include "map.h"
+#include "wall.h"
 
 #include "ray.h"
 
-void ray_draw(r) {
+typedef struct RayIntersection {
+  Point pos;
+  float dis;
+} RayIntersection;
 
+
+Point ray_find_first_intersection(Point start, Point step) {
+  Point out = start;
+   
+  // Step from tile edge to tile edge until we find a wall
+  // TODO: Be more clever than simply checking 8 times.
+  for (int i = 0; i < 8; i++, out = point_add(out, step))
+  {
+    // gfx_put_square_centered(out, 3, COLOR_RED);
+    MapTile t = map_tile_at_point(out);
+
+    // Our ray has left the map
+    if (map_tile_is_oob(t))
+    {
+      return out;
+    }
+
+    // Our ray has hit a boundary
+    if (map_tile_is_wall(t))
+    {
+      return out;
+    }
+  }
+
+  // Shouldn't get here in a closed map. Not sure what happens next
+  // Probably want to deal with this in the renderer by having an OOB check and drawing nothing
+  return POINT_OOB;
+}
+
+// Check ray intersection with horizontal (east-west) wall segments
+Point ray_wall_intersection_h(Point r_pos, angle r_ang) {
+  Point out, step;
+
+  float r_ang_tan = (1.0 / tan(r_ang));
+
+  // Looking north(ish) seach in the negative y direction
+  if (ang_is_northward(r_ang))
+  {
+    out.y = map_align_to_tile(r_pos.y) - 0.0001;
+    step.y = -MAP_TILES_S;
+  }
+  else {
+    out.y = map_align_to_tile(r_pos.y) + MAP_TILES_S;
+    step.y = MAP_TILES_S;
+  }
+
+  // Derive x using tan(r) to find the distance from the initial position
+  out.x = r_pos.x - ((r_pos.y - out.y) * -r_ang_tan);
+  step.x = -step.y * r_ang_tan;
+
+  return ray_find_first_intersection(out, step);
+}
+
+// Check ray intersection with vertical (north-south) wall segments
+Point ray_wall_intersection_v(Point r_pos, angle r_ang) {
+  Point out, step;
+
+  // I don't know why I have to rotate the angle by 90˚ to make this work
+  float r_ang_tan = (1.0 / tan(r_ang - (M_PI/2)));
+
+  // Looking westward seach in the negative x direction
+  if (ang_is_westward(r_ang))
+  {
+    out.x = map_align_to_tile(r_pos.x) - 0.0001;
+    step.x = -MAP_TILES_S;
+  }
+  else {
+    out.x = map_align_to_tile(r_pos.x) + MAP_TILES_S;
+    step.x = MAP_TILES_S;
+  }
+
+  // Derive y using tan(r) to find the distance from the initial position
+  out.y = r_pos.y - ((r_pos.x - out.x) * r_ang_tan);
+  step.y = step.x * r_ang_tan;
+
+  return ray_find_first_intersection(out, step);
+}
+
+void ray_draw(int r, angle r_ang) {
+  SDL_Color *color;
+  float distance, dis_v = DAMN_NEAR_INFINITY, dis_h = DAMN_NEAR_INFINITY;
+  Point intersection, int_v, int_h;
+
+  int_v = ray_wall_intersection_v(g_player.pos, r_ang);
+  int_h = ray_wall_intersection_h(g_player.pos, r_ang);
+
+  dis_v = cos(r_ang) * (int_v.x - g_player.pos.x) - sin(r_ang) * (int_v.y - g_player.pos.y);
+  dis_h = cos(r_ang) * (int_h.x - g_player.pos.x) - sin(r_ang) * (int_h.y - g_player.pos.y);
+
+  if (dis_v < dis_h) {
+    color = &COLOR_WALL;
+    distance = dis_v;
+    intersection = int_v;
+  }
+  else {
+    color = &COLOR_WALL_LIT;
+    distance = dis_h;
+    intersection = int_h;
+  }
+
+  // Fix fisheye
+  float ca = ang_add(r_ang, -g_player.ang);
+  distance = distance * cos(r_ang);
+
+  // Draw 2D ray DEBUG
+  // gfx_putline(g_player.pos.x, g_player.pos.y, intersection.x, intersection.y, *color);
+  gfx_putline(g_player.pos.x, g_player.pos.y, intersection.x, intersection.y, *color);
+
+  Point v = ang_vector(r_ang, distance);
+  gfx_putline(g_player.pos.x, g_player.pos.y, g_player.pos.x + v.x, g_player.pos.y + v.y, COLOR_RED);
+
+  // Draw intersection points DEBUG
+  // gfx_put_square_centered(int_v, 10, COLOR_BLUE);
+  // gfx_put_square_centered(int_h, 10, COLOR_BLUE);
+  // gfx_put_square_centered(intersection, 10, COLOR_GREEN);
+
+  // Draw a vertical slice of the wall
+  int line_h = (WALL_H * SCREEN_H) / (distance);
+  int line_top = (SCREEN_H / 2) - (line_h / 2);
+  gfx_putline(SCREEN_X + r, SCREEN_Y + line_top, SCREEN_X + r, SCREEN_Y + line_top + line_h, *color);
 }
 
 void ray_draw_all()
 {
-  int r, r_min, r_max, mx, my, mp, dof, side;
-  float vx, vy, rx, ry, xo, yo, disV, disH, Tan;
-  angle ra, raStart, rDelta;
-  SDL_Color *color;
+  angle r_ang, r_ang_start, r_delta;
+  int step = SCREEN_W / 16;
 
-  raStart = ang_add(g_player.ang, FOV / 2);
-  rDelta = FOV / SCREEN_W;
+  r_ang_start = ang_add(g_player.ang, (FOV / 2));
+  r_delta = FOV / SCREEN_W;
+
   int r_x_min = 0;
   int r_x_max = SCREEN_W;
 
-  for (r = r_x_min; r < r_x_max; r++)
+  // Draw only 1 ray. For debugging
+  // ray_draw(1, g_player.ang);
+
+  for (int r = r_x_min; r < r_x_max; r += step)
   {
-    ra = ang_add(raStart, (r * -rDelta));
-
-    // // VERTICAL
-    // // Check ray intersection with vertical (north-south) wall segments
-    dof = 0;
-    disV = 100000;
-    float Tan = tan(ra);
-    
-    // Looking west(ish)
-    if (cos(ra) > 0.001)
-    {
-      rx = (((int)g_player.pos.x >> 6) << 6) + 64;
-      ry = (g_player.pos.x - rx) * Tan + g_player.pos.y;
-      xo = 64;
-      yo = -xo * Tan;
-    } 
-    // Looking east(ish)
-    else if (cos(ra) < -0.001)
-    {
-      rx = (((int)g_player.pos.x >> 6) << 6) - 0.0001;
-      ry = (g_player.pos.x - rx) * Tan + g_player.pos.y;
-      xo = -64;
-      yo = -xo * Tan;
-    }
-    // Looking directly north or south
-    else
-    {
-      rx = g_player.pos.x;
-      ry = g_player.pos.y;
-      dof = 8;
-    }
-
-    while (dof < 8)
-    {
-      mx = (int)(rx) >> 6;
-      my = (int)(ry) >> 6;
-      // Our ray has hit a boundary
-      if (mx >= 0 && my >= 0 && mx < MAP_TILES_X && my < MAP_TILES_Y && g_map[my][mx] == 1)
-      {
-        dof = 8;
-        disV = cos(ra) * (rx - g_player.pos.x) - sin(ra) * (ry - g_player.pos.y);
-      }
-      // Check next vertical
-      else
-      {
-        rx += xo;
-        ry += yo;
-        dof += 1;
-      }
-    }
-    vx = rx;
-    vy = ry;
-
-    // HORIZONTAL
-    // Check ray intersection with horizontal (east-west) wall segments
-    dof = 0;
-    disH = 100000;
-    Tan = 1.0 / Tan;
-    // Looking north(ish)
-    if (sin(ra) > 0.001)
-    {
-      ry = (((int)g_player.pos.y >> 6) << 6) - 0.0001;
-      rx = (g_player.pos.y - ry) * Tan + g_player.pos.x;
-      yo = -64;
-      xo = -yo * Tan;
-    } 
-    // Looking south(ish)
-    else if (sin(ra) < -0.001)
-    {
-      ry = (((int)g_player.pos.y >> 6) << 6) + 64;
-      rx = (g_player.pos.y - ry) * Tan + g_player.pos.x;
-      yo = 64;
-      xo = -yo * Tan;
-    } 
-    // Looking directly east or west
-    else
-    {
-      rx = g_player.pos.x;
-      ry = g_player.pos.y;
-      dof = 8;
-    }
-
-    while (dof < 8)
-    {
-      mx = (int)(rx) >> 6;
-      my = (int)(ry) >> 6;
-
-      // Our ray has hit a boundary
-      if (mx >= 0 && my >= 0 && mx < MAP_TILES_X && my < MAP_TILES_Y && g_map[my][mx] == 1)
-      {
-        dof = 8;
-        disH = cos(ra) * (rx - g_player.pos.x) - sin(ra) * (ry - g_player.pos.y);
-      } 
-      // Check next horizontal
-      else
-      {
-        rx += xo;
-        ry += yo;
-        dof += 1;
-      } 
-    }
-
-    color = (disV < disH ? &COLOR_WALL : &COLOR_WALL_LIT);
-
-    // Horizontal hit first
-    if (disV < disH)
-    {
-      rx = vx;
-      ry = vy;
-      disH = disV;
-    }
-
-    // Draw 2D ray
-    gfx_putline(g_player.pos.x, g_player.pos.y, rx, ry, *color);
-
-    // Fix fisheye
-    float ca = ang_add(g_player.ang, -ra);
-    disH = disH * cos(ca);
-    int lineH = (MAP_TILES_S * SCREEN_H) / (disH);
-    if (lineH > SCREEN_H)
-    {
-      lineH = SCREEN_H;
-    }
-    int lineOff = (SCREEN_H / 2) - (lineH >> 1);
-
-    // Draw a vertical slice of the wall
-    gfx_putline(r + MAP_W, lineOff, r + MAP_W, lineOff + lineH, *color);
+    r_ang = ang_add(r_ang_start, -r * r_delta);
+    ray_draw(r, r_ang);
   }
-}
-
-// Check ray intersection with vertical (north-south) wall segments
-// WIP
-Point ray_wall_intersection_v(Point r_pos, angle r_ang) {
-    int r, r_min, r_max, mx, my, mp, dof, side;
-    float vx, vy, rx, ry, xo, yo;
-    Point intersection;
-    angle raStart, rDelta;
-    SDL_Color *color;
-
-    int dis = 100000;
-    float Tan = tan(r_ang);
-    
-    // Looking west(ish)
-    if (cos(r_ang) > 0.001)
-    {
-      rx = (((int)g_player.pos.x >> 6) << 6) + 64;
-      ry = (g_player.pos.x - rx) * Tan + g_player.pos.y;
-      xo = 64;
-      yo = -xo * Tan;
-    } 
-    // Looking east(ish)
-    else if (cos(r_ang) < -0.001)
-    {
-      rx = (((int)g_player.pos.x >> 6) << 6) - 0.0001;
-      ry = (g_player.pos.x - rx) * Tan + g_player.pos.y;
-      xo = -64;
-      yo = -xo * Tan;
-    }
-    // Looking directly north or south
-    else
-    {
-      rx = g_player.pos.x;
-      ry = g_player.pos.y;
-      dof = 8;
-    }
-
-    while (dof < 8)
-    {
-      mx = (int)(rx) >> 6;
-      my = (int)(ry) >> 6;
-      // Our ray has hit a boundary
-      if (mx >= 0 && my >= 0 && mx < MAP_TILES_X && my < MAP_TILES_Y && g_map[my][mx] == 1)
-      {
-        dof = 8;
-        dis = cos(r_ang) * (rx - g_player.pos.x) - sin(r_ang) * (ry - g_player.pos.y);
-      }
-      // Check next vertical
-      else
-      {
-        rx += xo;
-        ry += yo;
-        dof += 1;
-      }
-    }
-    intersection.x = rx;
-    intersection.y = ry;
 }

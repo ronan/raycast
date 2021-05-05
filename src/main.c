@@ -3,6 +3,7 @@
 #include "gfx.h"
 #include "player.h"
 #include "input.h"
+#include "map.h"
 #include "scene.h"
 
 int main(int argc, char *argv[])
@@ -12,7 +13,10 @@ int main(int argc, char *argv[])
         fprintf(stderr, "SDL failed to initialize: \n%s\n", SDL_GetError());
         return -1;
     }
+
+    map_init();
     player_init();
+
     scn_draw();
 
     bool done;

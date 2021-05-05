@@ -55,6 +55,20 @@ gfx_err gfx_putrect(int x1, int y1, int w, int h, SDL_Color color)
     return GFX_ERR_NONE;
 }
 
+gfx_err gfx_put_square_centered(Point center, float size, SDL_Color color)
+{
+    SDL_Rect rect;
+    float half_size = size/2;
+    rect.x = center.x - half_size;
+    rect.y = center.y - half_size;
+    rect.w = size;
+    rect.h = size;
+
+    SDL_SetRenderDrawColor(g_gfx.renderer, color.r, color.g, color.b, color.a);
+    SDL_RenderFillRect(g_gfx.renderer, &rect);
+    return GFX_ERR_NONE;
+}
+
 gfx_err gfx_update()
 {
     SDL_RenderPresent(g_gfx.renderer);
