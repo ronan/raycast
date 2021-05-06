@@ -4,153 +4,135 @@
 #include "scene.h"
 #include "map.h"
 #include "wall.h"
+#include "geometry.h"
 
 #include "ray.h"
 
-typedef struct RayIntersection {
-  Point pos;
-  float dis;
-} RayIntersection;
+void map_draw_line(Point a, Point b) {
+  a = point_mult(a, MAP_TILES_S);
+  b = point_mult(b, MAP_TILES_S);
 
+  // Don't draw off the map
+  if (b.x < MAP_WIDTH) {
+    gfx_put_line(a.x, a.y, b.x, b.y, COLOR_BLACK);
+    gfx_put_square_centered(b, 2, COLOR_RED);
+  }
+}
 
-Point ray_find_first_intersection(Point start, Point step) {
-  Point out = start;
-   
-  // Step from tile edge to tile edge until we find a wall
-  // TODO: Be more clever than simply checking 8 times.
-  for (int i = 0; i < 8; i++, out = point_add(out, step))
-  {
-    // gfx_put_square_centered(out, 3, COLOR_RED);
-    MapTile t = map_tile_at_point(out);
+Ray ray_cast_step(Ray r) {
+  Ray out = r;
+  Point d;
 
-    // Our ray has left the map
-    if (map_tile_is_oob(t))
-    {
-      return out;
+  d.x = r.vec.x > 0 ?
+    ceil(r.end.x) + 0.0001 - r.end.x:
+    floor(r.end.x) - 0.0001 - r.end.x;
+
+  d.y = d.x * (r.vec.y / r.vec.x);
+
+  out.end = point_add(out.end, d);
+
+  return out;
+}
+
+Ray ray_cast_step_v(Ray r) {
+  r = ray_cast_step(r);
+
+  map_draw_line(r.pos, r.end);
+  return r;
+}
+
+Ray ray_cast_step_h(Ray r) {
+  r.vec = point_invert(r.vec);
+  r.end = point_invert(r.end);
+
+  r = ray_cast_step(r);
+
+  r.vec = point_invert(r.vec);
+  r.end = point_invert(r.end);
+  map_draw_line(r.pos, r.end);
+  return r;
+}
+
+Ray ray_cast(Point r_origin, angle r_ang, int col) {
+  MapTile h_tile, v_tile;
+  Ray h, v;
+  float dist_v = DAMN_NEAR_INFINITY, dist_h = DAMN_NEAR_INFINITY, dist;
+
+  r_origin = point_mult(r_origin, 1.0/MAP_TILES_S);
+
+  h = v = (Ray) {
+    .pos = r_origin,
+    .end = r_origin,
+    .vec = ang_vector(r_ang, 1.0),
+    .ang = r_ang,
+    .dist = DAMN_NEAR_INFINITY,
+    .hit = RAY_HIT_OOB
+  };
+
+  for (int i = 0; i < 6; i++) {
+    v = ray_cast_step_v(v);
+    v.hit.tile = map_tile_at_point(v.end);
+    if (map_tile_is_oob(v.hit.tile)) {
+      break;
     }
-
-    // Our ray has hit a boundary
-    if (map_tile_is_wall(t))
-    {
-      return out;
+    if (map_tile_is_wall(v.hit.tile)) {
+      v.dist = point_dist(v.pos, v.end);
+      v.hit.wall = v.vec.x > 0 ? MAP_W : MAP_E;
+      gfx_put_square_centered(point_mult(v.end, MAP_TILES_S), 1, COLOR_GREEN);
+      break;
     }
   }
 
-  // Shouldn't get here in a closed map. Not sure what happens next
-  // Probably want to deal with this in the renderer by having an OOB check and drawing nothing
-  return POINT_OOB;
-}
-
-// Check ray intersection with horizontal (east-west) wall segments
-Point ray_wall_intersection_h(Point r_pos, angle r_ang) {
-  Point out, step;
-
-  float r_ang_tan = (1.0 / tan(r_ang));
-
-  // Looking north(ish) seach in the negative y direction
-  if (ang_is_northward(r_ang))
-  {
-    out.y = map_align_to_tile(r_pos.y) - 0.0001;
-    step.y = -MAP_TILES_S;
-  }
-  else {
-    out.y = map_align_to_tile(r_pos.y) + MAP_TILES_S;
-    step.y = MAP_TILES_S;
+  for (int i = 0; i < 6; i++) {
+    h = ray_cast_step_h(h);
+    h.hit.wall = map_tile_at_point(h.end);
+    if (map_tile_is_oob(h.hit.wall)) {
+      break;
+    }
+    if (map_tile_is_wall(h.hit.wall)) {
+      h.dist = point_dist(h.pos, h.end);
+      h.hit.wall = h.vec.y > 0 ? MAP_N : MAP_S;
+      gfx_put_square_centered(point_mult(h.end, MAP_TILES_S), 1, COLOR_GREEN);
+      break;
+    }
   }
 
-  // Derive x using tan(r) to find the distance from the initial position
-  out.x = r_pos.x - ((r_pos.y - out.y) * -r_ang_tan);
-  step.x = -step.y * r_ang_tan;
-
-  return ray_find_first_intersection(out, step);
-}
-
-// Check ray intersection with vertical (north-south) wall segments
-Point ray_wall_intersection_v(Point r_pos, angle r_ang) {
-  Point out, step;
-
-  // I don't know why I have to rotate the angle by 90˚ to make this work
-  float r_ang_tan = (1.0 / tan(r_ang - (M_PI/2)));
-
-  // Looking westward seach in the negative x direction
-  if (ang_is_westward(r_ang))
-  {
-    out.x = map_align_to_tile(r_pos.x) - 0.0001;
-    step.x = -MAP_TILES_S;
+  if (h.dist < v.dist) {
+    return h;
   }
-  else {
-    out.x = map_align_to_tile(r_pos.x) + MAP_TILES_S;
-    step.x = MAP_TILES_S;
-  }
-
-  // Derive y using tan(r) to find the distance from the initial position
-  out.y = r_pos.y - ((r_pos.x - out.x) * r_ang_tan);
-  step.y = step.x * r_ang_tan;
-
-  return ray_find_first_intersection(out, step);
-}
-
-void ray_draw(int r, angle r_ang) {
-  SDL_Color *color;
-  float distance, dis_v = DAMN_NEAR_INFINITY, dis_h = DAMN_NEAR_INFINITY;
-  Point intersection, int_v, int_h;
-
-  int_v = ray_wall_intersection_v(g_player.pos, r_ang);
-  int_h = ray_wall_intersection_h(g_player.pos, r_ang);
-
-  dis_v = cos(r_ang) * (int_v.x - g_player.pos.x) - sin(r_ang) * (int_v.y - g_player.pos.y);
-  dis_h = cos(r_ang) * (int_h.x - g_player.pos.x) - sin(r_ang) * (int_h.y - g_player.pos.y);
-
-  if (dis_v < dis_h) {
-    color = &COLOR_WALL;
-    distance = dis_v;
-    intersection = int_v;
-  }
-  else {
-    color = &COLOR_WALL_LIT;
-    distance = dis_h;
-    intersection = int_h;
-  }
-
-  // Fix fisheye
-  float ca = ang_add(g_player.ang, -r_ang);
-  distance = distance * cos(ca);
-
-  // Draw 2D ray DEBUG
-  // gfx_putline(g_player.pos.x, g_player.pos.y, intersection.x, intersection.y, *color);
-  gfx_putline(g_player.pos.x, g_player.pos.y, intersection.x, intersection.y, *color);
- 
-  Point v = ang_vector(r_ang, distance);
-  gfx_putline(g_player.pos.x, g_player.pos.y, g_player.pos.x + v.x, g_player.pos.y + v.y, COLOR_RED);
-
-  // Draw intersection points DEBUG
-  // gfx_put_square_centered(int_v, 10, COLOR_BLUE);
-  // gfx_put_square_centered(int_h, 10, COLOR_BLUE);
-  // gfx_put_square_centered(intersection, 10, COLOR_GREEN);
-
-  // Draw a vertical slice of the wall
-  int line_h = (WALL_H * SCREEN_H) / (distance);
-  int line_top = (SCREEN_H / 2) - (line_h / 2);
-  gfx_putline(SCREEN_X + r, SCREEN_Y + line_top, SCREEN_X + r, SCREEN_Y + line_top + line_h, *color);
+  return v;
 }
 
 void ray_draw_all()
 {
   angle r_ang, r_ang_start, r_delta;
-  int step = SCREEN_W / 16;
-
-  r_ang_start = ang_add(g_player.ang, (FOV / 2));
-  r_delta = FOV / SCREEN_W;
+  int step = 1;
 
   int r_x_min = 0;
   int r_x_max = SCREEN_W;
-
+  
   // Draw only 1 ray. For debugging
-  // ray_draw(1, g_player.ang);
+  // ray_cast(g_player.pos, g_player.ang, 1);
+  // r_x_max = 0;
 
-  for (int r = r_x_min; r < r_x_max; r += step)
+  for (int col = r_x_min; col < r_x_max; col += step)
   {
-    r_ang = ang_add(r_ang_start, -r * r_delta);
-    ray_draw(r, r_ang);
+    float x = (float)col / SCREEN_W - 0.5;
+    float r_ang = atan2(x, 0.8);
+
+    Ray r = ray_cast(g_player.pos, ang_add(g_player.ang, -r_ang), col);
+
+    gfx_put_square_centered(point_mult(r.end, MAP_TILES_S), 1, COLOR_BLUE);
+
+    // Fix fisheye
+    r.dist = r.dist * MAP_TILES_S;
+    r.dist = r.dist * cos(r_ang);
+
+    // Draw a vertical slice of the wall
+    wall_draw(&r, col);
+    // int line_h = (WALL_H * SCREEN_H) / (r.dist);
+    // int line_top = (SCREEN_H / 2) - (line_h / 2);
+    // SDL_Color c = WALL_COLORS[r.hit.wall];
+    // gfx_put_line(SCREEN_X + col, SCREEN_Y + line_top, SCREEN_X + col, SCREEN_Y + line_top + line_h, c);
   }
 }

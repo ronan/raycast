@@ -38,8 +38,8 @@ MapTile map_generate_tile(int value) {
 
 // Get the map tile that is at the given point
 MapTile map_tile_at_point(Point p) {
-  int mx = (int)(p.x) / MAP_TILES_S;
-  int my = (int)(p.y) / MAP_TILES_S;
+  int mx = floor(p.x);
+  int my = floor(p.y);
 
   if (mx >= 0 && my >= 0 && mx < MAP_TILES_X && my < MAP_TILES_Y) {
     return g_map[my][mx];

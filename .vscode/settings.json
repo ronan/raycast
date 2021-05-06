@@ -11,6 +11,7 @@
     "iterator": "c",
     "ios": "c",
     "__locale": "c",
-    "common.h": "c"
+    "common.h": "c",
+    "wall.h": "c"
   }
 }

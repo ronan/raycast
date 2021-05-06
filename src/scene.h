@@ -10,7 +10,7 @@ gfx_err scn_draw();
 #define COLOR_TILE \
   (SDL_Color) { 10, 10, 10, 0 }
 #define COLOR_CEILING \
-  (SDL_Color) { 10, 10, 100, 0 }
+  (SDL_Color) { 70, 80, 170, 0 }
 #define COLOR_FLOOR \
   (SDL_Color) { 10, 100, 10, 0 }
 #define COLOR_WALL \

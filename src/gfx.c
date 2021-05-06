@@ -4,6 +4,13 @@
 
 gfx_ctx g_gfx;
 
+SDL_Color WALL_COLORS[4] = {
+    (SDL_Color) { 200, 200, 200, 0 },
+    (SDL_Color) { 180, 180, 180, 0 },
+    (SDL_Color) { 100, 100, 100, 0 },
+    (SDL_Color) { 90, 90, 90, 0 }
+};
+
 gfx_err gfx_init(unsigned int width, unsigned int height)
 {
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -28,21 +35,21 @@ gfx_err gfx_clear(SDL_Color color)
     return GFX_ERR_NONE;
 }
 
-gfx_err gfx_putpixel(unsigned int x, unsigned int y, SDL_Color color)
+gfx_err gfx_put_pixel(unsigned int x, unsigned int y, SDL_Color color)
 {
     SDL_SetRenderDrawColor(g_gfx.renderer, color.r, color.g, color.b, color.a);
     SDL_RenderDrawPoint(g_gfx.renderer, x, y);
     return GFX_ERR_NONE;
 }
 
-gfx_err gfx_putline(int x1, int y1, int x2, int y2, SDL_Color color)
+gfx_err gfx_put_line(int x1, int y1, int x2, int y2, SDL_Color color)
 {
     SDL_SetRenderDrawColor(g_gfx.renderer, color.r, color.g, color.b, color.a);
     SDL_RenderDrawLine(g_gfx.renderer, x1, y1, x2, y2);
     return GFX_ERR_NONE;
 }
 
-gfx_err gfx_putrect(int x1, int y1, int w, int h, SDL_Color color)
+gfx_err gfx_put_rect(int x1, int y1, int w, int h, SDL_Color color)
 {
     SDL_Rect rect;
     rect.x = x1;

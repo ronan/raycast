@@ -8,13 +8,13 @@
 
 typedef int MapTile;
 
-typedef enum map_dir
+typedef enum MapDir
 {
     MAP_E,
     MAP_N,
     MAP_W,
     MAP_S
-} map_dir;
+} MapDir;
 
 extern MapTile g_map[8][8];
 
