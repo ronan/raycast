@@ -19,7 +19,7 @@ gfx_err scn_draw_player()
 
 gfx_err scn_draw_bg()
 {
-  gfx_clear(COLOR_BG);
+  gfx_clear(COLOR_CEILING);
   return GFX_ERR_NONE;
 }
 
@@ -46,7 +46,7 @@ gfx_err scn_draw_ceiling_and_floor()
   gfx_put_rect(SCREEN_X, SCREEN_Y, SCREEN_W, middle_y, COLOR_CEILING);
   gfx_put_rect(SCREEN_X, middle_y, SCREEN_W, half_h, COLOR_FLOOR);
 
-  floor_draw();
+  ray_scan_floor_ceiling();
 
   return GFX_ERR_NONE;
 }
@@ -56,7 +56,8 @@ gfx_err scn_draw()
   scn_draw_bg();
   scn_draw_map();
   scn_draw_ceiling_and_floor();
-  ray_draw_all();
+  ray_scan_floor_ceiling();
+  ray_scan_walls();
   scn_draw_player();
   gfx_update();
   return GFX_ERR_NONE;

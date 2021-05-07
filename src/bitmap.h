@@ -19,5 +19,6 @@ BitMap g_bitmaps[BITMAP_END];
 void bitmap_load_all();
 void bitmap_unload_all();
 Pixel bitmap_sample(int bitmap_idx, Point p);
+void bitmap_draw_pixel(int bitmap_idx, Point p, int dest_x, int dest_y);
 
 #endif

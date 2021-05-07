@@ -10,6 +10,7 @@ extern gfx_ctx g_gfx;
 #define PLAYER_SPEED 20.0
 
 #define SCREEN_W 1024
+#define SCREEN_W_HALF 512
 #define SCREEN_H 512
 
 #define MAP_WIDTH 512

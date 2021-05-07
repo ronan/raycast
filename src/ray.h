@@ -22,6 +22,8 @@ typedef struct Ray {
   RayHit hit;
 } Ray;
 
-void ray_draw_all();
+
+void ray_scan_floor_ceiling();
+void ray_scan_walls();
 
 #endif

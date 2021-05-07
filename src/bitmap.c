@@ -54,3 +54,9 @@ Pixel bitmap_sample(int bitmap_idx, Point p) {
 
   return (Pixel)color;
 }
+
+
+void bitmap_draw_pixel(int bitmap_idx, Point p, int dest_x, int dest_y) {
+  Pixel pix = bitmap_sample(bitmap_idx, p);
+  gfx_put_pixel(dest_x, dest_y, (SDL_Color) *pix);
+}
