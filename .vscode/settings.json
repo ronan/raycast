@@ -16,6 +16,7 @@
     "bitmap.h": "c",
     "locale": "c",
     "floor.h": "c",
-    "algorithm": "c"
+    "algorithm": "c",
+    "chrono": "c"
   }
 }

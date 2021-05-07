@@ -65,7 +65,7 @@ float map_align_to_tile(float d) {
 void map_init() {
   for (int y = 0; y < MAP_TILES_Y; y++) {
     for (int x = 0; x < MAP_TILES_X; x++) {
-      g_map[y][x] = map_generate_tile(empty_map[y][x]);
+      g_map[y][x] = map_generate_tile(map_sample[y][x]);
     }
   }
 }

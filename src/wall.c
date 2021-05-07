@@ -31,10 +31,7 @@ void wall_draw(Ray *r, int col) {
 
   float uv_delta_y = 1.0 / h;
   for (int row = SCREEN_Y + top; row <= SCREEN_Y + top + h; row++) {
-    p = bitmap_sample(BITMAP_WALL, uv);
-
-    gfx_put_pixel(SCREEN_X + col, row, (SDL_Color) *p);
-
+    bitmap_draw_pixel(BITMAP_WALL, uv, SCREEN_X + col, row);
     uv.y += uv_delta_y;
   }
 }

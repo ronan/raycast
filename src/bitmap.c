@@ -2,7 +2,7 @@
 #include "gfx.h"
 #include "bitmap.h"
 
-SDL_Color g_pixel_none = COLOR_CLEAR;
+Pixel g_pixel_none = COLOR_CLEAR;
 
 
 void bitmap_load_all() {
@@ -19,44 +19,29 @@ void bitmap_unload_all() {
 Pixel bitmap_sample(int bitmap_idx, Point p) {
   SDL_Surface *surface = g_bitmaps[bitmap_idx];
   SDL_PixelFormat *fmt = surface->format;
-  SDL_Color *color;
   // Uint8 index;
 
-  SDL_LockSurface(surface);
-
-  /* Get the topleft pixel */
-
-
+  // Convert u,v coordinates (0.0 - 1.0) to a bitmap pixel memory offset
   int px = (int)(surface->w * p.x);
   int py = (int)(surface->h * p.y);
-  int bpp = surface->format->BytesPerPixel;
 
   if (px > surface->w || py > surface->h || px < 0 || py < 0) {
     fprintf(stderr, "Invalid bitmap index");
-    color = (SDL_Color *)&g_pixel_none;
   }
   else {
-    Uint8 *index = (Uint8 *)surface->pixels + py * surface->pitch + px * bpp;
-    int idx = index;
-    color = &fmt->palette->colors[*index];
+    SDL_LockSurface(surface);
+    Uint8 pixel_idx = py * surface->pitch + px *surface->format->BytesPerPixel;
+    Uint8 *pallet_idx = (Uint8 *)(surface->pixels + pixel_idx);
+    SDL_Color *color = (Pixel *)&fmt->palette->colors[*pallet_idx];
+    SDL_UnlockSurface(surface);
+    return *color;
   }
 
-  // int idx, r, g, b, a;
-  // idx = index;
-  // r = color->r;
-  // g = color->g;
-  // b = color->b;
-  // a = color->a;
-
-
-
-  SDL_UnlockSurface(surface);
-
-  return (Pixel)color;
+  return g_pixel_none;
 }
 
 
-void bitmap_draw_pixel(int bitmap_idx, Point p, int dest_x, int dest_y) {
-  Pixel pix = bitmap_sample(bitmap_idx, p);
-  gfx_put_pixel(dest_x, dest_y, (SDL_Color) *pix);
+void bitmap_draw_pixel(int bitmap_idx, Point uv, int screen_x, int screen_y) {
+  Pixel px = bitmap_sample(bitmap_idx, uv);
+  gfx_put_pixel(screen_x, screen_y, (SDL_Color)px);
 }

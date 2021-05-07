@@ -12,7 +12,7 @@ enum BITMAP_IDX {
 };
 
 typedef SDL_Surface* BitMap;
-typedef SDL_Color* Pixel;
+typedef SDL_Color Pixel;
 
 BitMap g_bitmaps[BITMAP_END];
 
