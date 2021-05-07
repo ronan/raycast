@@ -6,7 +6,7 @@ Player g_player;
 void player_init()
 {
   player_set_pos(4, 4);
-  player_set_angle(M_PI_2);
+  player_set_angle(M_PI);
   player_set_speed(PLAYER_SPEED);
 }
 
@@ -22,13 +22,6 @@ void player_set_angle(angle a)
 
   g_player.dir = point_rotate((Point){1, 0}, a);
   g_player.camera_plane = point_rotate((Point){0, FOCAL_LENGTH}, a);
-
-
-      //   double oldPlaneX = planeX;
-      // planeX = planeX * cos(-rotSpeed) - planeY * sin(-rotSpeed);
-      // planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
-
-  
 }
 
 void player_set_speed(float speed)

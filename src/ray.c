@@ -16,7 +16,6 @@ void ray_map_draw_line(Point a, Point b, SDL_Color c) {
   // Don't draw off the map
   if (b.x < MAP_WIDTH) {
     gfx_put_line(a.x, a.y, b.x, b.y, c);
-    gfx_put_square_centered(b, 2, c);
   }
 }
 
@@ -32,16 +31,15 @@ void ray_map_draw_dot(Point a, float size, SDL_Color c) {
   gfx_put_square_centered(a, size, c);
 }
 
+void ray_map_draw_ray(Ray r) {
+  ray_map_draw_line(r.pos, r.end, COLOR_YELLOW);
+  ray_map_draw_dot(r.end, 5, COLOR_GREEN);
+}
 
-void map_draw_line(Point a, Point b) {
-  a = point_mult(a, MINIMAP_SCALE);
-  b = point_mult(b, MINIMAP_SCALE);
-
-  // Don't draw off the map
-  if (b.x < MAP_WIDTH) {
-    gfx_put_line(a.x, a.y, b.x, b.y, COLOR_BLACK);
-    gfx_put_square_centered(b, 2, COLOR_RED);
-  }
+void ray_map_draw_ray_partial(Ray r) {
+  return;
+  ray_map_draw_line(r.pos, r.end, COLOR_CYAN);
+  ray_map_draw_dot(r.end, 5, COLOR_RED);
 }
 
 
@@ -105,28 +103,29 @@ Ray ray_cast_step(Ray r) {
 
 Ray ray_cast_step_v(Ray r) {
   r = ray_cast_step(r);
-  // map_draw_line(r.pos, r.end);
+  ray_map_draw_ray_partial(r);
+  return r;
+}
+
+Ray ray_invert(Ray r) {
+  r.vec = point_invert(r.vec);
+  r.end = point_invert(r.end);
   return r;
 }
 
 Ray ray_cast_step_h(Ray r) {
-  r.vec = point_invert(r.vec);
-  r.end = point_invert(r.end);
-
+  // Horizontal steps are the same logic as vertical with the x and y inverted.
+  r = ray_invert(r);
   r = ray_cast_step(r);
+  r = ray_invert(r);
 
-  r.vec = point_invert(r.vec);
-  r.end = point_invert(r.end);
-  
-  // map_draw_line(r.pos, r.end);
+  ray_map_draw_ray_partial(r);
   return r;
 }
 
 Ray ray_cast(int col) {
   Ray h, v;
-
-  Point r_origin = g_player.pos;
-//  Point r_origin = point_mult(g_player.pos, 1.0/MAP_TILES_S);
+  float h_dist_squared = DAMN_NEAR_INFINITY, v_dist_squared = DAMN_NEAR_INFINITY;
 
   float camera_x = (2.0 * ((float)col / SCREEN_W)) - 1.0;
 
@@ -150,58 +149,47 @@ Ray ray_cast(int col) {
       break;
     }
     if (map_tile_is_wall(v.hit.tile)) {
-      v.dist = point_dist(v.pos, v.end);
-      v.hit.wall = v.vec.x > 0 ? MAP_W : MAP_E;
+      h.hit.wall = v.vec.x > 0 ? MAP_W : MAP_E;
+      // The perpendicular distance avoids fisheye
+      v.dist = (v.end.x - v.pos.x) / v.vec.x;
+      // The euclidean distance lets us find the closest hit
+      v_dist_squared = point_dist_squared(v.pos, v.end);
       break;
     }
   }
 
   for (int i = 0; i < 6; i++) {
     h = ray_cast_step_h(h);
-    h.hit.wall = map_tile_at_point(h.end);
-    if (map_tile_is_oob(h.hit.wall)) {
+    h.hit.tile = map_tile_at_point(h.end);
+    if (map_tile_is_oob(h.hit.tile)) {
       break;
     }
-    if (map_tile_is_wall(h.hit.wall)) {
-      h.dist = point_dist(h.pos, h.end);
+    if (map_tile_is_wall(h.hit.tile)) {
       h.hit.wall = h.vec.y > 0 ? MAP_N : MAP_S;
+      // The perpendicular distance avoids fisheye
+      h.dist = (h.end.y - h.pos.y) / h.vec.y;
+      // The euclidean distance lets us find the closest hit
+      h_dist_squared = point_dist_squared(h.pos, h.end);
       break;
     }
   }
 
-  Ray r = h.dist < v.dist ? h : v;
-  ray_map_draw_line(r.pos, r.end, COLOR_BLACK);
-  // ray_map_draw_dot(h.end, 1, COLOR_BLUE);
-  // ray_map_draw_dot(v.end, 1, COLOR_BLUE);
-  ray_map_draw_dot(r.end, 1, COLOR_GREEN);
+  Ray r = h_dist_squared < v_dist_squared ? h : v;
+  
+  ray_map_draw_ray(r);
+  wall_draw(&r, col);
 
   return r;
 }
 
 void ray_scan_walls()
 {
-  angle r_ang, r_ang_start, r_delta;
-  int step = 1;
-
-  int r_x_min = 0;
-  int r_x_max = SCREEN_W;
-  
   // Draw only 3 rays. For debugging
-  //ray_cast(1); ray_cast(SCREEN_W/2); ray_cast(SCREEN_W); return;
+  // ray_cast(SCREEN_W/2); return;
+  // ray_cast(1); ray_cast(SCREEN_W/2); ray_cast(SCREEN_W); return;
 
-  for (int col = r_x_min; col < r_x_max; col += step)
+  for (int col = 0; col < SCREEN_W; col += 1)
   {
-
-    Ray r = ray_cast(col);
-
-
-    // Fix fisheye 
-    // @TODO: This feels like it should be elsewhere.
-    float x = (float)col / SCREEN_W - 0.5;
-    float r_ang = atan2(x, 0.8);
-    r.dist = r.dist * cos(r_ang);
-
-    // Draw a vertical slice of the wall
-    wall_draw(&r, col);
+    ray_cast(col);
   }
 }
