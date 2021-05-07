@@ -10,6 +10,9 @@
 #include "ray.h"
 
 void ray_map_draw_line(Point a, Point b, SDL_Color c) {
+  a = point_mult(a, MINIMAP_SCALE);
+  b = point_mult(b, MINIMAP_SCALE);
+
   // Don't draw off the map
   if (b.x < MAP_WIDTH) {
     gfx_put_line(a.x, a.y, b.x, b.y, c);
@@ -18,14 +21,21 @@ void ray_map_draw_line(Point a, Point b, SDL_Color c) {
 }
 
 void ray_map_draw_vector(Point a, Point b, SDL_Color c) {
-  b = point_mult(b, 32);
+  a = point_mult(a, MINIMAP_SCALE);
+  b = point_mult(b, MINIMAP_SCALE);
   b = point_add(a, b);
   ray_map_draw_line(a, b, c);
 }
 
+void ray_map_draw_dot(Point a, float size, SDL_Color c) {
+  a = point_mult(a, MINIMAP_SCALE);
+  gfx_put_square_centered(a, size, c);
+}
+
+
 void map_draw_line(Point a, Point b) {
-  a = point_mult(a, MAP_TILES_S);
-  b = point_mult(b, MAP_TILES_S);
+  a = point_mult(a, MINIMAP_SCALE);
+  b = point_mult(b, MINIMAP_SCALE);
 
   // Don't draw off the map
   if (b.x < MAP_WIDTH) {
@@ -37,7 +47,7 @@ void map_draw_line(Point a, Point b) {
 
 void ray_scan_floor_ceiling() {
   Point ray_dir_0, ray_dir_1, floor_pos, floor_step, uv;
-  Point pos = point_mult(g_player.pos, 1.0/64);
+  Point pos = g_player.pos;
   Point dir = g_player.dir;
 
   //FLOOR CASTING
@@ -95,8 +105,7 @@ Ray ray_cast_step(Ray r) {
 
 Ray ray_cast_step_v(Ray r) {
   r = ray_cast_step(r);
-
-  map_draw_line(r.pos, r.end);
+  // map_draw_line(r.pos, r.end);
   return r;
 }
 
@@ -109,26 +118,26 @@ Ray ray_cast_step_h(Ray r) {
   r.vec = point_invert(r.vec);
   r.end = point_invert(r.end);
   
-  map_draw_line(r.pos, r.end);
+  // map_draw_line(r.pos, r.end);
   return r;
 }
 
 Ray ray_cast(int col) {
-  MapTile h_tile, v_tile;
   Ray h, v;
 
-  Point r_origin = point_mult(g_player.pos, 1.0/MAP_TILES_S);
+  Point r_origin = g_player.pos;
+//  Point r_origin = point_mult(g_player.pos, 1.0/MAP_TILES_S);
 
-  float camera_x = 2.0 * col / SCREEN_W - 1.0;
+  float camera_x = (2.0 * ((float)col / SCREEN_W)) - 1.0;
 
   Point dir = point_add(g_player.dir, point_mult(g_player.camera_plane, camera_x));
 
-  ray_map_draw_vector(r_origin, g_player.camera_plane, COLOR_YELLOW);
-  ray_map_draw_vector(r_origin, dir, COLOR_RED);
+  ray_map_draw_vector(g_player.pos, g_player.camera_plane, COLOR_YELLOW);
+  ray_map_draw_vector(g_player.pos, dir, COLOR_RED);
 
   h = v = (Ray) {
-    .pos = r_origin,
-    .end = r_origin,
+    .pos = g_player.pos,
+    .end = g_player.pos,
     .vec = dir,
     .dist = DAMN_NEAR_INFINITY,
     .hit = RAY_HIT_OOB
@@ -143,7 +152,6 @@ Ray ray_cast(int col) {
     if (map_tile_is_wall(v.hit.tile)) {
       v.dist = point_dist(v.pos, v.end);
       v.hit.wall = v.vec.x > 0 ? MAP_W : MAP_E;
-      gfx_put_square_centered(point_mult(v.end, MAP_TILES_S), 1, COLOR_GREEN);
       break;
     }
   }
@@ -157,15 +165,17 @@ Ray ray_cast(int col) {
     if (map_tile_is_wall(h.hit.wall)) {
       h.dist = point_dist(h.pos, h.end);
       h.hit.wall = h.vec.y > 0 ? MAP_N : MAP_S;
-      gfx_put_square_centered(point_mult(h.end, MAP_TILES_S), 1, COLOR_GREEN);
       break;
     }
   }
 
-  if (h.dist < v.dist) {
-    return h;
-  }
-  return v;
+  Ray r = h.dist < v.dist ? h : v;
+  ray_map_draw_line(r.pos, r.end, COLOR_BLACK);
+  // ray_map_draw_dot(h.end, 1, COLOR_BLUE);
+  // ray_map_draw_dot(v.end, 1, COLOR_BLUE);
+  ray_map_draw_dot(r.end, 1, COLOR_GREEN);
+
+  return r;
 }
 
 void ray_scan_walls()
@@ -176,22 +186,19 @@ void ray_scan_walls()
   int r_x_min = 0;
   int r_x_max = SCREEN_W;
   
-  // Draw only edge rays. For debugging
-  // ray_cast(1); return;
+  // Draw only 3 rays. For debugging
+  //ray_cast(1); ray_cast(SCREEN_W/2); ray_cast(SCREEN_W); return;
 
   for (int col = r_x_min; col < r_x_max; col += step)
   {
 
     Ray r = ray_cast(col);
 
-    gfx_put_square_centered(point_mult(r.end, MAP_TILES_S), 1, COLOR_BLUE);
 
     // Fix fisheye 
     // @TODO: This feels like it should be elsewhere.
     float x = (float)col / SCREEN_W - 0.5;
     float r_ang = atan2(x, 0.8);
-
-    r.dist = r.dist * MAP_TILES_S;
     r.dist = r.dist * cos(r_ang);
 
     // Draw a vertical slice of the wall

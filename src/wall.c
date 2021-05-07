@@ -27,9 +27,8 @@ void wall_draw(Ray *r, int col) {
   int h = (WALL_H * SCREEN_H) / (r->dist);
   int top = (SCREEN_H / 2) - (h / 2);
   Point uv = wall_local_hit_point_from_ray(r);
-  Pixel p;
-
   float uv_delta_y = 1.0 / h;
+
   for (int row = SCREEN_Y + top; row <= SCREEN_Y + top + h; row++) {
     bitmap_draw_pixel(BITMAP_WALL, uv, SCREEN_X + col, row);
     uv.y += uv_delta_y;

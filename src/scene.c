@@ -7,13 +7,8 @@
 
 #include "scene.h"
 
-gfx_err scn_draw_player()
+gfx_err scn_minimap_draw_player()
 {
-  float to_x, to_y, line_l = 20.0;
-  to_x = g_player.pos.x + (g_player.dir.x * line_l);
-  to_y = g_player.pos.y + (g_player.dir.y * line_l);
-  gfx_put_line(g_player.pos.x, g_player.pos.y, to_x, to_y, COLOR_GREEN);
-  gfx_put_pixel(g_player.pos.x, g_player.pos.y, COLOR_RED);
   return GFX_ERR_NONE;
 }
 
@@ -23,7 +18,7 @@ gfx_err scn_draw_bg()
   return GFX_ERR_NONE;
 }
 
-gfx_err scn_draw_map()
+gfx_err scn_draw_minimap()
 {
   int x, y, xo, yo;
   SDL_Color *color;
@@ -32,9 +27,17 @@ gfx_err scn_draw_map()
     for (x = 0; x < MAP_TILES_X; x++)
     {
       color = (g_map[y][x] ? &COLOR_WALL : &COLOR_FLOOR);
-      gfx_put_rect(x * MAP_TILES_S + 1, y * MAP_TILES_S + 1, MAP_TILES_S - 1, MAP_TILES_S - 1, *color);
+      gfx_put_rect(x * MINIMAP_SCALE + 1, y * MINIMAP_SCALE + 1, MINIMAP_SCALE - 1, MINIMAP_SCALE - 1, *color);
     }
   }
+
+  // Draw player
+  float line_l = MINIMAP_SCALE / 3;
+  Point from = point_mult(g_player.pos, MINIMAP_SCALE);
+  Point to = point_add(from, point_mult(g_player.dir, line_l));
+
+  gfx_put_line(from.x, from.y, to.x, to.y, COLOR_GREEN);
+  gfx_put_pixel(from.x, from.y, COLOR_RED);
 
   return GFX_ERR_NONE;
 }
@@ -54,11 +57,10 @@ gfx_err scn_draw_ceiling_and_floor()
 gfx_err scn_draw()
 {
   scn_draw_bg();
-  scn_draw_map();
+  scn_draw_minimap();
   scn_draw_ceiling_and_floor();
-  ray_scan_floor_ceiling();
+  // ray_scan_floor_ceiling();
   ray_scan_walls();
-  scn_draw_player();
   gfx_update();
   return GFX_ERR_NONE;
 }

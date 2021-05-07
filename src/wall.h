@@ -6,8 +6,7 @@
 #include "ray.h"
 #include "map.h"
 
-#define WALL_H MAP_TILES_S
-
+#define WALL_H 1.0
 
 void wall_draw(Ray *r, int col);
 
