@@ -6,11 +6,12 @@
 #include "ray.h"
 
 void map_draw_point(Point a) {
+  return;
   gfx_put_square_centered(a, 5, COLOR_GREEN);
 }
 
 void floor_map_draw_line(Point a, Point b, SDL_Color c) {
-
+  return;
   // Don't draw off the map
   if (b.x < MAP_WIDTH) {
     gfx_put_line(a.x, a.y, b.x, b.y, c);
@@ -19,6 +20,7 @@ void floor_map_draw_line(Point a, Point b, SDL_Color c) {
 }
 
 void floor_map_draw_vector(Point a, Point b, SDL_Color c) {
+  return;
   b = point_mult(b, 32);
   b = point_add(a, b);
   floor_map_draw_line(a, b, c);
@@ -63,7 +65,7 @@ void floor_draw() {
 
     for(int x = 0; x < SCREEN_W; ++x)
     {
-      gfx_put_square_centered(point_mult(floor_pos, 64), 1, COLOR_GREEN);
+      // gfx_put_square_centered(point_mult(floor_pos, 64), 1, COLOR_GREEN);
       //gfx_put_square_centered(floor_pos, 1, COLOR_GREEN);
 
       // Get the fractional part of the position to determine the texture coordinates

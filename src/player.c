@@ -19,8 +19,16 @@ void player_set_pos(float x, float y)
 void player_set_angle(angle a)
 {
   g_player.ang = a;
-  g_player.dir.x = cos(g_player.ang);
-  g_player.dir.y = -sin(g_player.ang);
+
+  g_player.dir = point_rotate((Point){1, 0}, a);
+  g_player.camera_plane = point_rotate((Point){0, FOCAL_LENGTH}, a);
+
+
+      //   double oldPlaneX = planeX;
+      // planeX = planeX * cos(-rotSpeed) - planeY * sin(-rotSpeed);
+      // planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
+
+  
 }
 
 void player_set_speed(float speed)
@@ -40,12 +48,12 @@ void player_mv(float delta_x, float delta_y)
 
 void player_mv_left()
 {
-  player_modify_angle(PLAYER_TURN_ANG);
+  player_modify_angle(-PLAYER_TURN_ANG);
 }
 
 void player_mv_right()
 {
-  player_modify_angle(-PLAYER_TURN_ANG);
+  player_modify_angle(PLAYER_TURN_ANG);
 }
 
 void player_mv_up()
