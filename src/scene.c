@@ -3,6 +3,7 @@
 #include "player.h"
 #include "map.h"
 #include "ray.h"
+#include "floor.h"
 
 #include "scene.h"
 
@@ -44,6 +45,9 @@ gfx_err scn_draw_ceiling_and_floor()
   float middle_y = SCREEN_Y + half_h;
   gfx_put_rect(SCREEN_X, SCREEN_Y, SCREEN_W, middle_y, COLOR_CEILING);
   gfx_put_rect(SCREEN_X, middle_y, SCREEN_W, half_h, COLOR_FLOOR);
+
+  floor_draw();
+
   return GFX_ERR_NONE;
 }
 

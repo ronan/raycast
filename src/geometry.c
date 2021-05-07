@@ -46,8 +46,19 @@ float point_dist(Point from, Point to)
   return sqrt(point_dist_squared(from, to));
 }
 
+Point point_rotate(Point a, angle b) {
+  // 𝑥2=cos𝛽𝑥1−sin𝛽𝑦1
+  // 𝑦2=sin𝛽𝑥1+cos𝛽𝑦1
+  float c = cos(b), s = sin(b);
+  return (Point) {.x = c * a.x - s * a.y, s * a.x + c * a.y};
+}
+
 Point point_add(Point a, Point b) {
   return (Point) {.x = a.x + b.x, .y = a.y + b.y};
+}
+
+Point point_sub(Point a, Point b) {
+  return (Point) {.x = a.x - b.x, .y = a.y - b.y};
 }
 
 Point point_mult(Point a, float scale)
@@ -58,4 +69,14 @@ Point point_mult(Point a, float scale)
 Point point_invert(Point a)
 {
   return (Point) {.x = a.y, .y = a.x};
+}
+
+Point point_fractional(Point a)
+{
+  return point_sub(a, point_integral(a));
+}
+
+Point point_integral(Point a)
+{
+  return (Point) {.x = floor(a.x), .y = floor(a.y)};
 }

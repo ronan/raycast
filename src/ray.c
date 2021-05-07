@@ -37,7 +37,7 @@ Ray ray_cast_step(Ray r) {
 Ray ray_cast_step_v(Ray r) {
   r = ray_cast_step(r);
 
-  map_draw_line(r.pos, r.end);
+  //map_draw_line(r.pos, r.end);
   return r;
 }
 
@@ -49,7 +49,7 @@ Ray ray_cast_step_h(Ray r) {
 
   r.vec = point_invert(r.vec);
   r.end = point_invert(r.end);
-  map_draw_line(r.pos, r.end);
+  //map_draw_line(r.pos, r.end);
   return r;
 }
 
@@ -78,7 +78,7 @@ Ray ray_cast(Point r_origin, angle r_ang, int col) {
     if (map_tile_is_wall(v.hit.tile)) {
       v.dist = point_dist(v.pos, v.end);
       v.hit.wall = v.vec.x > 0 ? MAP_W : MAP_E;
-      gfx_put_square_centered(point_mult(v.end, MAP_TILES_S), 1, COLOR_GREEN);
+      //gfx_put_square_centered(point_mult(v.end, MAP_TILES_S), 1, COLOR_GREEN);
       break;
     }
   }
@@ -92,7 +92,7 @@ Ray ray_cast(Point r_origin, angle r_ang, int col) {
     if (map_tile_is_wall(h.hit.wall)) {
       h.dist = point_dist(h.pos, h.end);
       h.hit.wall = h.vec.y > 0 ? MAP_N : MAP_S;
-      gfx_put_square_centered(point_mult(h.end, MAP_TILES_S), 1, COLOR_GREEN);
+      //gfx_put_square_centered(point_mult(h.end, MAP_TILES_S), 1, COLOR_GREEN);
       break;
     }
   }

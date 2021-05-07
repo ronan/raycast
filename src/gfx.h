@@ -35,6 +35,11 @@ gfx_err gfx_draw_screen();
     (SDL_Color) { 0, 255, 0, 0 }
 #define COLOR_BLUE \
     (SDL_Color) { 0, 0, 255, 0 }
+#define COLOR_YELLOW \
+    (SDL_Color) { 255, 255, 0, 0 }
+#define COLOR_CLEAR \
+    (SDL_Color) { 0, 0, 0, 255 }
+
 
 extern SDL_Color WALL_COLORS[4];
 

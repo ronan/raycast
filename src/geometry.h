@@ -27,8 +27,13 @@ int ang_is_westward(angle a);
 int ang_is_northward(angle a);
 
 Point point_add(Point a, Point b);
+Point point_sub(Point a, Point b);
 Point point_mult(Point a, float scale);
 Point point_invert(Point a);
+Point point_rotate(Point a, angle b);
+Point point_fractional(Point a);
+Point point_integral(Point a);
+
 float point_dist_squared(Point from, Point to);
 float point_dist(Point from, Point to);
 

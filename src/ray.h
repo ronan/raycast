@@ -10,6 +10,7 @@
 typedef struct RayHit {
   MapTile tile;
   MapDir wall;
+  Point pt;
 } RayHit;
 
 typedef struct Ray {

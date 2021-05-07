@@ -1,5 +1,6 @@
 #include "common.h"
 #include "gfx.h"
+#include "bitmap.h"
 #include "player.h"
 
 gfx_ctx g_gfx;
@@ -24,6 +25,20 @@ gfx_err gfx_init(unsigned int width, unsigned int height)
         fprintf(stderr, "Unable to initialize SDL Window or Renderer");
         return GFX_ERR;
     }
+
+    bitmap_load_all();
+
+    return GFX_ERR_NONE;
+}
+
+
+gfx_err gfx_destroy()
+{
+    SDL_DestroyRenderer(g_gfx.renderer);
+    SDL_DestroyWindow(g_gfx.window);
+    SDL_Quit();
+
+    bitmap_unload_all();
 
     return GFX_ERR_NONE;
 }
@@ -79,13 +94,5 @@ gfx_err gfx_put_square_centered(Point center, float size, SDL_Color color)
 gfx_err gfx_update()
 {
     SDL_RenderPresent(g_gfx.renderer);
-    return GFX_ERR_NONE;
-}
-
-gfx_err gfx_destroy()
-{
-    SDL_DestroyRenderer(g_gfx.renderer);
-    SDL_DestroyWindow(g_gfx.window);
-    SDL_Quit();
     return GFX_ERR_NONE;
 }

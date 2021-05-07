@@ -8,6 +8,7 @@
 
 int main(int argc, char *argv[])
 {
+    fprintf(stderr, "Loading Game");
     if (gfx_init(WINDOW_W, WINDOW_H))
     {
         fprintf(stderr, "SDL failed to initialize: \n%s\n", SDL_GetError());
@@ -16,6 +17,7 @@ int main(int argc, char *argv[])
 
     map_init();
     player_init();
+    fprintf(stderr, "Finished Loading Game");
 
     scn_draw();
 

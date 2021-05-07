@@ -12,6 +12,10 @@
     "ios": "c",
     "__locale": "c",
     "common.h": "c",
-    "wall.h": "c"
+    "wall.h": "c",
+    "bitmap.h": "c",
+    "locale": "c",
+    "floor.h": "c",
+    "algorithm": "c"
   }
 }
