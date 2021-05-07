@@ -5,6 +5,7 @@
 #include "gfx.h"
 
 enum BITMAP_IDX {
+  BITMAP_TEST,
   BITMAP_WALL,
   BITMAP_FLOOR,
   BITMAP_END

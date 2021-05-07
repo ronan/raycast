@@ -7,6 +7,7 @@ SDL_Color g_pixel_none = COLOR_CLEAR;
 
 void bitmap_load_all() {
   fprintf(stderr, "Loading bitmaps.\n");
+  g_bitmaps[BITMAP_TEST] = SDL_LoadBMP("assets/test.bmp");
   g_bitmaps[BITMAP_WALL] = SDL_LoadBMP("assets/wall.bmp");
   g_bitmaps[BITMAP_FLOOR] = SDL_LoadBMP("assets/floor.bmp");
 }

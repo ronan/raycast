@@ -50,7 +50,7 @@ void floor_draw() {
     // adding step by step avoids multiplications with a weight in the inner loop
     floor_step = point_mult(point_sub(ray_dir_1, ray_dir_0), rowDistance);
     floor_step.x /= SCREEN_W;
-    floor_step.y /= SCREEN_H;
+    floor_step.y /= SCREEN_W;
 
     // real world coordinates of the leftmost column. This will be updated as we step to the right.
     Point ray = point_mult(ray_dir_0, rowDistance);
@@ -64,6 +64,7 @@ void floor_draw() {
     for(int x = 0; x < SCREEN_W; ++x)
     {
       gfx_put_square_centered(point_mult(floor_pos, 64), 1, COLOR_GREEN);
+      //gfx_put_square_centered(floor_pos, 1, COLOR_GREEN);
 
       // Get the fractional part of the position to determine the texture coordinates
       uv = point_fractional(floor_pos);
