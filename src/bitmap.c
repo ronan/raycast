@@ -10,6 +10,7 @@ void bitmap_load_all() {
   g_bitmaps[BITMAP_TEST] = SDL_LoadBMP("assets/test.bmp");
   g_bitmaps[BITMAP_WALL] = SDL_LoadBMP("assets/wall.bmp");
   g_bitmaps[BITMAP_FLOOR] = SDL_LoadBMP("assets/floor.bmp");
+  g_bitmaps[BITMAP_CEILING] = SDL_LoadBMP("assets/ceiling.bmp");
 }
 
 void bitmap_unload_all() {
@@ -26,7 +27,7 @@ Pixel bitmap_sample(int bitmap_idx, Point p) {
   int py = (int)(surface->h * p.y);
 
   if (px > surface->w || py > surface->h || px < 0 || py < 0) {
-    fprintf(stderr, "Invalid bitmap index");
+    fprintf(stderr, "Invalid bitmap index: (%d, %d). Bitmap is (%d, %d)\n", px, py, surface->w, surface->h);
   }
   else {
     SDL_LockSurface(surface);
@@ -39,7 +40,6 @@ Pixel bitmap_sample(int bitmap_idx, Point p) {
 
   return g_pixel_none;
 }
-
 
 void bitmap_draw_pixel(int bitmap_idx, Point uv, int screen_x, int screen_y) {
   Pixel px = bitmap_sample(bitmap_idx, uv);

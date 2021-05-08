@@ -9,7 +9,9 @@
 #define ANG_W 3.14159265359
 #define ANG_S 4.71238898038
 
+#define POINT_ORIGIN (Point) {.x = 0, .y = 0}
 #define POINT_OOB (Point) {.x = -1, .y = -1}
+
 // An angle in radians
 typedef float angle;
 

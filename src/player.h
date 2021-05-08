@@ -8,6 +8,7 @@ typedef struct Player
   angle ang;
   Point pos;
   Point dir;
+  
   Point camera_plane;
   float speed;
 } Player;

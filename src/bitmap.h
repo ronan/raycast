@@ -2,17 +2,18 @@
 #define _BITMAP_H_
 
 #include "geometry.h"
+#include "pixel.h"
 #include "gfx.h"
 
 enum BITMAP_IDX {
   BITMAP_TEST,
   BITMAP_WALL,
   BITMAP_FLOOR,
+  BITMAP_CEILING,
   BITMAP_END
 };
 
 typedef SDL_Surface* BitMap;
-typedef SDL_Color Pixel;
 
 BitMap g_bitmaps[BITMAP_END];
 

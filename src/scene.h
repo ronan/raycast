@@ -3,7 +3,7 @@
 
 #include "gfx.h"
 
-gfx_err scn_draw();
+void scn_draw();
 
 #define COLOR_BG \
   (SDL_Color) { 55, 55, 55, 0 }

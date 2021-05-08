@@ -5,6 +5,7 @@
 #include "input.h"
 #include "map.h"
 #include "scene.h"
+#include "viz.h"
 
 int main(int argc, char *argv[])
 {
@@ -14,6 +15,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "SDL failed to initialize: \n%s\n", SDL_GetError());
         return -1;
     }
+    viz_init(VIZ_WINDOW_W, VIZ_WINDOW_H);
 
     map_init();
     player_init();
@@ -51,6 +53,7 @@ int main(int argc, char *argv[])
 
     } // End while
 
+    viz_destroy();
     gfx_destroy();
 
     return 0;

@@ -4,26 +4,26 @@
 #include "map.h"
 
 #define DAMN_NEAR_INFINITY 10000
-#define RAY_HIT_OOB (RayHit) {.tile = MAP_TILE_OOB}
+#define RAY_HIT_OOB (RayHit) {.tile = MAP_TILE_OOB, .local = POINT_ORIGIN}
 #define RAY_OOB (Ray) {.pos = POINT_OOB, .len = DAMN_NEAR_INFINITY, .hit = RAY_HIT_OOB};
 
 typedef struct RayHit {
   MapTile tile;
   MapDir wall;
-  Point pt;
+  Point local;
 } RayHit;
 
 typedef struct Ray {
-  Point pos;
+  Point start;
   Point end;
-  Point vec;
+  Point dir;
   angle ang;
   float dist;
   RayHit hit;
 } Ray;
 
 
-void ray_scan_floor_ceiling();
+void ray_floor_ceiling_scan();
 void ray_scan_walls();
 
 #endif
