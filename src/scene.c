@@ -19,6 +19,8 @@ void scn_draw_ceiling_and_floor()
 
 void scn_draw()
 {
+  srand(g_player.pos.x*g_player.ang*1000 );
+  srand(1);
   scn_draw_bg();
 
   viz_map();

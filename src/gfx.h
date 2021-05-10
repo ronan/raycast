@@ -22,6 +22,9 @@ typedef struct gfx_ctx
     SDL_Renderer *renderer;
     SDL_Texture *texture;
     Pixel_Buffer buffer;
+
+    Point screen_draw;
+    Point object_draw;
 } gfx_ctx;
 
 typedef enum gfx_err
@@ -61,6 +64,7 @@ gfx_err gfx_draw_screen();
 #define MAX_DISPLAYS 2
 
 
+extern gfx_ctx g_gfx;
 extern SDL_Color WALL_COLORS[4];
 
 #endif

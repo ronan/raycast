@@ -1,11 +1,12 @@
 #include "stdbool.h"
 #include "common.h"
+#include "viz.h"
 #include "gfx.h"
 #include "player.h"
 #include "input.h"
 #include "map.h"
 #include "scene.h"
-#include "viz.h"
+#include "input.h"
 
 int main(int argc, char *argv[])
 {
@@ -26,32 +27,43 @@ int main(int argc, char *argv[])
     bool done;
     SDL_Event event;
 
-    while ((!done) && (SDL_WaitEvent(&event)))
+    float t, t_last, t_last_fps = SDL_GetTicks();
+    int fps_frames = 0;
+
+    while(!done)
     {
-        switch (event.type)
+        //Handle events on queue
+        while(SDL_PollEvent(&event) != 0)
         {
-        case SDL_USEREVENT:
-            // HandleUserEvents(&event);
-            break;
+            switch (event.type)
+            {
+                case SDL_QUIT:
+                    done = true;
+                    break;
 
-        case SDL_KEYDOWN:
-            // case SDL_KEYUP:
-            input_handlekey(event.key.keysym);
-            scn_draw();
-            break;
+                default:
+                    break;
+            }
+        }
+        t = SDL_GetTicks();
+        float t_delta = (t - t_last);
 
-        case SDL_MOUSEBUTTONDOWN:
-            break;
+        fps_frames++;
+        float fps_time_frame = t - t_last_fps;
+        if (fps_time_frame >= 5000.0){
+            // printf and reset timer
+            float mspf = (fps_time_frame)/(float)fps_frames/1000;
+            printf("%f ms/frame (%f fps)\n", mspf, fps_time_frame/mspf);
+            fps_frames = 0;
+            t_last_fps  = t;
+        }
 
-        case SDL_QUIT:
-            done = true;
-            break;
+        input_scan();
+        player_tick(t_delta / 33.33); // 30FPS as a standard for animation
+        scn_draw();
 
-        default:
-            break;
-        } // End switch
-
-    } // End while
+        t_last = t;
+    }
 
     viz_destroy();
     gfx_destroy();

@@ -2,26 +2,14 @@
 #include "input.h"
 #include "player.h"
 
-void input_handlekey(SDL_Keysym key)
-{
-  fprintf(stderr, "Key Detected: %c", key.sym);
-  switch (key.sym)
-  {
-  case SDLK_LEFT:
-  case 'a':
-    player_mv_left();
-    break;
-  case SDLK_RIGHT:
-  case 'd':
-    player_mv_right();
-    break;
-  case SDLK_UP:
-  case 'w':
-    player_mv_up();
-    break;
-  case SDLK_DOWN:
-  case 's':
-    player_mv_down();
-    break;
-  }
+InputState g_input;
+
+void input_scan() {
+    //Set texture based on current keystate
+    const Uint8* currentKeyStates = SDL_GetKeyboardState( NULL );
+
+    g_input.move_f = currentKeyStates[ SDL_SCANCODE_UP ];
+    g_input.move_b = currentKeyStates[ SDL_SCANCODE_DOWN ];
+    g_input.rotate_l = currentKeyStates[ SDL_SCANCODE_LEFT ];
+    g_input.rotate_r = currentKeyStates[ SDL_SCANCODE_RIGHT ];
 }

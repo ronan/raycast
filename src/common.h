@@ -17,7 +17,6 @@ extern gfx_ctx g_gfx;
 #define SCREEN_Y 0
 
 #define FOCAL_LENGTH 0.6
-#define CAMERA_HEIGHT 256.0
 
 #define WINDOW_W SCREEN_W
 #define WINDOW_H SCREEN_H
