@@ -6,8 +6,8 @@ Player g_player;
 
 void player_init()
 {
-  player_set_pos(4, 4);
-  player_set_angle(M_PI);
+  player_set_pos(6.5, 1.5);
+  player_set_angle(-M_PI_2);
   player_set_speed(PLAYER_SPEED);
 }
 

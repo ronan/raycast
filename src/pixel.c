@@ -1,12 +1,16 @@
 #include <stdint.h>
 #include <math.h>
 
+#include "common.h"
 #include "gfx.h"
+#include "bitmap.h"
 #include "pixel.h"
+#include "viz.h"
+#include "input.h"
 
 #define COLOR_DARKEN (Pixel)(SDL_Color) { 0, 0, 0, 0 }
 
-
+Point dither_sample;
 
 Pixel pixel_lerp_linear(Pixel a, Pixel b, float t) {
   float t_inv = 1.0 - t;
@@ -18,32 +22,11 @@ Pixel pixel_lerp_linear(Pixel a, Pixel b, float t) {
   return a;
 }
 
-
 Pixel pixel_lerp_dither_bayer_4x4(Pixel a, Pixel b, float t) {
-  float bayer_r = .8;
-  const int bayer_n = 4;
-  float bayer_matrix_4x4[][bayer_n] = {
-      {    -0.5,       0,  -0.375,   0.125 },
-      {    0.25,   -0.25,   0.375, - 0.125 },
-      { -0.3125,  0.1875, -0.4375,  0.0625 },
-      {  0.4375, -0.0625,  0.3125, -0.1875 },
-  };
+  int dither_x = dither_sample.x;
+  int dither_y = dither_sample.y;
 
-  Pixel color_result = b;
-  float bayer_value = bayer_matrix_4x4[(int)g_gfx.screen_draw.x % bayer_n][(int)g_gfx.screen_draw.y % bayer_n];
-  float output_color = t + (bayer_r * bayer_value);
-  if (output_color < .5) {
-      color_result = a;
-  }
-  return color_result;
-}
-
-
-
-Pixel pixel_lerp_dither_map(Pixel a, Pixel b, float t) {
-  int dither_x = g_gfx.object_draw.x;
-  int dither_y = g_gfx.object_draw.y;
-  float bayer_r = .8;
+  float bayer_r = .9;
   const int bayer_n = 4;
   float bayer_matrix_4x4[][bayer_n] = {
       {    -0.5,       0,  -0.375,   0.125 },
@@ -61,6 +44,21 @@ Pixel pixel_lerp_dither_map(Pixel a, Pixel b, float t) {
   return color_result;
 }
 
+Pixel pixel_lerp_dither_bitmap(Pixel a, Pixel b, float t) {
+  Point dither_pt = g_gfx.screen_draw;
+  int dx = (int)(dither_pt.x) % 16;
+  int dy = (int)(dither_pt.y) % 16;
+
+  // float threshold = .5;
+  
+  Pixel dither_value = bitmap_sample_index(BITMAP_BAYER, dx, dy);
+  float threshold = dither_value.r / 255.0;
+
+  if (t > threshold) {
+    return b;
+  }
+  return a;
+}
 
 Pixel pixel_lerp_dither_rand(Pixel a, Pixel b, float t) {
   if ((float)rand() / RAND_MAX > t) {
@@ -68,7 +66,6 @@ Pixel pixel_lerp_dither_rand(Pixel a, Pixel b, float t) {
   }
   return b;
 }
-
 
 /*
 A white noise dither with the input colors moved closer to the target
@@ -122,7 +119,13 @@ Pixel pixel_lerp(Pixel a, Pixel b, float t) {
   if (t >= .999) return b;
   if (t <= 0.001) return a;
 
-  return pixel_lerp_dither_bayer_4x4(a, b, t);
+
+  dither_sample = g_gfx.screen_draw;
+
+  if (g_input.dither) {
+    return pixel_lerp_dither_bitmap(a, b, t);
+  }
+  return pixel_lerp_linear(a, b, t);
 }
 
 Pixel pixel_darken(Pixel p, float t) {

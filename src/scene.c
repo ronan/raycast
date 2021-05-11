@@ -23,7 +23,7 @@ void scn_draw()
   srand(1);
   scn_draw_bg();
 
-  viz_map();
+  viz_draw();
 
   scn_draw_ceiling_and_floor();
   ray_scan_walls();

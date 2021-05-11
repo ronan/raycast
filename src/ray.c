@@ -53,9 +53,9 @@ void ray_floor_ceiling_scan() {
     g_gfx.screen_draw.y = row;
     for(int col = 0; col < SCREEN_W; ++col)
     {
-       g_gfx.screen_draw.x = col;
+      g_gfx.screen_draw.x = col;
       r.hit.local = point_fractional(r.end);
-      g_gfx.object_draw = point_mult(r.hit.local, 64);
+      g_gfx.object_draw = point_mult(r.hit.local, 512);
 
       px = render_floor(r, col, row);
       gfx_put_pixel(col, row, (SDL_Color)px);
@@ -99,26 +99,41 @@ Ray ray_wall_cast_step_h(Ray r) {
   return r;
 }
 
+Point wall_local_hit_point_from_ray(Ray *r) {
+  Point local, out = (Point){0,0};
+  local.x = r->end.x - floor(r->end.x);
+  local.y = r->end.y - floor(r->end.y);
+
+  if (r->hit.wall == MAP_S || r->hit.wall == MAP_N) {
+    out.x = local.x;
+  }
+  if (r->hit.wall == MAP_E || r->hit.wall == MAP_W) {
+    out.x = local.y;
+  }
+
+  // if (r->hit.wall == MAP_S || r->hit.wall == MAP_W) {
+  //   out.x = 1.0 - out.x;
+  // }
+  return out;
+}
+
 void ray_wall_draw(Ray *r, int col) {
   // Draw a vertical slice of the wall
   int h = (WALL_H * SCREEN_H) / (r->dist);
-      h = h < SCREEN_H ? h : SCREEN_H;
-
-  int top = (SCREEN_H / 2) - (h / 2);
-
-  float local_y_delta = 1.0 / h;
+  int top = SCREEN_Y + (SCREEN_H / 2) - (h / 2);
+  r->hit.local = wall_local_hit_point_from_ray(r);
+  float uv_delta_y = 1.0 / h;
 
   g_gfx.screen_draw.x = col;
-  g_gfx.object_draw.x = r->hit.local.x * 64;
-  for (int row = top; row < (top + h); row++) {
-    g_gfx.screen_draw.y = row;
-    g_gfx.object_draw.y = r->hit.local.y * 64;
-
-
-    Pixel px = render_wall(*r, col, row);
-    gfx_put_pixel(col, row, (SDL_Color)px);
-    r->hit.local.y += local_y_delta;
+  for (int row = SCREEN_Y + top; row <= SCREEN_Y + top + h; row++) {
+    if (row > 0 && row < SCREEN_H) {
+      g_gfx.screen_draw.y = row;
+      Pixel px = render_wall(*r, col, row);
+      gfx_put_pixel(col, row, (SDL_Color)px);
+    }
+    r->hit.local.y += uv_delta_y;
   }
+  return;
 }
 
 Ray ray_wall_cast(int col) {

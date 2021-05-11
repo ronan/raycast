@@ -124,7 +124,7 @@ gfx_err gfx_clear(SDL_Color color)
 gfx_err gfx_put_pixel(unsigned int x, unsigned int y, Pixel color)
 {
     if (x < 0 || y < 0 || x >= g_gfx.buffer.w || y >= g_gfx.buffer.h) {
-        fprintf(stderr, "Out of bounds pixel write. (%d, %d).\n", x, y);
+        // fprintf(stderr, "Out of bounds pixel write. (%d, %d).\n", x, y);
         return GFX_ERR;
     }
     int offset = (g_gfx.buffer.pitch * y) + (x * g_gfx.buffer.bpp);

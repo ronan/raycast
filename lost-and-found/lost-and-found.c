@@ -142,3 +142,61 @@ void ray_draw(int r, angle r_ang) {
   gfx_put_line(SCREEN_X + r, SCREEN_Y + line_top, SCREEN_X + r, SCREEN_Y + line_top + line_h, *color);
 }
 
+
+
+Point wall_local_hit_point_from_ray(Ray *r) {
+  Point local, out = (Point){0,0};
+  local.x = r->end.x - floor(r->end.x);
+  local.y = r->end.y - floor(r->end.y);
+
+  if (r->hit.wall == MAP_S || r->hit.wall == MAP_N) {
+    out.x = local.x;
+  }
+  if (r->hit.wall == MAP_E || r->hit.wall == MAP_W) {
+    out.x = local.y;
+  }
+
+  // if (r->hit.wall == MAP_S || r->hit.wall == MAP_W) {
+  //   out.x = 1.0 - out.x;
+  // }
+  return out;
+}
+
+
+
+void ray_wall_draw(Ray *r, int col) {
+  // Draw a vertical slice of the wall
+  int h = (WALL_H * SCREEN_H) / (r->dist);
+  int top = (SCREEN_H / 2) - (h / 2);
+  int bottom = (top + h);
+
+  float wall_local_h = 1;
+  float local_y_delta = 1.0 / h;
+
+  if (h > SCREEN_H) {
+    r->hit.local.y = ((float)-top / SCREEN_H);
+    wall_local_h = (float)SCREEN_H / h;
+    local_y_delta = wall_local_h / SCREEN_H;
+
+    top = 0;
+    bottom = SCREEN_H;
+  }
+
+  g_gfx.screen_draw.x = col;
+  g_gfx.object_draw.x = r->hit.local.x * 256;
+
+  for (int row = top; row < bottom; row++) {
+    g_gfx.screen_draw.y = row;
+    g_gfx.object_draw.y = r->hit.local.y * 256;
+
+    Pixel px = render_wall(*r, col, row);
+    gfx_put_pixel(col, row, (SDL_Color)px);
+    r->hit.local.y += local_y_delta;
+  }
+}
+
+
+
+
+
+

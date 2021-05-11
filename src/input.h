@@ -7,6 +7,8 @@ typedef struct InputState {
   int rotate_r;
   int move_f;
   int move_b;
+
+  int dither;
 } InputState;
 
 extern InputState g_input;

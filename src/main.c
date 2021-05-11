@@ -52,8 +52,8 @@ int main(int argc, char *argv[])
         float fps_time_frame = t - t_last_fps;
         if (fps_time_frame >= 5000.0){
             // printf and reset timer
-            float mspf = (fps_time_frame)/(float)fps_frames/1000;
-            printf("%f ms/frame (%f fps)\n", mspf, fps_time_frame/mspf);
+            float mspf = (fps_time_frame)/(float)fps_frames;
+            printf("%f ms/frame (%f fps)\n", mspf, 1000/mspf);
             fps_frames = 0;
             t_last_fps  = t;
         }

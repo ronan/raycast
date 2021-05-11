@@ -6,6 +6,7 @@
 #include "ray.h"
 #include "player.h"
 #include "scene.h"
+#include "bitmap.h"
 
 #include "viz.h"
 
@@ -27,7 +28,6 @@ gfx_err viz_update()
   SDL_RenderPresent(g_viz.renderer);
   return GFX_ERR_NONE;
 }
-
 
 gfx_err viz_put_line(int x1, int y1, int x2, int y2, SDL_Color color)
 {
@@ -123,3 +123,17 @@ void viz_map_ray_partial(Ray r) {
   viz_map_dot(r.end, 5, COLOR_RED);
 }
 
+void viz_bitmap(int bitmap_idx, int x, int y, int w, int h)
+{
+  SDL_Texture * texture = SDL_CreateTextureFromSurface(g_viz.renderer, g_bitmaps[bitmap_idx]);
+  
+  SDL_Rect r = (SDL_Rect){.x = x, .y = y, .w = w, .h = h};
+
+  SDL_RenderCopy(g_viz.renderer, texture, NULL, &r);
+}
+
+void viz_draw() {
+  viz_map();
+  // viz_bitmap(BITMAP_BLUENOISE, VIZ_BITMAP_X, VIZ_BITMAP_Y, 64, 64);
+  // viz_bitmap(BITMAP_BAYER, VIZ_BITMAP_X, VIZ_BITMAP_Y + 64, 64, 64);
+}
