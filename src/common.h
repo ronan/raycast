@@ -26,8 +26,8 @@ extern gfx_ctx g_gfx;
 // This number just looks right
 #define WALL_H 0.8 * SCREEN_W / SCREEN_H 
 
-#define MAP_TILES_Y 8
-#define MAP_TILES_X 8
+#define MAP_TILES_Y 9
+#define MAP_TILES_X 9
 #define MAP_TILES_S 1 //map cube size
 
 #define MINIMAP_SCALE 64

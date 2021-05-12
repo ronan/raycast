@@ -11,22 +11,13 @@
 
 
 Pixel render_light(Ray r, Pixel c) {
-  Point lights[4] = {
-    (Point) {2, 2},
-    (Point) {5, 2},
-    (Point) {2, 5},
-    (Point) {5, 5},
-  };
-
-  float flicker = .7;
-
-  float intensity = .3;
+  float intensity = .1;
 
   // Ambient
-  float brightness = .2;
+  float brightness = .1;
 
-  for (int i = 0; i < 4; i++) {
-    Point diff = point_sub(r.end, lights[i]);
+  for (int i = 0; i < 16; i++) {
+    Point diff = point_sub(r.end, g_lights[i]);
     float dist = diff.x * diff.x + diff.y * diff.y;
 
     brightness += (1.0/dist)*intensity;

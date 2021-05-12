@@ -10,6 +10,18 @@ void err(char const *fmt, ...)
   va_end(args);  char logmsg;
 }
 
+void fatal(char const *fmt, ...)
+{
+    char buffer[256];
+
+    va_list args;
+    va_start(args, fmt);
+    vsprintf(buffer, fmt, args);
+    fputs(buffer, stderr);
+    fputs("\n", stderr);
+    va_end(args);
+}
+
 void info(const char *fmt, ...) {
     char buffer[256];
 

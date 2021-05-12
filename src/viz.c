@@ -73,6 +73,7 @@ gfx_err viz_put_dot(Point center, float size, SDL_Color color)
   return GFX_ERR_NONE;
 }
 
+
 void viz_map() {
   int x, y, xo, yo;
   SDL_Color *color;
@@ -91,12 +92,15 @@ void viz_map() {
   }
 
   // Draw player
-  float line_l = VIZ_MAP_SCALE / 3;
+  float line_l = g_player.r * VIZ_MAP_SCALE;
   Point from = point_mult(g_player.pos, VIZ_MAP_SCALE);
   Point to = point_add(from, point_mult(g_player.dir, line_l));
-
   viz_put_line(from.x, from.y, to.x, to.y, COLOR_GREEN);
   viz_put_dot(from, 1, COLOR_RED);
+
+  for (int i = 0; i < 16; i++) {
+    viz_put_dot(point_mult(g_lights[i], VIZ_MAP_SCALE), 5, COLOR_YELLOW);
+  }
 }
 
 void viz_map_line(Point a, Point b, SDL_Color c) {
@@ -195,4 +199,6 @@ void viz_draw() {
   viz_bitmap(BITMAP_HATCH);
 
   viz_stats();
+
+  viz_update();
 }

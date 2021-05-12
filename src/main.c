@@ -9,6 +9,7 @@
 #include "scene.h"
 #include "input.h"
 #include "utils.h"
+#include "map.h"
 
 int main(int argc, char *argv[])
 {
@@ -48,6 +49,9 @@ int main(int argc, char *argv[])
                         case SDLK_r:
                             bitmap_unload_all();
                             bitmap_load_all();
+                        break;
+                        case SDLK_m:
+                            map_generate_maze();
                         break;
                     }
                     break;

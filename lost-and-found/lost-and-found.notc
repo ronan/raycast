@@ -200,3 +200,16 @@ void ray_wall_draw(Ray *r, int col) {
 
 
 
+
+
+  // g_player.dir.x * speed * t
+  // g_player.dir.y * speed * t;
+  player_set_pos(g_player.pos.x + delta_x, g_player.pos.y + delta_y);
+
+  MapTile tile = map_tile_at_point(g_player.pos);
+  if (map_tile_is_wall(tile) || map_tile_is_oob(tile))
+  {
+    g_player.pos -= sinf(fPlayerA) * fSpeed * fElapsedTime
+    fPlayerX -= sinf(fPlayerA) * fSpeed * fElapsedTime;;
+    fPlayerY -= cosf(fPlayerA) * fSpeed * fElapsedTime;;
+  }

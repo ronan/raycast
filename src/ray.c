@@ -151,7 +151,7 @@ Ray ray_wall_cast(int col) {
   viz_map_vector(v.start, g_player.camera_plane, COLOR_YELLOW);
   viz_map_vector(v.start, v.dir, COLOR_RED);
 
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < MAP_TILES_X; i++) {
     v = ray_cast_step_v(v);
     v.hit.tile = map_tile_at_point(v.end);
     if (map_tile_is_oob(v.hit.tile)) {
@@ -170,7 +170,7 @@ Ray ray_wall_cast(int col) {
     }
   }
 
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < MAP_TILES_Y; i++) {
     h = ray_wall_cast_step_h(h);
     h.hit.tile = map_tile_at_point(h.end);
     if (map_tile_is_oob(h.hit.tile)) {

@@ -2,14 +2,17 @@
 #define _PLYR_H_
 
 #include "geometry.h"
+#include "body.h"
 
 typedef struct Player
 {
+  Body body;
   angle ang;
   Point pos;
   Point dir;
   Point camera_plane;
   float speed;
+  float r;
 } Player;
 
 void player_init();

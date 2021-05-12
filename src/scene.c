@@ -29,5 +29,4 @@ void scn_draw()
   ray_scan_walls();
 
   gfx_update();
-  viz_update();
 }

@@ -45,6 +45,9 @@ gfx_err gfx_init()
     g_gfx.buffer.format = SDL_PIXELFORMAT_ARGB8888;
     g_gfx.buffer.bpp = SDL_BYTESPERPIXEL(g_gfx.buffer.format);
     g_gfx.buffer.pitch = SCREEN_W * g_gfx.buffer.bpp;
+    g_gfx.buffer.size = SCREEN_H * g_gfx.buffer.pitch;
+    g_gfx.buffer.data = malloc( g_gfx.buffer.size );
+
     g_gfx.texture = SDL_CreateTexture
         (
         g_gfx.renderer,
@@ -58,8 +61,6 @@ gfx_err gfx_init()
         return GFX_ERR;
     }
 
-    g_gfx.buffer.size = SCREEN_H * g_gfx.buffer.pitch;
-    g_gfx.buffer.data = malloc( g_gfx.buffer.size );
     return GFX_ERR_NONE;
 }
 
@@ -107,7 +108,7 @@ gfx_err gfx_update()
         g_gfx.buffer.data,
         g_gfx.buffer.pitch
     );
-    SDL_RenderCopy( g_gfx.renderer, g_gfx.texture, NULL, NULL );
+    SDL_RenderCopy( g_gfx.renderer, g_gfx.texture, NULL, NULL);
     SDL_RenderPresent(g_gfx.renderer);
     return GFX_ERR_NONE;
 }
