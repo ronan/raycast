@@ -12,6 +12,8 @@ void input_scan() {
     g_input.move_b = currentKeyStates[ SDL_SCANCODE_DOWN ];
     g_input.rotate_l = currentKeyStates[ SDL_SCANCODE_LEFT ];
     g_input.rotate_r = currentKeyStates[ SDL_SCANCODE_RIGHT ];
+    g_input.crawl = currentKeyStates[ SDL_SCANCODE_LSHIFT ];
 
-    g_input.dither = !currentKeyStates[ SDL_SCANCODE_E ];
+    g_input.dither = !currentKeyStates[ SDL_SCANCODE_1 ];
+    g_input.smooth_dither = !currentKeyStates[ SDL_SCANCODE_2 ];
 }

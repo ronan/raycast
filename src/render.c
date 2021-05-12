@@ -4,33 +4,61 @@
 #include "pixel.h"
 #include "scene.h"
 #include "map.h"
+#include "gfx.h"
 #include "ray.h"
 
 #include "render.h"
 
-Pixel render_floor(Ray r, int screen_x, int screen_y) {
+
+Pixel render_light(Ray r, Pixel c) {
+  Point lights[4] = {
+    (Point) {2, 2},
+    (Point) {5, 2},
+    (Point) {2, 5},
+    (Point) {5, 5},
+  };
+
+  float flicker = .7;
+
+  float intensity = .3;
+
+  // Ambient
+  float brightness = .2;
+
+  for (int i = 0; i < 4; i++) {
+    Point diff = point_sub(r.end, lights[i]);
+    float dist = diff.x * diff.x + diff.y * diff.y;
+
+    brightness += (1.0/dist)*intensity;
+  }
+
+  if (brightness > .999) {
+    return c;
+  }
+  return pixel_darken(c, 1.0 - brightness);
+}
+
+
+Pixel render_floor(Ray r) {
   // Get the fractional part of the position to determine the texture coordinates
   Pixel p = bitmap_sample(BITMAP_FLOOR, r.hit.local);
   
-  p = pixel_darken(p, 1.0 - 1.0/r.dist);
+  p = render_light(r, p);
   
   return p;
 }
 
-Pixel render_ceiling(Ray r, int screen_x, int screen_y) {
+Pixel render_ceiling(Ray r) {
   Pixel p = bitmap_sample(BITMAP_CEILING, r.hit.local);
-  
-  p = pixel_darken(p, 1.0 - 1.0/r.dist);
-  
+  p = render_light(r, p);
   return p;
 }
 
 // pos_local is the position in coordinates on the wall (x, z) or (y, z). Range 0.0-1.0
-Pixel render_wall(Ray r, int screen_x, int screen_y) {
+Pixel render_wall(Ray r) {
   Pixel p = bitmap_sample(BITMAP_WALL, r.hit.local);
-
-  // srand(screen_x * SCREEN_W + screen_y);
-  p = pixel_darken(p, 1.0 - 1.0/r.dist);
+  
+  p = render_light(r, p);
 
   return p;
 }

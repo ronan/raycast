@@ -57,10 +57,10 @@ void ray_floor_ceiling_scan() {
       r.hit.local = point_fractional(r.end);
       g_gfx.object_draw = point_mult(r.hit.local, 512);
 
-      px = render_floor(r, col, row);
+      px = render_floor(r);
       gfx_put_pixel(col, row, (SDL_Color)px);
 
-      px = render_ceiling(r, col, row);
+      px = render_ceiling(r);
       gfx_put_pixel(col, SCREEN_H - row, (SDL_Color)px);
 
       r.end = point_add(r.end, r.dir);
@@ -128,7 +128,8 @@ void ray_wall_draw(Ray *r, int col) {
   for (int row = SCREEN_Y + top; row <= SCREEN_Y + top + h; row++) {
     if (row > 0 && row < SCREEN_H) {
       g_gfx.screen_draw.y = row;
-      Pixel px = render_wall(*r, col, row);
+      g_gfx.object_draw = point_mult(r->hit.local, (WALL_H * SCREEN_H) / (r->dist));
+      Pixel px = render_wall(*r);
       gfx_put_pixel(col, row, (SDL_Color)px);
     }
     r->hit.local.y += uv_delta_y;

@@ -1,8 +1,10 @@
 #include "common.h"
-#include "gfx.h"
 #include "pixel.h"
 #include "bitmap.h"
 #include "player.h"
+#include "utils.h"
+
+#include "gfx.h"
 
 gfx_ctx g_gfx;
 
@@ -16,15 +18,13 @@ SDL_Color WALL_COLORS[4] = {
     (SDL_Color) { 90, 90, 90, 0 }
 };
 
-gfx_err gfx_init(unsigned int width, unsigned int height)
+gfx_err gfx_init()
 {
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
-        fprintf(stderr, "Unable to initialize SDL z");
+        err("Unable to initialize SDL");
         return GFX_ERR;
     }
-
-    bitmap_load_all();
 
     // Get the bounds of every available display
     g_num_displays = SDL_GetNumVideoDisplays();
@@ -34,32 +34,31 @@ gfx_err gfx_init(unsigned int width, unsigned int height)
         SDL_GetDisplayBounds( i, &g_display_bounds[i] );
     }
 
-    if (gfx_init_window(&g_gfx, width, height, 100, 100, "Game") != GFX_ERR_NONE)
+    if (gfx_init_window(&g_gfx, WINDOW_W, WINDOW_H, 100, 100, "Game") != GFX_ERR_NONE)
     {
-        fprintf(stderr, "Unable to create window");
+        err("Unable to create window");
         return GFX_ERR;
     }
 
-
-    g_gfx.buffer.w = width;
-    g_gfx.buffer.h = height;
+    g_gfx.buffer.w = SCREEN_W;
+    g_gfx.buffer.h = SCREEN_H;
     g_gfx.buffer.format = SDL_PIXELFORMAT_ARGB8888;
     g_gfx.buffer.bpp = SDL_BYTESPERPIXEL(g_gfx.buffer.format);
-    g_gfx.buffer.pitch = width * g_gfx.buffer.bpp;
+    g_gfx.buffer.pitch = SCREEN_W * g_gfx.buffer.bpp;
     g_gfx.texture = SDL_CreateTexture
         (
         g_gfx.renderer,
         g_gfx.buffer.format,
         SDL_TEXTUREACCESS_STREAMING,
-        width, height
+        SCREEN_W, SCREEN_H
         );
 
     if (!g_gfx.texture) {
-        fprintf(stderr, "Unable to create screen texture.");
+        err("Unable to create screen texture.");
         return GFX_ERR;
     }
 
-    g_gfx.buffer.size = height * g_gfx.buffer.pitch;
+    g_gfx.buffer.size = SCREEN_H * g_gfx.buffer.pitch;
     g_gfx.buffer.data = malloc( g_gfx.buffer.size );
     return GFX_ERR_NONE;
 }
@@ -79,7 +78,7 @@ gfx_err gfx_init_window(gfx_ctx *ctx, int width, int height, int x, int y, const
     }
   }
 
-  printf( "Could not create window or renderer. SDL Error: %s\n", SDL_GetError() );
+  err("Could not create window or renderer. SDL Error: %s\n", SDL_GetError());
   return GFX_ERR;
 }
 
@@ -124,7 +123,7 @@ gfx_err gfx_clear(SDL_Color color)
 gfx_err gfx_put_pixel(unsigned int x, unsigned int y, Pixel color)
 {
     if (x < 0 || y < 0 || x >= g_gfx.buffer.w || y >= g_gfx.buffer.h) {
-        // fprintf(stderr, "Out of bounds pixel write. (%d, %d).\n", x, y);
+        err("Out of bounds pixel write. (%d, %d).\n", x, y);
         return GFX_ERR;
     }
     int offset = (g_gfx.buffer.pitch * y) + (x * g_gfx.buffer.bpp);

@@ -29,6 +29,18 @@
     "render.h": "c",
     "atomic": "cpp",
     "cstdint": "cpp",
-    "pixel.h": "c"
+    "pixel.h": "c",
+    "stdarg.h": "c",
+    "stdio.h": "c",
+    "util.h": "c",
+    "complex": "c",
+    "utils.h": "c",
+    "time.h": "c",
+    "__functional_base": "c",
+    "array": "c",
+    "istream": "c",
+    "memory": "c",
+    "tuple": "c",
+    "utility": "c"
   }
 }

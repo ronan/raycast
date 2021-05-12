@@ -33,7 +33,7 @@ typedef enum gfx_err
     GFX_ERR
 } gfx_err;
 
-gfx_err gfx_init(unsigned int width, unsigned int height);
+gfx_err gfx_init();
 gfx_err gfx_init_window(gfx_ctx *ctx, int width, int height, int x, int y, const char *title);
 gfx_err gfx_clear(SDL_Color);
 gfx_err gfx_put_pixel(unsigned int, unsigned int, SDL_Color);
@@ -44,6 +44,8 @@ gfx_err gfx_update();
 gfx_err gfx_destroy();
 gfx_err gfx_draw_screen();
 
+#define COLOR_WHITE \
+    (SDL_Color) { 255, 255, 255, 0 }
 #define COLOR_BLACK \
     (SDL_Color) { 0, 0, 0, 0 }
 #define COLOR_RED \

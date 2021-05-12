@@ -7,6 +7,7 @@
 #include "pixel.h"
 #include "viz.h"
 #include "input.h"
+#include "player.h"
 
 #define COLOR_DARKEN (Pixel)(SDL_Color) { 0, 0, 0, 0 }
 
@@ -44,14 +45,10 @@ Pixel pixel_lerp_dither_bayer_4x4(Pixel a, Pixel b, float t) {
   return color_result;
 }
 
-Pixel pixel_lerp_dither_bitmap(Pixel a, Pixel b, float t) {
-  Point dither_pt = g_gfx.screen_draw;
-  int dx = (int)(dither_pt.x) % 16;
-  int dy = (int)(dither_pt.y) % 16;
-
-  // float threshold = .5;
+Pixel pixel_lerp_dither_bitmap(int bitmap_idx, Pixel a, Pixel b, float t) {
+  // Point dither_pt = g_gfx.screen_draw;
   
-  Pixel dither_value = bitmap_sample_index(BITMAP_BAYER, dx, dy);
+  Pixel dither_value = bitmap_sample_index(bitmap_idx, dither_sample.x, dither_sample.y, 1);
   float threshold = dither_value.r / 255.0;
 
   if (t > threshold) {
@@ -114,16 +111,28 @@ Pixel pixel_lerp_dither_pallete_sim(Pixel a, Pixel b, float t) {
   return pixel_lerp_dither_rand(a1, b1, t1);
 }
 
+// Smooth dithering by moving the endpoints closer to the target
+void pixel_lerp_smooth(Pixel *a, Pixel *b, float *t, float factor) {
+  Pixel a1 = pixel_lerp_linear(*a, *b, *t * factor);
+  Pixel b1 = pixel_lerp_linear(*b, *a, (1.0 - *t) * factor);
+
+  *a = a1;
+  *b = b1;
+}
 
 Pixel pixel_lerp(Pixel a, Pixel b, float t) {
   if (t >= .999) return b;
   if (t <= 0.001) return a;
 
-
+  // dither_sample = point_mult(g_gfx.screen_draw, 1/16);
   dither_sample = g_gfx.screen_draw;
 
+  if (g_input.smooth_dither) {
+    pixel_lerp_smooth(&a, &b, &t, 0.95);
+  }
+
   if (g_input.dither) {
-    return pixel_lerp_dither_bitmap(a, b, t);
+    return pixel_lerp_dither_bitmap(BITMAP_DITHER, a, b, t);
   }
   return pixel_lerp_linear(a, b, t);
 }

@@ -2,27 +2,27 @@
 #include "common.h"
 #include "viz.h"
 #include "gfx.h"
+#include "bitmap.h"
 #include "player.h"
 #include "input.h"
 #include "map.h"
 #include "scene.h"
 #include "input.h"
+#include "utils.h"
 
 int main(int argc, char *argv[])
 {
-    fprintf(stderr, "Loading everything... \n");
-    if (gfx_init(WINDOW_W, WINDOW_H))
+    info("Loading everything... \n");
+    if (gfx_init())
     {
-        fprintf(stderr, "SDL failed to initialize: \n%s\n", SDL_GetError());
+        err("SDL failed to initialize: \n%s\n", SDL_GetError());
         return -1;
     }
     viz_init(VIZ_WINDOW_W, VIZ_WINDOW_H);
-
+    bitmap_load_all();
     map_init();
     player_init();
-    fprintf(stderr, "Finished loading\n");
-
-    scn_draw();
+    info("Finished loading\n");
 
     bool done;
     SDL_Event event;
@@ -41,22 +41,23 @@ int main(int argc, char *argv[])
                     done = true;
                     break;
 
+                case SDL_KEYDOWN:
+                    //Select surfaces based on key press
+                    switch( event.key.keysym.sym )
+                    {
+                        case SDLK_r:
+                            bitmap_unload_all();
+                            bitmap_load_all();
+                        break;
+                    }
+                    break;
+
                 default:
                     break;
             }
         }
         t = SDL_GetTicks();
         float t_delta = (t - t_last);
-
-        fps_frames++;
-        float fps_time_frame = t - t_last_fps;
-        if (fps_time_frame >= 5000.0){
-            // printf and reset timer
-            float mspf = (fps_time_frame)/(float)fps_frames;
-            printf("%f ms/frame (%f fps)\n", mspf, 1000/mspf);
-            fps_frames = 0;
-            t_last_fps  = t;
-        }
 
         input_scan();
         player_tick(t_delta / 33.33); // 30FPS as a standard for animation

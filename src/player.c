@@ -6,23 +6,25 @@ Player g_player;
 
 void player_init()
 {
-  player_set_pos(6.5, 1.5);
-  player_set_angle(-M_PI_2);
+  player_set_pos(5.5, 4);
+  player_set_angle((M_PI_2));
   player_set_speed(PLAYER_SPEED);
 }
 
 void player_tick(float t) {
+  float ang = g_input.crawl ? PLAYER_TURN_ANG / 5 : PLAYER_TURN_ANG;
+  float speed = g_input.crawl? PLAYER_SPEED / 5 : PLAYER_SPEED;
   if (g_input.rotate_l) {
-    player_modify_angle(-PLAYER_TURN_ANG * t);
+    player_modify_angle(-ang * t);
   }
   if (g_input.rotate_r) {
-    player_modify_angle(PLAYER_TURN_ANG * t);
+    player_modify_angle(ang * t);
   }
   if (g_input.move_f) {
-    player_mv(g_player.dir.x * PLAYER_SPEED * t, g_player.dir.y * PLAYER_SPEED * t);
+    player_mv(g_player.dir.x * speed * t, g_player.dir.y * speed * t);
   }
   if (g_input.move_b) {
-    player_mv(g_player.dir.x * -PLAYER_SPEED * t, g_player.dir.y * -PLAYER_SPEED * t);
+    player_mv(g_player.dir.x * -speed * t, g_player.dir.y * -speed * t);
   }
 }
 

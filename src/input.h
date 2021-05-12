@@ -7,8 +7,10 @@ typedef struct InputState {
   int rotate_r;
   int move_f;
   int move_b;
+  int crawl;
 
   int dither;
+  int smooth_dither;
 } InputState;
 
 extern InputState g_input;
