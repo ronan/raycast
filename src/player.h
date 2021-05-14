@@ -7,11 +7,11 @@
 typedef struct Player
 {
   Body body;
-  angle ang;
-  Point pos;
-  Point dir;
+  // angle ang;
+  // Point pos;
+  // Point dir;
+ // float speed;
   Point camera_plane;
-  float speed;
   float r;
 } Player;
 

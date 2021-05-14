@@ -20,9 +20,9 @@ Ray ray_invert(Ray r) {
 
 Ray create_ray() {
   return (Ray) {
-    .start = g_player.pos,
-    .end = g_player.pos,
-    .dir = g_player.dir,
+    .start = g_player.body.pos,
+    .end = g_player.body.pos,
+    .dir = g_player.body.dir,
     .dist = DAMN_NEAR_INFINITY,
     .hit = RAY_HIT_OOB
   };
@@ -33,18 +33,20 @@ Ray create_ray() {
 void ray_floor_ceiling_scan() {
   Ray r = create_ray();
 
+  // Define the start and end ray vectors
+  Point player_dir = point_mult(g_player.body.dir, FOCAL_LENGTH);
+  Point camera_plane = point_mult(g_player.camera_plane, FOCAL_LENGTH);
+  Point ray_dir_from = point_sub(player_dir, camera_plane);
+  Point ray_dir_to = point_add(player_dir, camera_plane);
+
   // Start at 1 below the horizon
   for(int row = SCREEN_HORIZON + 1; row < SCREEN_H; row++)
   {
-    // Define the start and end ray vectors
-    Point ray_dir_from = point_sub(g_player.dir, g_player.camera_plane);
-    Point ray_dir_to = point_add(g_player.dir, g_player.camera_plane);
-
     // Distance from the camera to the floor for the current row.
-    r.dist = (float)SCREEN_HORIZON / (row - SCREEN_HORIZON);
+    r.dist = CAMERA_HEIGHT / (row - SCREEN_HORIZON);
  
     // The sample location of the leftmost column.
-    r.end = point_add(g_player.pos, point_mult(ray_dir_from, r.dist));
+    r.end = point_add(g_player.body.pos, point_mult(ray_dir_from, r.dist));
 
     // The step between the sample location for each column of the screen.
     r.dir = point_mult(point_sub(ray_dir_to, ray_dir_from), r.dist/SCREEN_W);
@@ -57,13 +59,17 @@ void ray_floor_ceiling_scan() {
       r.hit.local = point_fractional(r.end);
       g_gfx.object_draw = point_mult(r.hit.local, 512);
 
+      px = render_ceiling(r);
+      gfx_put_pixel(col, SCREEN_H - row, (SDL_Color)px);
       px = render_floor(r);
       gfx_put_pixel(col, row, (SDL_Color)px);
 
-      px = render_ceiling(r);
-      gfx_put_pixel(col, SCREEN_H - row, (SDL_Color)px);
+      // viz_map_dot(r.end, 1, (SDL_Color)px);
+      // viz_map_floor_ray(r, px);
 
       r.end = point_add(r.end, r.dir);
+      // viz_map_ray(r);
+
     }
   }
 }
@@ -144,11 +150,14 @@ Ray ray_wall_cast(int col) {
   Ray h, v;
   v = h = create_ray();
 
+  Point player_dir = point_mult(g_player.body.dir, g_player.r);
+  Point camera_plane = point_mult(g_player.camera_plane, 1  );
+
   // Set the direction of the ray based on the camera properties and current column
   float camera_x = (2.0 * ((float)col / SCREEN_W)) - 1.0;
-  v.dir = h.dir = point_add(v.dir, point_mult(g_player.camera_plane, camera_x));
+  v.dir = h.dir = point_add(v.dir, point_mult(camera_plane, camera_x));
 
-  viz_map_vector(v.start, g_player.camera_plane, COLOR_YELLOW);
+  viz_map_vector(v.start, camera_plane, COLOR_YELLOW);
   viz_map_vector(v.start, v.dir, COLOR_RED);
 
   for (int i = 0; i < MAP_TILES_X; i++) {
@@ -202,7 +211,7 @@ void ray_scan_walls()
 {
   // Draw only 3 rays. For debugging
   // ray_cast(SCREEN_W/2); return;
-  // ray_cast(1); ray_cast(SCREEN_W/2); ray_cast(SCREEN_W); return;
+  // ray_wall_cast(1); ray_wall_cast(SCREEN_W/2); ray_wall_cast(SCREEN_W); return;
 
   for (int col = 0; col < SCREEN_W; col += 1)
   {

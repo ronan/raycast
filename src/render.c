@@ -29,13 +29,10 @@ Pixel render_light(Ray r, Pixel c) {
   return pixel_darken(c, 1.0 - brightness);
 }
 
-
 Pixel render_floor(Ray r) {
   // Get the fractional part of the position to determine the texture coordinates
   Pixel p = bitmap_sample(BITMAP_FLOOR, r.hit.local);
-  
   p = render_light(r, p);
-  
   return p;
 }
 

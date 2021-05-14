@@ -19,7 +19,7 @@ void scn_draw_ceiling_and_floor()
 
 void scn_draw()
 {
-  // srand(g_player.pos.x*g_player.ang*1000 );
+  // srand(g_player.body.pos.x*g_player.body.ang*1000 );
   // srand(1);
   scn_draw_bg();
 
@@ -29,4 +29,6 @@ void scn_draw()
   ray_scan_walls();
 
   gfx_update();
+  viz_update();
+
 }

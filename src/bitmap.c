@@ -45,7 +45,8 @@ Pixel bitmap_sample(int bitmap_idx, Point p) {
   }
   else {
     SDL_LockSurface(surface);
-    Uint8 pixel_idx = py * surface->pitch + px * surface->format->BytesPerPixel;
+    // Uint16 allows for a max of 256x256 bitmap
+    Uint16 pixel_idx = (py * surface->pitch) + (px * surface->format->BytesPerPixel);
     Uint8 *pallet_idx = (Uint8 *)(surface->pixels + pixel_idx);
     SDL_Color *color = (Pixel *)&fmt->palette->colors[*pallet_idx];
     SDL_UnlockSurface(surface);

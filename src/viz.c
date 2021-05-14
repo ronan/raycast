@@ -93,10 +93,19 @@ void viz_map() {
 
   // Draw player
   float line_l = g_player.r * VIZ_MAP_SCALE;
-  Point from = point_mult(g_player.pos, VIZ_MAP_SCALE);
-  Point to = point_add(from, point_mult(g_player.dir, line_l));
+  Point from = point_mult(g_player.body.pos, VIZ_MAP_SCALE);
+  Point to = point_add(from, point_mult(g_player.body.dir, line_l));
   viz_put_line(from.x, from.y, to.x, to.y, COLOR_GREEN);
+  to = point_add(from, point_mult(g_player.camera_plane, line_l));
+  viz_put_line(from.x, from.y, to.x, to.y, COLOR_YELLOW);
   viz_put_dot(from, 1, COLOR_RED);
+
+  // Draw the start/end rays for the floor scan sweep
+  Point ray_dir_from = point_sub(g_player.body.dir, g_player.camera_plane);
+  Point ray_dir_to = point_add(g_player.body.dir, g_player.camera_plane);
+  viz_map_line(g_player.body.pos, point_add(g_player.body.pos, ray_dir_from), COLOR_YELLOW);
+  viz_map_line(g_player.body.pos, point_add(g_player.body.pos, ray_dir_to), COLOR_YELLOW);
+
 
   for (int i = 0; i < 16; i++) {
     viz_put_dot(point_mult(g_lights[i], VIZ_MAP_SCALE), 5, COLOR_YELLOW);
@@ -104,13 +113,14 @@ void viz_map() {
 }
 
 void viz_map_line(Point a, Point b, SDL_Color c) {
+  return;
   a = point_mult(a, VIZ_MAP_SCALE);
   b = point_mult(b, VIZ_MAP_SCALE);
 
   // Don't draw off the map
-  if (b.x < VIZ_MAP_W) {
+  // if (b.x < VIZ_MAP_W) {
     viz_put_line(a.x, a.y, b.x, b.y, c);
-  }
+  // }
 }
 
 void viz_map_vector(Point a, Point b, SDL_Color c) {
@@ -124,6 +134,12 @@ void viz_map_dot(Point a, float size, SDL_Color c) {
   a = point_mult(a, VIZ_MAP_SCALE);
   viz_put_dot(a, size, c);
 }
+
+void viz_map_floor_ray(Ray r, SDL_Color c) {
+  return;
+  viz_map_dot(r.end, 1, c);
+}
+
 
 void viz_map_ray(Ray r) {
   return;
@@ -200,5 +216,5 @@ void viz_draw() {
 
   viz_stats();
 
-  viz_update();
+  // viz_update();
 }

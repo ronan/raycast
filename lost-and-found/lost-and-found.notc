@@ -103,11 +103,11 @@ void ray_draw(int r, angle r_ang) {
   float distance, dis_v = DAMN_NEAR_INFINITY, dis_h = DAMN_NEAR_INFINITY;
   Point intersection, int_v, int_h;
 
-  int_v = ray_wall_intersection_v(g_player.pos, r_ang);
-  int_h = ray_wall_intersection_h(g_player.pos, r_ang);
+  int_v = ray_wall_intersection_v(g_player.body.pos, r_ang);
+  int_h = ray_wall_intersection_h(g_player.body.pos, r_ang);
 
-  dis_v = cos(r_ang) * (int_v.x - g_player.pos.x) - sin(r_ang) * (int_v.y - g_player.pos.y);
-  dis_h = cos(r_ang) * (int_h.x - g_player.pos.x) - sin(r_ang) * (int_h.y - g_player.pos.y);
+  dis_v = cos(r_ang) * (int_v.x - g_player.body.pos.x) - sin(r_ang) * (int_v.y - g_player.body.pos.y);
+  dis_h = cos(r_ang) * (int_h.x - g_player.body.pos.x) - sin(r_ang) * (int_h.y - g_player.body.pos.y);
 
   if (dis_v < dis_h) {
     color = &COLOR_WALL;
@@ -121,15 +121,15 @@ void ray_draw(int r, angle r_ang) {
   }
 
   // Fix fisheye
-  float ca = ang_add(g_player.ang, -r_ang);
+  float ca = ang_add(g_player.body.ang, -r_ang);
   distance = distance * cos(ca);
 
   // Draw 2D ray DEBUG
-  // gfx_put_line(g_player.pos.x, g_player.pos.y, intersection.x, intersection.y, *color);
-  gfx_put_line(g_player.pos.x, g_player.pos.y, intersection.x, intersection.y, *color);
+  // gfx_put_line(g_player.body.pos.x, g_player.body.pos.y, intersection.x, intersection.y, *color);
+  gfx_put_line(g_player.body.pos.x, g_player.body.pos.y, intersection.x, intersection.y, *color);
  
   Point v = ang_vector(r_ang, distance);
-  gfx_put_line(g_player.pos.x, g_player.pos.y, g_player.pos.x + v.x, g_player.pos.y + v.y, COLOR_RED);
+  gfx_put_line(g_player.body.pos.x, g_player.body.pos.y, g_player.body.pos.x + v.x, g_player.body.pos.y + v.y, COLOR_RED);
 
   // Draw intersection points DEBUG
   // gfx_put_square_centered(int_v, 10, COLOR_BLUE);
@@ -202,14 +202,14 @@ void ray_wall_draw(Ray *r, int col) {
 
 
 
-  // g_player.dir.x * speed * t
-  // g_player.dir.y * speed * t;
-  player_set_pos(g_player.pos.x + delta_x, g_player.pos.y + delta_y);
+  // g_player.body.dir.x * speed * t
+  // g_player.body.dir.y * speed * t;
+  player_set_pos(g_player.body.pos.x + delta_x, g_player.body.pos.y + delta_y);
 
-  MapTile tile = map_tile_at_point(g_player.pos);
+  MapTile tile = map_tile_at_point(g_player.body.pos);
   if (map_tile_is_wall(tile) || map_tile_is_oob(tile))
   {
-    g_player.pos -= sinf(fPlayerA) * fSpeed * fElapsedTime
+    g_player.body.pos -= sinf(fPlayerA) * fSpeed * fElapsedTime
     fPlayerX -= sinf(fPlayerA) * fSpeed * fElapsedTime;;
     fPlayerY -= cosf(fPlayerA) * fSpeed * fElapsedTime;;
   }

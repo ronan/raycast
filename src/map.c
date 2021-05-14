@@ -120,7 +120,7 @@ void map_generate_maze() {
   int num_cells = ((MAP_TILES_X / cell_size) * (MAP_TILES_Y / cell_size));
 
   while (visited < num_cells) {
-    viz_draw();
+    // viz_draw();
 
     // Make a list of visited neighbors
     neighbors_idx = -1;
