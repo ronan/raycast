@@ -9,6 +9,7 @@
 #include "player.h"
 #include "scene.h"
 #include "bitmap.h"
+#include "critter.h"
 #include "utils.h"
 
 #include "viz.h"
@@ -92,7 +93,7 @@ void viz_map() {
   }
 
   // Draw player
-  float line_l = g_player.r * VIZ_MAP_SCALE;
+  float line_l = g_player.body.radius * VIZ_MAP_SCALE;
   Point from = point_mult(g_player.body.pos, VIZ_MAP_SCALE);
   Point to = point_add(from, point_mult(g_player.body.dir, line_l));
   viz_put_line(from.x, from.y, to.x, to.y, COLOR_GREEN);
@@ -110,10 +111,18 @@ void viz_map() {
   for (int i = 0; i < 16; i++) {
     viz_put_dot(point_mult(g_lights[i], VIZ_MAP_SCALE), 5, COLOR_YELLOW);
   }
+
+  for (int i = 0; i < MAX_CRITTERS; i++) {
+    viz_put_dot(
+      point_mult(g_critters[i].body.pos, VIZ_MAP_SCALE), 
+      g_critters[i].body.radius * VIZ_MAP_SCALE,
+      COLOR_CYAN
+    );
+  }
+
 }
 
 void viz_map_line(Point a, Point b, SDL_Color c) {
-  return;
   a = point_mult(a, VIZ_MAP_SCALE);
   b = point_mult(b, VIZ_MAP_SCALE);
 
@@ -140,11 +149,21 @@ void viz_map_floor_ray(Ray r, SDL_Color c) {
   viz_map_dot(r.end, 1, c);
 }
 
+void viz_map_ray_critter(Ray r) {
+  viz_map_line(r.start, r.end, COLOR_YELLOW);
+  viz_map_dot(r.end, 3, COLOR_RED);
+}
+
+void viz_map_ray_critter_hit(Ray r) {
+  viz_map_line(r.start, r.end, COLOR_YELLOW);
+  viz_map_dot(r.end, 3, COLOR_CYAN);
+}
+
 
 void viz_map_ray(Ray r) {
   return;
   viz_map_line(r.start, r.end, COLOR_YELLOW);
-  viz_map_dot(r.end, 5, COLOR_GREEN);
+  viz_map_dot(r.end, 5, COLOR_CYAN);
 }
 
 void viz_map_ray_partial(Ray r) {
@@ -201,8 +220,6 @@ void viz_stats() {
     vis_stats_frames = 0;
     vis_stats_last_t  = vis_stats_t;
   }
-
-
 }
 
 void viz_draw() {

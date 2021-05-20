@@ -5,14 +5,19 @@
 
 void body_init(Body *b, Point pos, float ang)
 {
+  b->bouncy = 0;
+  b->speed = 0;
+  b->ang_velocity = 0;
   body_set_pos(b, pos);
   body_set_angle(b, ang);
 }
 
-
 void body_tick(Body *b, float t) {
   if (b->speed) {
     body_mv(b, point_mult(b->dir, b->speed * t));
+  }
+  if (b->ang_velocity) {
+    body_modify_angle(b, b->ang_velocity * t);
   }
 }
 
@@ -27,6 +32,13 @@ void body_set_angle(Body *b, angle a)
   b->dir = point_rotate((Point){1, 0}, a);
 }
 
+void body_set_dir(Body *b, Point dir)
+{
+  b->dir = dir;
+  b->ang = atan2(dir.y, dir.x);
+
+}
+
 void body_set_speed(Body *b, float speed)
 {
   b->speed = speed;
@@ -37,17 +49,44 @@ void body_modify_angle(Body *b, angle a)
   body_set_angle(b, ang_add(b->ang, a));
 }
 
+void body_bounce_x(Body *b, int dir) {
+  if (b->bouncy) {
+    body_set_dir(b, (Point){-b->dir.x, b->dir.y});
+  }
+}
+
+void body_bounce_y(Body *b, int dir) {
+  if (b->bouncy) {
+    body_set_dir(b, (Point){b->dir.x, -b->dir.y});
+  }
+}
+
 void body_mv(Body *b, Point delta)
 {
-  Point body_pos = point_add(b->pos, delta);
-  Point body_int = point_add(body_pos, point_mult(b->dir, b->r));
+  MapTile tile;
+  Point body_pos, body_int, local_int, body_tile, diff;
 
-  MapTile tile = map_tile_at_point(body_int);
-  if (!map_tile_is_oob(tile) && !map_tile_is_wall(tile))
-    {
-      body_set_pos(b, body_pos);
-    }
-    else {
-      // Todo. Resolve colision so that the player slides along the wall
-    }
+  body_pos = point_add(b->pos, delta);
+
+  if (!map_tile_is_empty(map_tile_at_point((Point){body_pos.x + b->radius, body_pos.y}))) {
+    body_pos.x = ceil(body_pos.x) - b->radius; 
+    body_bounce_x(b, 1);
+  }
+  tile = map_tile_at_point((Point){body_pos.x - b->radius, body_pos.y});
+  if (!map_tile_is_empty(map_tile_at_point((Point){body_pos.x - b->radius, body_pos.y}))) {
+    body_pos.x = floor(body_pos.x) + b->radius;
+    body_bounce_x(b, -1);
+  }
+
+  if (!map_tile_is_empty(map_tile_at_point((Point){body_pos.x, body_pos.y + b->radius}))) {
+    body_pos.y = ceil(body_pos.y) - b->radius; 
+    body_bounce_y(b, -1);
+  }
+  if (!map_tile_is_empty(map_tile_at_point((Point){body_pos.x, body_pos.y - b->radius}))) {
+    body_pos.y = floor(body_pos.y) + b->radius; 
+    body_bounce_y(b, 1);
+  }
+
+  body_set_pos(b, body_pos);
 }
+

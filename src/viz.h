@@ -28,6 +28,8 @@ void viz_map_ray(Ray r);
 void viz_map_ray_partial(Ray r);
 void viz_map_floor_ray(Ray r, SDL_Color c);
 void viz_bitmap(int bitmap_idx);
+void viz_map_ray_critter(Ray r);
+void viz_map_ray_critter_hit(Ray r);
 
 void viz_draw();
 

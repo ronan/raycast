@@ -5,11 +5,18 @@
 
 typedef struct body
 {
-  angle ang;
   Point pos;
   Point dir;
+
+  angle ang;
+  angle ang_velocity;
+
+  int bouncy;
+
   float speed;
-  float r;
+
+  float radius;
+  float height;
 } Body;
 
 void body_init(Body *b, Point pos, float ang);

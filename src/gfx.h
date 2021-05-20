@@ -57,9 +57,9 @@ gfx_err gfx_draw_screen();
 #define COLOR_YELLOW \
     (SDL_Color) { 255, 255, 0, 0 }
 #define COLOR_CYAN \
-    (SDL_Color) { 255, 255, 0, 0 }
+    (SDL_Color) { 0, 255, 255, 0 }
 #define COLOR_MAGENTA \
-    (SDL_Color) { 255, 255, 0, 0 }
+    (SDL_Color) { 255, 0, 255, 0 }
 #define COLOR_CLEAR \
     (SDL_Color) { 0, 0, 0, 255 }
 

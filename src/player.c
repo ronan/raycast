@@ -8,17 +8,19 @@ Player g_player;
 
 void player_init()
 {
-  body_init(&g_player.body, (Point){1.5, 1.5}, 0);
-  g_player.r = .2;
+  body_init(&g_player.body, (Point){7.5, 5.5}, M_PI_2);
+  g_player.body.radius = .2;
+  g_player.body.bouncy = 0;
 }
 
 void player_tick(float t) {
   float ang = g_input.crawl ? PLAYER_TURN_ANG / 5 : PLAYER_TURN_ANG;
+  g_player.body.ang_velocity = 0;
   if (g_input.rotate_l) {
-    body_modify_angle(&g_player.body, -ang * t);
+    g_player.body.ang_velocity = -ang;
   }
   if (g_input.rotate_r) {
-    body_modify_angle(&g_player.body, ang * t);
+    g_player.body.ang_velocity = ang;
   }
   
   g_player.body.speed = 0;

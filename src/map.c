@@ -67,6 +67,10 @@ int map_tile_is_wall(MapTile t) {
   return t == MAP_TILE_WALL;
 }
 
+int map_tile_is_empty(MapTile t) {
+  return t == MAP_TILE_EMPTY;
+}
+
 // Round a position (x or y) down to the nearest tile boundary
 float map_align_to_tile(float d) {
   return ((int)(d) / MAP_TILES_S) * MAP_TILES_S;

@@ -5,13 +5,15 @@
 
 extern gfx_ctx g_gfx;
 
+extern int g_paused;
+
 #define PLAYER_TURN_ANG 5 * M_PI / 180.0
 #define PLAYER_SPEED .1
 
-#define SCREEN_W 128
-#define SCREEN_H 128
+#define SCREEN_W 64
+#define SCREEN_H 64
 
-#define SCREEN_SCALE 4
+#define SCREEN_SCALE 8
 
 #define WINDOW_W SCREEN_W * SCREEN_SCALE
 #define WINDOW_H SCREEN_H * SCREEN_SCALE
@@ -26,12 +28,19 @@ extern gfx_ctx g_gfx;
 
 #define WALL_H FOCAL_LENGTH * SCREEN_W / SCREEN_H 
 
-#define MAP_TILES_Y 9
-#define MAP_TILES_X 9
+#define MAP_CELLS_X 4
+#define MAP_CELLS_Y 4
+#define MAP_TILES_Y (MAP_CELLS_Y * 2 + 1)
+#define MAP_TILES_X (MAP_CELLS_Y * 2 + 1)
 #define MAP_TILES_S 1 //map cube size
 
 #define MINIMAP_SCALE 64
 
+#define MAX_CRITTERS 8
+#define CRITTER_MAX_TURN 0.5
+// #define CRITTER_MAX_SPEED 0
+#define CRITTER_MAX_SPEED 0.05
+#define CRITTER_RADIUS 0.05
 
 
 #endif

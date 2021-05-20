@@ -11,7 +11,7 @@ Pixel g_pixel_none = COLOR_CLEAR;
 void bitmap_load_all() {
   info("Loading bitmaps.", NULL);
   g_bitmaps[BITMAP_TEST] = SDL_LoadBMP("assets/test.bmp");
-  g_bitmaps[BITMAP_WALL] = SDL_LoadBMP("assets/wall.bmp");
+  g_bitmaps[BITMAP_WALL] = SDL_LoadBMP("assets/wall2.bmp");
   g_bitmaps[BITMAP_FLOOR] = SDL_LoadBMP("assets/floor.bmp");
   g_bitmaps[BITMAP_CEILING] = SDL_LoadBMP("assets/ceiling.bmp");
   g_bitmaps[BITMAP_BLUENOISE] = SDL_LoadBMP("assets/dither/bluenoise.bmp");

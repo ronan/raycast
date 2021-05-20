@@ -28,6 +28,7 @@ float map_align_to_tile(float d);
 float map_align_point_to_tile(Point p);
 int map_tile_is_oob(MapTile t);
 int map_tile_is_wall(MapTile t);
+int map_tile_is_empty(MapTile t);
 void map_generate_maze();
 
 #endif

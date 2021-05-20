@@ -80,3 +80,4 @@ Point point_integral(Point a)
 {
   return (Point) {.x = floor(a.x), .y = floor(a.y)};
 }
+

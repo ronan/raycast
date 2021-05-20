@@ -42,6 +42,7 @@
     "memory": "c",
     "tuple": "c",
     "utility": "c",
-    "body.h": "c"
+    "body.h": "c",
+    "critter.h": "c"
   }
 }

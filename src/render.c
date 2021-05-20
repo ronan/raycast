@@ -5,12 +5,34 @@
 #include "scene.h"
 #include "map.h"
 #include "gfx.h"
+#include "critter.h"
+#include "viz.h"
 #include "ray.h"
 
 #include "render.h"
 
 
-Pixel render_light(Ray r, Pixel c) {
+Pixel render_critters(Ray *r, Pixel c) {
+  for (int i = 0; i < MAX_CRITTERS; i++) {
+    Point p = ray_circle_intersection(r, g_critters[i].body.pos, g_critters[i].body.radius);
+    if (p.x >= 0) {
+      float d = point_dist(r->start, p);
+      if (d < r->dist) {
+        r->end = p;
+        r->dist = d;
+      }
+      viz_map_ray_critter_hit(*r);
+      c = COLOR_GREEN;
+    }
+    else
+    {
+      viz_map_ray_critter(*r);
+    }
+  }
+  return c;
+}
+
+Pixel render_lights(Ray r, Pixel c) {
   float intensity = .1;
 
   // Ambient
@@ -32,21 +54,22 @@ Pixel render_light(Ray r, Pixel c) {
 Pixel render_floor(Ray r) {
   // Get the fractional part of the position to determine the texture coordinates
   Pixel p = bitmap_sample(BITMAP_FLOOR, r.hit.local);
-  p = render_light(r, p);
+  p = render_critters(&r, p);
+  p = render_lights(r, p);
   return p;
 }
 
 Pixel render_ceiling(Ray r) {
   Pixel p = bitmap_sample(BITMAP_CEILING, r.hit.local);
-  p = render_light(r, p);
+  p = render_critters(&r, p);
+  p = render_lights(r, p);
   return p;
 }
 
 // pos_local is the position in coordinates on the wall (x, z) or (y, z). Range 0.0-1.0
 Pixel render_wall(Ray r) {
   Pixel p = bitmap_sample(BITMAP_WALL, r.hit.local);
-  
-  p = render_light(r, p);
-
+  p = render_critters(&r, p);
+  p = render_lights(r, p);
   return p;
 }
