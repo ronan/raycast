@@ -38,5 +38,6 @@ Point point_integral(Point a);
 
 float point_dist_squared(Point from, Point to);
 float point_dist(Point from, Point to);
+float point_vector_length(Point to);
 
 #endif

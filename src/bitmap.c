@@ -14,6 +14,9 @@ void bitmap_load_all() {
   g_bitmaps[BITMAP_WALL] = SDL_LoadBMP("assets/wall2.bmp");
   g_bitmaps[BITMAP_FLOOR] = SDL_LoadBMP("assets/floor.bmp");
   g_bitmaps[BITMAP_CEILING] = SDL_LoadBMP("assets/ceiling.bmp");
+  g_bitmaps[BITMAP_CRITTER] = SDL_LoadBMP("assets/critter.bmp");
+
+
   g_bitmaps[BITMAP_BLUENOISE] = SDL_LoadBMP("assets/dither/bluenoise.bmp");
   g_bitmaps[BITMAP_BAYER] = SDL_LoadBMP("assets/dither/bayer.bmp");
   g_bitmaps[BITMAP_HATCH] = SDL_LoadBMP("assets/dither/hatch.bmp");

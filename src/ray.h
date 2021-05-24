@@ -17,12 +17,13 @@ typedef struct Ray {
   Point start;
   Point end;
   Point dir;
+  Point pixel;
   angle ang;
   float dist;
   RayHit hit;
 } Ray;
 
-Point ray_circle_intersection(Ray *r, Point c, float radius);
+int ray_circle_intersection(Ray *r, Point c, float radius);
 void ray_floor_ceiling_scan();
 void ray_scan_walls();
 

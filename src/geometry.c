@@ -34,7 +34,7 @@ Point ang_vector(angle a, float scale)
   return (Point) {.x = cos(a) * scale, .y = sin(a) * -scale};
 }
 
-float point_dist_squared(Point from, Point to) 
+float point_dist_squared(Point from, Point to)
 {
   float x = to.x - from.x;
   float y = to.y - from.y;
@@ -44,6 +44,11 @@ float point_dist_squared(Point from, Point to)
 float point_dist(Point from, Point to)
 {
   return sqrt(point_dist_squared(from, to));
+}
+
+float point_vector_length(Point to)
+{
+  return point_dist((Point){0,0}, to);
 }
 
 Point point_rotate(Point a, angle b) {

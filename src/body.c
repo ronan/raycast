@@ -67,23 +67,20 @@ void body_mv(Body *b, Point delta)
   Point body_pos, body_int, local_int, body_tile, diff;
 
   body_pos = point_add(b->pos, delta);
-
-  if (!map_tile_is_empty(map_tile_at_point((Point){body_pos.x + b->radius, body_pos.y}))) {
-    body_pos.x = ceil(body_pos.x) - b->radius; 
+  if ((int)(body_pos.x + b->radius) > (int)b->pos.x && !map_tile_is_empty(map_tile_at_point((Point){body_pos.x + b->radius, body_pos.y}))) {
+    body_pos.x = ceil(b->pos.x) - b->radius;
     body_bounce_x(b, 1);
   }
-  tile = map_tile_at_point((Point){body_pos.x - b->radius, body_pos.y});
-  if (!map_tile_is_empty(map_tile_at_point((Point){body_pos.x - b->radius, body_pos.y}))) {
-    body_pos.x = floor(body_pos.x) + b->radius;
+  if ((int)(body_pos.x - b->radius) < (int)b->pos.x && !map_tile_is_empty(map_tile_at_point((Point){body_pos.x - b->radius, body_pos.y}))) {
+    body_pos.x = floor(b->pos.x) + b->radius;
     body_bounce_x(b, -1);
   }
-
-  if (!map_tile_is_empty(map_tile_at_point((Point){body_pos.x, body_pos.y + b->radius}))) {
-    body_pos.y = ceil(body_pos.y) - b->radius; 
+  if ((int)(body_pos.y + b->radius) > (int)(b->pos.x) && !map_tile_is_empty(map_tile_at_point((Point){body_pos.x, body_pos.y + b->radius}))) {
+    body_pos.y = ceil(b->pos.y) - b->radius;
     body_bounce_y(b, -1);
   }
-  if (!map_tile_is_empty(map_tile_at_point((Point){body_pos.x, body_pos.y - b->radius}))) {
-    body_pos.y = floor(body_pos.y) + b->radius; 
+  if ((int)(body_pos.y - b->radius) < (int)(b->pos.y) && !map_tile_is_empty(map_tile_at_point((Point){body_pos.x, body_pos.y - b->radius}))) {
+    body_pos.y = floor(b->pos.y) + b->radius;
     body_bounce_y(b, 1);
   }
 

@@ -13,21 +13,21 @@
 
 
 Pixel render_critters(Ray *r, Pixel c) {
+  int critter = -1;
+
   for (int i = 0; i < MAX_CRITTERS; i++) {
-    Point p = ray_circle_intersection(r, g_critters[i].body.pos, g_critters[i].body.radius);
-    if (p.x >= 0) {
-      float d = point_dist(r->start, p);
-      if (d < r->dist) {
-        r->end = p;
-        r->dist = d;
-      }
+    int hit = ray_circle_intersection(r, g_critters[i].body.pos, g_critters[i].body.radius);
+    if (hit) {
+      critter = i;
       viz_map_ray_critter_hit(*r);
-      c = COLOR_GREEN;
     }
     else
     {
       viz_map_ray_critter(*r);
     }
+  }
+  if (critter >= 0) {
+    c = bitmap_sample(BITMAP_CRITTER, r->hit.local);
   }
   return c;
 }
@@ -61,7 +61,7 @@ Pixel render_floor(Ray r) {
 
 Pixel render_ceiling(Ray r) {
   Pixel p = bitmap_sample(BITMAP_CEILING, r.hit.local);
-  p = render_critters(&r, p);
+p = render_critters(&r, p);
   p = render_lights(r, p);
   return p;
 }

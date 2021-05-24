@@ -34,13 +34,13 @@ extern int g_paused;
 #define MAP_TILES_X (MAP_CELLS_Y * 2 + 1)
 #define MAP_TILES_S 1 //map cube size
 
-#define MINIMAP_SCALE 64
+#define MINIMAP_SCALE 32
 
-#define MAX_CRITTERS 8
+#define MAX_CRITTERS 1
 #define CRITTER_MAX_TURN 0.5
-// #define CRITTER_MAX_SPEED 0
-#define CRITTER_MAX_SPEED 0.05
-#define CRITTER_RADIUS 0.05
+#define CRITTER_MAX_SPEED 0
+// #define CRITTER_MAX_SPEED 0.05
+#define CRITTER_RADIUS 0.33
 
 
 #endif

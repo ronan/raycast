@@ -16,108 +16,70 @@ float point_dot(Point a, Point b) {
   return a.x * b.x + a.y * b.y;
 }
 
-Point ray_circle_intersection(Ray *r, Point c, float radius) {
-  Point a = r->start, b = r->end;
-  Point d = point_sub(b, a);
+int ray_circle_intersection(Ray *r, Point c, float radius) {
+  Point a = r->start,
+        b = r->end;
 
-  float dl = point_dot(d, d);
-  float t = ((c.x - a.x) * d.x + (c.y - a.y) * d.y) / dl;
+  float circle_center_dist = point_dist(a, c);
+  if (circle_center_dist < r->dist) {
 
-  Point nearest = (Point){a.x + t * d.x, a.y + t * d.y};
-  float dist = point_dist(nearest, c);
-  if (dist < radius)
-  {
-    float dt = sqrt(radius * radius - dist * dist) / sqrt(dl);
-    float t1 = t - dt;
-    if (t1 > 0 && t1 <= 1)
+    // Don't draw outside the bounds of the distance normalized billboard
+    float h = (WALL_H * SCREEN_H) / (circle_center_dist);
+    float top = SCREEN_HORIZON - (h / 2);
+    if (r->pixel.y < top || r->pixel.y > top + h) {
+      return 0;
+    }
+
+    // The direction vector from a to b
+    Point ab = point_sub(b, a);
+    // The square of the length of a-b;
+    float abl = point_dot(ab, ab);
+    // Vector from a to c
+    Point ac = point_sub(c, a);
+    // The distance from a to the projection of a-c onto a-b
+    float t = point_dot(ac, ab) / abl;
+
+    // The point c projected onto line a-b
+    Point nearest = (Point){a.x + t * ab.x, a.y + t * ab.y};
+
+    float r_sq = radius * radius;
+    float d_sq = point_dist_squared(c, nearest);
+    if (d_sq < r_sq)
     {
-      return (Point){a.x + t1 * d.x, a.y + t1 * d.y};
+      float dt = sqrt(r_sq - d_sq) / sqrt(abl);
+      float t1 = t - dt;
+      if (t1 > 0 && t1 <= 1)
+      {
+        Point intersection = (Point){a.x + t1 * ab.x, a.y + t1 * ab.y};
+        viz_map_dot(intersection, 5, COLOR_YELLOW);
+
+        float ray_dist = point_dist(intersection, r->start);
+
+        Point de = point_rotate((Point){0, -2 * radius}, g_player.body.ang);
+        // The square of the length of d-e;
+        float del = 4*r_sq;
+        // Vector from c to int
+        Point dn = point_sub(nearest, c);
+        // The distance from d to the projection of d-int onto de
+        float x = point_dot(dn, de) / del;
+        r->hit.local.x = 1 - (0.5f + x);
+        r->hit.local.y = (r->pixel.y - top) / (float)h;
+
+        // Point plane = point_add(c, point_mult(de, x));
+        // viz_map_dot(nearest, 5, COLOR_BLUE);
+        // // viz_map_dot(point_add(c, cd), 5, COLOR_BLACK);
+        // // viz_map_dot(point_add(c, ce), 5, COLOR_BLACK);
+        // viz_map_dot(point_add(c, de), 5, COLOR_BLACK);
+        // viz_map_line(intersection, plane, COLOR_YELLOW);
+        // viz_map_dot(plane, 5, COLOR_YELLOW);
+
+        r->end = intersection;
+        r->dist = circle_center_dist;
+        return 1;
+      }
     }
   }
-  return POINT_OOB; 
-}
-
-Point ray_circle_intersection2(Ray r, Point c, float radius) {
-  Point d = point_sub(r.end, r.start);
-  Point f = point_sub(r.start, c);
-
-  float a = point_dot(d, d);
-  float b = 2 * point_dot(f, d);
-  float cc = point_dot(f, f) - (radius * radius);
-
-float discriminant = b*b-4*a*cc;
-if( discriminant < 0 )
-{
-  // no intersection
-}
-else
-{
-  // ray didn't totally miss sphere,
-  // so there is a solution to
-  // the equation.
-  
-  discriminant = sqrt( discriminant );
-
-  // either solution may be on or off the ray so need to test both
-  // t1 is always the smaller value, because BOTH discriminant and
-  // a are nonnegative.
-  float t1 = (-b - discriminant)/(2*a);
-  float t2 = (-b + discriminant)/(2*a);
-
-  // 3x HIT cases:
-  //          -o->             --|-->  |            |  --|->
-  // Impale(t1 hit,t2 hit), Poke(t1 hit,t2>1), ExitWound(t1<0, t2 hit), 
-
-  // 3x MISS cases:
-  //       ->  o                     o ->              | -> |
-  // FallShort (t1>1,t2>1), Past (t1<0,t2<0), CompletelyInside(t1<0, t2>1)
-  
-  if( t1 >= 0 && t1 <= 1 )
-  {
-    // t1 is the intersection, and it's closer than t2
-    // (since t1 uses -b - discriminant)
-    // Impale, Poke
-    return point_mult(r.dir, t1);
-  }
-
-  // here t1 didn't intersect so we are either started
-  // inside the sphere or completely past it
-  if( t2 >= 0 && t2 <= 1 )
-  {
-    // ExitWound
-    return point_mult(r.dir, t2);
-  }
-  
-  // no intn: FallShort, Past, CompletelyInside
-  return POINT_OOB ;
-}
-}
-Point ray_circle_intersection1(Ray r, Point c, float radius) {
-  // The equation of the line r.start -> r.end is:
-  //    x = r.dir.x * t + r.start.x,
-  //    y = r.dir.y * t + r.start.y
-
-  // Compute the distance between r.start and e, where
-  // e is the point of the ray closest the circle center (c)
-  float t = r.dir.x * (c.x-r.start.x) + r.dir.y * (c.y-r.start.y);
-  Point e = (Point){t * r.dir.x + r.start.x, t * r.dir.y + r.start.y};
-
-  float d_2 = point_dist_squared(c, e);
-  float r_2 = radius * radius;
-
-  // The point is closer to the line than the radius
-  if (d_2 <= r_2)
-  {
-      // compute distance from t to circle intersection point
-      float dt = sqrt(r_2 - d_2);
-
-      // compute first intersection point
-      return (Point){
-        (t-dt) * r.dir.x + r.start.x,
-        (t-dt) * r.dir.y + r.start.y,
-      };
-  }
-  return POINT_OOB;
+  return 0;
 }
 
 Ray ray_invert(Ray r) {
@@ -132,7 +94,8 @@ Ray create_ray() {
     .end = g_player.body.pos,
     .dir = g_player.body.dir,
     .dist = DAMN_NEAR_INFINITY,
-    .hit = RAY_HIT_OOB
+    .hit = RAY_HIT_OOB,
+    .pixel = POINT_OOB,
   };
 }
 
@@ -150,6 +113,8 @@ void ray_floor_ceiling_scan() {
   // Start at 1 below the horizon
   for(int row = SCREEN_HORIZON + 1; row <= SCREEN_H; row++)
   {
+    r.pixel.y = g_gfx.screen_draw.y = row;
+
     // Distance from the camera to the floor for the current row.
     r.dist = CAMERA_HEIGHT / (row - SCREEN_HORIZON);
  
@@ -160,14 +125,16 @@ void ray_floor_ceiling_scan() {
     r.dir = point_mult(point_sub(ray_dir_to, ray_dir_from), r.dist/SCREEN_W);
 
     Pixel px;
-    g_gfx.screen_draw.y = row;
     for(int col = 0; col < SCREEN_W; ++col)
     {
-        g_gfx.screen_draw.x = col;
+        r.pixel.x = g_gfx.screen_draw.x = col;
+
         r.hit.local = point_fractional(r.end);
         g_gfx.object_draw = point_mult(r.hit.local, 512);
 
-        px = render_ceiling(r);
+        Ray r_ceiling = r;
+        r_ceiling.pixel.y = SCREEN_H - r.pixel.y;
+        px = render_ceiling(r_ceiling);
         gfx_put_pixel(col, SCREEN_H - row, (SDL_Color)px);
         px = render_floor(r);
         gfx_put_pixel(col, row, (SDL_Color)px);
@@ -236,10 +203,10 @@ void ray_wall_draw(Ray *r, int col) {
   r->hit.local = wall_local_hit_point_from_ray(r);
   float uv_delta_y = 1.0 / h;
 
-  g_gfx.screen_draw.x = col;
+  r->pixel.x = g_gfx.screen_draw.x = col;
   for (int row = SCREEN_Y + top; row <= SCREEN_Y + top + h; row++) {
     if (row > 0 && row < SCREEN_H) {
-      g_gfx.screen_draw.y = row;
+      r->pixel.y = g_gfx.screen_draw.y = row;
       g_gfx.object_draw = point_mult(r->hit.local, (WALL_H * SCREEN_H) / (r->dist));
       Pixel px = render_wall(*r);
       gfx_put_pixel(col, row, (SDL_Color)px);

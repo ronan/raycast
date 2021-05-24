@@ -12,10 +12,13 @@ void critters_init()
     float y = ((rand() % MAP_CELLS_Y) * 2) + 1.5;
 
     g_critters[i] = (Critter) {};
+
+    x = 4;
+    y = 4;
     body_init(&g_critters[i].body, (Point){x, y}, (rand() % 64) * (M_2_PI / 64));
 
     g_critters[i].body.bouncy = 0;
-    g_critters[i].body.radius = 0.2;
+    g_critters[i].body.radius = CRITTER_RADIUS;
     g_critters[i].body.speed = CRITTER_MAX_SPEED;
   }
 }

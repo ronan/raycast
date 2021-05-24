@@ -150,11 +150,13 @@ void viz_map_floor_ray(Ray r, SDL_Color c) {
 }
 
 void viz_map_ray_critter(Ray r) {
+  return;
   viz_map_line(r.start, r.end, COLOR_YELLOW);
   viz_map_dot(r.end, 3, COLOR_RED);
 }
 
 void viz_map_ray_critter_hit(Ray r) {
+  return;
   viz_map_line(r.start, r.end, COLOR_YELLOW);
   viz_map_dot(r.end, 3, COLOR_CYAN);
 }
