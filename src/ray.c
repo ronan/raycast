@@ -50,30 +50,19 @@ int ray_circle_intersection(Ray *r, Point c, float radius) {
       float t1 = t - dt;
       if (t1 > 0 && t1 <= 1)
       {
-        Point intersection = (Point){a.x + t1 * ab.x, a.y + t1 * ab.y};
-        viz_map_dot(intersection, 5, COLOR_YELLOW);
+        // Point intersection = (Point){a.x + t1 * ab.x, a.y + t1 * ab.y};
 
-        float ray_dist = point_dist(intersection, r->start);
-
-        Point de = point_rotate((Point){0, -2 * radius}, g_player.body.ang);
+        Point de = point_rotate((Point){0, 2 * radius}, g_player.body.ang);
         // The square of the length of d-e;
         float del = 4*r_sq;
         // Vector from c to int
-        Point dn = point_sub(nearest, c);
-        // The distance from d to the projection of d-int onto de
+        Point dn = point_sub(nearest, c); 
+        // The distance from d to the projection of dn onto de
         float x = point_dot(dn, de) / del;
-        r->hit.local.x = 1 - (0.5f + x);
+        r->hit.local.x = 0.5f + x;
         r->hit.local.y = (r->pixel.y - top) / (float)h;
-
-        // Point plane = point_add(c, point_mult(de, x));
-        // viz_map_dot(nearest, 5, COLOR_BLUE);
-        // // viz_map_dot(point_add(c, cd), 5, COLOR_BLACK);
-        // // viz_map_dot(point_add(c, ce), 5, COLOR_BLACK);
-        // viz_map_dot(point_add(c, de), 5, COLOR_BLACK);
-        // viz_map_line(intersection, plane, COLOR_YELLOW);
-        // viz_map_dot(plane, 5, COLOR_YELLOW);
-
-        r->end = intersection;
+        
+        r->end = nearest;
         r->dist = circle_center_dist;
         return 1;
       }

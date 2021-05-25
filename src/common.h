@@ -38,8 +38,8 @@ extern int g_paused;
 
 #define MAX_CRITTERS 1
 #define CRITTER_MAX_TURN 0.5
-#define CRITTER_MAX_SPEED 0
-// #define CRITTER_MAX_SPEED 0.05
+// #define CRITTER_MAX_SPEED 0
+#define CRITTER_MAX_SPEED 0.05
 #define CRITTER_RADIUS 0.33
 
 
