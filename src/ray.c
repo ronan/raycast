@@ -110,9 +110,7 @@ void ray_floor_ceiling_scan() {
     for(int col = 0; col < SCREEN_W; ++col)
     {
         r.pixel.x = g_gfx.screen_draw.x = col;
-
         r.hit.local = point_fractional(r.end);
-        g_gfx.object_draw = point_mult(r.hit.local, 512);
 
         Ray r_ceiling = r;
         r_ceiling.pixel.y = SCREEN_H - r.pixel.y;
@@ -179,23 +177,23 @@ Point wall_local_hit_point_from_ray(Ray *r) {
 }
 
 void ray_wall_draw(Ray *r, int col) {
-  // Draw a vertical slice of the wall
-  int h = (WALL_H * SCREEN_H) / (r->dist);
-  int top = SCREEN_Y + (SCREEN_H / 2) - (h / 2);
-  r->hit.local = wall_local_hit_point_from_ray(r);
-  float uv_delta_y = 1.0 / h;
-
   r->pixel.x = g_gfx.screen_draw.x = col;
-  for (int row = SCREEN_Y + top; row <= SCREEN_Y + top + h; row++) {
+
+  // Draw a vertical slice of the wall
+  float h = (WALL_H * SCREEN_H) / (r->dist);
+  float top = SCREEN_HORIZON - (h / 2.0);
+  r->hit.local = wall_local_hit_point_from_ray(r);
+
+  for (int row = top; row <= top + h; row++) {
     if (row > 0 && row < SCREEN_H) {
       r->pixel.y = g_gfx.screen_draw.y = row;
-      g_gfx.object_draw = point_mult(r->hit.local, (WALL_H * SCREEN_H) / (r->dist));
+      r->hit.local.y = (float)(row - top) / h;
+      r->hit.local.y = r->hit.local.y >= 1.0 ? 0.99 : r->hit.local.y;
+      r->hit.local.y = r->hit.local.y <= 0.0 ? 0.0  : r->hit.local.y;
+  
       Pixel px = render_wall(*r);
       gfx_put_pixel(col, row, (SDL_Color)px);
     }
-    r->hit.local.y += uv_delta_y;
-    // Floating point math can put us a weeee bit over 1.0 so we clamp the max to avoid texture wrapping
-    r->hit.local.y = r->hit.local.y >= 1.0 ? 0.999: r->hit.local.y;
   }
   return;
 }

@@ -24,7 +24,6 @@ typedef struct gfx_ctx
     Pixel_Buffer buffer;
 
     Point screen_draw;
-    Point object_draw;
 } gfx_ctx;
 
 typedef enum gfx_err
