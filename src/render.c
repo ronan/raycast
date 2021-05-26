@@ -16,7 +16,7 @@ Pixel render_critters(Ray *r, Pixel c) {
   int critter = -1;
 
   for (int i = 0; i < MAX_CRITTERS; i++) {
-    int hit = ray_circle_intersection(r, g_critters[i].body.pos, g_critters[i].body.radius);
+    int hit = ray_billboard_intersection(r, g_critters[i].body.pos, g_critters[i].body.radius);
     if (hit) {
       critter = i;
       viz_map_ray_critter_hit(*r);

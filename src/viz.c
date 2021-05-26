@@ -136,7 +136,7 @@ void viz_map_vector(Point a, Point b, SDL_Color c) {
   a = point_mult(a, VIZ_MAP_SCALE);
   b = point_mult(b, VIZ_MAP_SCALE);
   b = point_add(a, b);
-  viz_map_line(a, b, c);
+  viz_put_line(a.x, a.y, b.x, b.y, c);
 }
 
 void viz_map_dot(Point a, float size, SDL_Color c) {

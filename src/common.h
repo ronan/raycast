@@ -13,7 +13,7 @@ extern int g_paused;
 #define SCREEN_W 64
 #define SCREEN_H 64
 
-#define SCREEN_SCALE 8
+#define SCREEN_SCALE 16
 
 #define WINDOW_W SCREEN_W * SCREEN_SCALE
 #define WINDOW_H SCREEN_H * SCREEN_SCALE

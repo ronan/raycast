@@ -16,13 +16,17 @@ float point_dot(Point a, Point b) {
   return a.x * b.x + a.y * b.y;
 }
 
-int ray_circle_intersection(Ray *r, Point c, float radius) {
+int ray_billboard_intersection(Ray *r, Point c, float radius) {
   Point a = r->start,
         b = r->end;
 
-  float circle_center_dist = point_dist(a, c);
-  if (circle_center_dist < r->dist) {
+  Point i = point_sub(b, a);
+  Point dir = point_sub(c, a);
 
+  // a->b dot a->c is positive if the player is facing towards the billboard.
+  float billboad_dir = point_dot(i, dir);
+  float circle_center_dist = point_dist(a, c);
+  if (circle_center_dist < r->dist && billboad_dir > 0) {
     // Don't draw outside the bounds of the distance normalized billboard
     float h = (WALL_H * SCREEN_H) / (circle_center_dist);
     float top = SCREEN_HORIZON - (h / 2);
@@ -30,42 +34,31 @@ int ray_circle_intersection(Ray *r, Point c, float radius) {
       return 0;
     }
 
-    // The direction vector from a to b
-    Point ab = point_sub(b, a);
-    // The square of the length of a-b;
-    float abl = point_dot(ab, ab);
-    // Vector from a to c
-    Point ac = point_sub(c, a);
-    // The distance from a to the projection of a-c onto a-b
-    float t = point_dot(ac, ab) / abl;
+    Point d = point_add(c, point_rotate((Point){0, radius}, g_player.body.ang));
+    Point e = point_add(c, point_rotate((Point){0, -radius}, g_player.body.ang));
 
-    // The point c projected onto line a-b
-    Point nearest = (Point){a.x + t * ab.x, a.y + t * ab.y};
+    Point j = point_sub(a, e);
+    Point k = point_sub(a, b);
+    Point l = point_sub(e, d);
 
-    float r_sq = radius * radius;
-    float d_sq = point_dist_squared(c, nearest);
-    if (d_sq < r_sq)
-    {
-      float dt = sqrt(r_sq - d_sq) / sqrt(abl);
-      float t1 = t - dt;
-      if (t1 > 0 && t1 <= 1)
-      {
-        // Point intersection = (Point){a.x + t1 * ab.x, a.y + t1 * ab.y};
+    // viz_map_line(a, b, COLOR_YELLOW);
+    // viz_map_line(e, d, COLOR_MAGENTA);
 
-        Point de = point_rotate((Point){0, 2 * radius}, g_player.body.ang);
-        // The square of the length of d-e;
-        float del = 4*r_sq;
-        // Vector from c to int
-        Point dn = point_sub(nearest, c); 
-        // The distance from d to the projection of dn onto de
-        float x = point_dot(dn, de) / del;
-        r->hit.local.x = 0.5f + x;
-        r->hit.local.y = (r->pixel.y - top) / (float)h;
-        
-        r->end = nearest;
-        r->dist = circle_center_dist;
-        return 1;
-      }
+    // viz_map_vector(a, i, COLOR_RED);
+    // viz_map_vector(b, j, COLOR_GREEN);
+    // viz_map_vector(b, k, COLOR_BLUE);
+    // viz_map_vector(d, l, COLOR_YELLOW);
+
+    float u = ((i.x * j.y) - (i.y * j.x)) /
+              ((k.x * l.y) - (k.y * l.x));
+
+    if (u > 0 && u <= 1) {
+      r->hit.local.x = u;
+      r->hit.local.y = (r->pixel.y - top) / (float)h;
+      r->dist = circle_center_dist;
+      r->end = point_add(e, point_mult(point_sub(d, e), u));
+      // viz_map_dot(r->end, 5, COLOR_RED);
+      return 1;
     }
   }
   return 0;
@@ -222,7 +215,7 @@ Ray ray_wall_cast(int col) {
   v.dir = h.dir = point_add(v.dir, point_mult(camera_plane, camera_x));
 
   viz_map_vector(v.start, camera_plane, COLOR_YELLOW);
-  viz_map_vector(v.start, v.dir, COLOR_RED);
+  // viz_map_vector(v.start, v.dir, COLOR_RED);
 
   for (int i = 0; i < MAP_TILES_X; i++) {
     v = ray_cast_step_v(v);

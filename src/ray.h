@@ -23,7 +23,7 @@ typedef struct Ray {
   RayHit hit;
 } Ray;
 
-int ray_circle_intersection(Ray *r, Point c, float radius);
+int ray_billboard_intersection(Ray *r, Point c, float radius);
 void ray_floor_ceiling_scan();
 void ray_scan_walls();
 
