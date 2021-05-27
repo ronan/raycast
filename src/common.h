@@ -10,13 +10,14 @@ extern int g_paused;
 #define PLAYER_TURN_ANG 5 * M_PI / 180.0
 #define PLAYER_SPEED .1
 
-#define SCREEN_W 512
-#define SCREEN_H 512
+#define SCREEN_W 128
+#define SCREEN_H 128
 
-#define SCREEN_SCALE 2
 
-#define WINDOW_W SCREEN_W * SCREEN_SCALE
-#define WINDOW_H SCREEN_H * SCREEN_SCALE
+#define WINDOW_W 512
+#define WINDOW_H 512
+
+#define SCREEN_SCALE (WINDOW_W / SCREEN_W)
 
 #define SCREEN_HORIZON (SCREEN_H/2)
 

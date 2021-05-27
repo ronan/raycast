@@ -34,7 +34,7 @@ void player_tick(float t) {
 
   body_tick(&g_player.body, t);
 
-  g_player.camera_plane = point_rotate((Point){0, FOCAL_LENGTH}, g_player.body.ang);
+  g_camera_plane = g_player.camera_plane = point_rotate((Point){0, 1}, g_player.body.ang);
 }
 
 void player_set_pos(float x, float y)
@@ -46,9 +46,7 @@ void player_set_pos(float x, float y)
 void player_set_angle(angle a)
 {
   g_player.body.ang = a;
-
   g_player.body.dir = point_rotate((Point){1, 0}, a);
-  g_player.camera_plane = point_rotate((Point){0, FOCAL_LENGTH}, a);
 }
 
 void player_set_speed(float speed)

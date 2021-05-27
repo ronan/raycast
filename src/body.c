@@ -3,6 +3,8 @@
 #include "body.h"
 #include "map.h"
 
+Point g_camera_plane;
+
 void body_init(Body *b, Point pos, float ang)
 {
   b->bouncy = 0;
@@ -30,6 +32,11 @@ void body_set_angle(Body *b, angle a)
 {
   b->ang = a;
   b->dir = point_rotate((Point){1, 0}, a);
+
+  Point billboard_plane = point_mult(g_camera_plane, b->radius);
+
+  // Point camera_right = point_add(b->pos, billboard_plane);
+  // Point camera_left = point_sub(b->pos, billboard_plane);
 }
 
 void body_set_dir(Body *b, Point dir)

@@ -35,7 +35,8 @@ Point point_invert(Point a);
 Point point_rotate(Point a, angle b);
 Point point_fractional(Point a);
 Point point_integral(Point a);
-
+float point_dot(Point a, Point b);
+float point_cross(Point a, Point b);
 float point_dist_squared(Point from, Point to);
 float point_dist(Point from, Point to);
 float point_vector_length(Point to);

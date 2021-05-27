@@ -98,12 +98,12 @@ void viz_map() {
   Point to = point_add(from, point_mult(g_player.body.dir, line_l));
   viz_put_line(from.x, from.y, to.x, to.y, COLOR_GREEN);
   to = point_add(from, point_mult(g_player.camera_plane, line_l));
-  viz_put_line(from.x, from.y, to.x, to.y, COLOR_YELLOW);
+  viz_put_line(from.x, from.y, to.x, to.y, COLOR_BLUE);
   viz_put_dot(from, 1, COLOR_RED);
 
   // Draw the start/end rays for the floor scan sweep
-  Point ray_dir_from = point_sub(g_player.body.dir, g_player.camera_plane);
-  Point ray_dir_to = point_add(g_player.body.dir, g_player.camera_plane);
+  Point ray_dir_from = point_sub(g_player.body.dir, point_mult(g_player.camera_plane, FOCAL_LENGTH));
+  Point ray_dir_to = point_add(g_player.body.dir, point_mult(g_player.camera_plane, FOCAL_LENGTH));
   viz_map_line(g_player.body.pos, point_add(g_player.body.pos, ray_dir_from), COLOR_YELLOW);
   viz_map_line(g_player.body.pos, point_add(g_player.body.pos, ray_dir_to), COLOR_YELLOW);
 
@@ -145,8 +145,9 @@ void viz_map_dot(Point a, float size, SDL_Color c) {
 }
 
 void viz_map_floor_ray(Ray r, SDL_Color c) {
-  return;
-  viz_map_dot(r.end, 1, c);
+  // return;
+  viz_map_line(r.start, r.end, COLOR_YELLOW);
+  viz_map_dot(r.end, 5, COLOR_CYAN);
 }
 
 void viz_map_ray_critter(Ray r) {
@@ -156,11 +157,15 @@ void viz_map_ray_critter(Ray r) {
 }
 
 void viz_map_ray_critter_hit(Ray r) {
-  return;
   viz_map_line(r.start, r.end, COLOR_YELLOW);
-  viz_map_dot(r.end, 3, COLOR_CYAN);
+  viz_map_dot(r.end, 3, COLOR_GREEN);
 }
 
+void viz_map_wall_ray(Ray r) {
+  // return;
+  viz_map_line(r.start, r.end, COLOR_YELLOW);
+  viz_map_dot(r.end, 5, COLOR_CYAN);
+}
 
 void viz_map_ray(Ray r) {
   return;

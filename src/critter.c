@@ -17,7 +17,7 @@ void critters_init()
     y = 4;
     body_init(&g_critters[i].body, (Point){x, y}, (rand() % 64) * (M_2_PI / 64));
 
-    g_critters[i].body.bouncy = 0;
+    g_critters[i].body.bouncy = 1;
     g_critters[i].body.radius = CRITTER_RADIUS;
     g_critters[i].body.speed = CRITTER_MAX_SPEED;
   }

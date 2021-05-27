@@ -12,11 +12,6 @@ void scn_draw_bg()
   gfx_clear(COLOR_CEILING);
 }
 
-void scn_draw_ceiling_and_floor()
-{
-  ray_floor_ceiling_scan();
-}
-
 void scn_draw()
 {
   // srand(g_player.body.pos.x*g_player.body.ang*1000 );
@@ -25,8 +20,7 @@ void scn_draw()
 
   viz_draw();
 
-  scn_draw_ceiling_and_floor();
-  ray_scan_walls();
+  ray_scan();
 
   gfx_update();
   viz_update();

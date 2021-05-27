@@ -28,7 +28,6 @@ int ang_is_northward(angle a) {
   return ANG_E < a && a < ANG_W;
 }
 
-
 Point ang_vector(angle a, float scale)
 {
   return (Point) {.x = cos(a) * scale, .y = sin(a) * -scale};
@@ -49,6 +48,14 @@ float point_dist(Point from, Point to)
 float point_vector_length(Point to)
 {
   return point_dist((Point){0,0}, to);
+}
+
+float point_dot(Point a, Point b) {
+  return a.x * b.x + a.y * b.y;
+}
+
+float point_cross(Point a, Point b) {
+  return a.x * b.y - a.y * b.x;
 }
 
 Point point_rotate(Point a, angle b) {
@@ -85,4 +92,3 @@ Point point_integral(Point a)
 {
   return (Point) {.x = floor(a.x), .y = floor(a.y)};
 }
-

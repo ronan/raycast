@@ -11,27 +11,6 @@
 
 #include "render.h"
 
-
-Pixel render_critters(Ray *r, Pixel c) {
-  int critter = -1;
-
-  for (int i = 0; i < MAX_CRITTERS; i++) {
-    int hit = ray_billboard_intersection(r, g_critters[i].body.pos, g_critters[i].body.radius);
-    if (hit) {
-      critter = i;
-      viz_map_ray_critter_hit(*r);
-    }
-    else
-    {
-      viz_map_ray_critter(*r);
-    }
-  }
-  if (critter >= 0) {
-    c = bitmap_sample(BITMAP_CRITTER, r->hit.local);
-  }
-  return c;
-}
-
 Pixel render_lights(Ray r, Pixel c) {
   float intensity = .1;
 
@@ -51,25 +30,33 @@ Pixel render_lights(Ray r, Pixel c) {
   return pixel_darken(c, 1.0 - brightness);
 }
 
-Pixel render_floor(Ray r) {
-  // Get the fractional part of the position to determine the texture coordinates
-  Pixel p = bitmap_sample(BITMAP_FLOOR, r.hit.local);
-  p = render_critters(&r, p);
-  p = render_lights(r, p);
-  return p;
-}
+// Render a ray
+void render_ray(Ray r) {
+  Pixel p;
 
-Pixel render_ceiling(Ray r) {
-  Pixel p = bitmap_sample(BITMAP_CEILING, r.hit.local);
-p = render_critters(&r, p);
-  p = render_lights(r, p);
-  return p;
-}
+  // Clamp the local sample point to account for floating point errors
+  r.hit.local.y = r.hit.local.y >= 1.0 ? 0.99 : r.hit.local.y;
+  r.hit.local.y = r.hit.local.y <= 0.0 ? 0.0  : r.hit.local.y;
 
-// pos_local is the position in coordinates on the wall (x, z) or (y, z). Range 0.0-1.0
-Pixel render_wall(Ray r) {
-  Pixel p = bitmap_sample(BITMAP_WALL, r.hit.local);
-  p = render_critters(&r, p);
+  switch (r.hit.type) {
+    case HIT_CEIL:
+      p = bitmap_sample(BITMAP_CEILING, r.hit.local);
+    break;
+    case HIT_FLOOR:
+      p = bitmap_sample(BITMAP_FLOOR, r.hit.local);
+    break;
+    case HIT_WALL:
+      p = bitmap_sample(BITMAP_WALL, r.hit.local);
+    break;    
+    case HIT_CRITTER:
+      p = bitmap_sample(BITMAP_CRITTER, r.hit.local);
+    break;
+    case HIT_NONE:
+      p = COLOR_CLEAR;
+    break;
+  }
+
   p = render_lights(r, p);
-  return p;
+
+  gfx_put_pixel(r.pixel.x, r.pixel.y, p);
 }
