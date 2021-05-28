@@ -35,8 +35,8 @@ void body_set_angle(Body *b, angle a)
 
   Point billboard_plane = point_mult(g_camera_plane, b->radius);
 
-  // Point camera_right = point_add(b->pos, billboard_plane);
-  // Point camera_left = point_sub(b->pos, billboard_plane);
+  b->camera_right = point_add(b->pos, billboard_plane);
+  b->camera_left = point_sub(b->pos, billboard_plane);
 }
 
 void body_set_dir(Body *b, Point dir)

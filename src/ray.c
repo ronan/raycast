@@ -46,12 +46,13 @@ Point ray_cast_step_point_inv(Ray r) {
 }
 
 void ray_scan() {
-  Ray r, r_tmp;
+  Ray r;
 
   for (int col = 0; col <= SCREEN_W; col++)
   {
     r = create_ray();
     r.pixel.x = col;
+    r.hit.type = HIT_WALL;
 
     // Set the direction of the ray based on the camera properties and current column
     float camera_x = (2.0 * ((float)col / SCREEN_W)) - 1.0;
@@ -60,7 +61,7 @@ void ray_scan() {
     r.dir = point_add(r.dir, camera_plane);
     r.start = r.end = g_player.body.pos;
 
-#ifndef VIZ_WALL_RAY
+#ifndef NOVIZ_RAY_WALL
     viz_map_vector(r.start, camera_plane, COLOR_CYAN);
     viz_map_line(r.start, r.end, COLOR_YELLOW);
     viz_map_dot(r.end, 8, COLOR_GREEN);
@@ -68,11 +69,11 @@ void ray_scan() {
 
     float closest_d_sq = DAMN_NEAR_INFINITY;
     Ray r_h, r_v = r;
-    for (int i = 0; i < MAP_TILES_X; i++) {
+    for (int i = 0; i < MAP_TILES_X * 2; i++) {
       r_h.end = ray_cast_step_point(r);
       r_v.end = ray_cast_step_point_inv(r);
 
-#ifndef VIZ_WALL_RAY
+#ifndef NOVIZ_RAY_WALL
       viz_map_dot(r_h.end, 5, COLOR_CYAN);
       viz_map_dot(r_v.end, 5, COLOR_MAGENTA);
 #endif
@@ -104,70 +105,83 @@ void ray_scan() {
     float wall_top = SCREEN_HORIZON - (wall_h / 2.0);
     float wall_bot = wall_top + wall_h;
 
+    Point vr = point_sub(r.end, r.start);
+
+    int critter_h = 0, critter_top = 0, critter_bot = 0;
+    float u = -1;
+    Ray r_critter = r;
+    for (int i = 0; i < MAX_CRITTERS; i++) {
+      float radius = g_critters[i].body.radius;
+      Point c = g_critters[i].body.pos,
+            dir = point_sub(c, r.start);
+      float billboad_dir = point_dot(vr, dir);
+
+      // a->b dot a->c is positive if the player is facing towards the billboard.
+      float circle_dist_sq = point_dist_squared(r.start, c);
+      if (circle_dist_sq < closest_d_sq && billboad_dir > 0) {
+        float circle_dist = sqrt(circle_dist_sq);
+        // Once per frame per critter
+        critter_h = (WALL_H * SCREEN_H) / circle_dist;
+        critter_top = SCREEN_HORIZON - (critter_h / 2);
+        critter_bot = critter_top + critter_h;
+
+        Point billboard_plane = point_mult(g_player.camera_plane, radius);
+        Point d = g_critters[i].body.camera_right;
+        Point e = g_critters[i].body.camera_left;
+        Point vs = point_sub(d, e);
+        Point vq = point_sub(r.start, e);
+
+        u = point_cross(vq, vr) / point_cross(vs, vr);
+
+#ifndef NOVIZ_RAY_CRITTER
+        viz_map_line(e, d, COLOR_MAGENTA);
+        viz_map_vector(e, vq, COLOR_RED);
+        viz_map_vector(r.start, vr, COLOR_YELLOW);
+        viz_map_vector(e, vs, COLOR_BLUE);
+#endif
+
+        if (u > 0 && u <= 1) {
+#ifndef NOVIZ_RAY_CRITTER
+          viz_map_ray_critter_hit(r);
+#endif
+
+          r_critter.hit.local.x = u;
+          r_critter.dist = circle_dist;
+          r_critter.end = point_add(e, point_mult(point_sub(d, e), u));
+          break;
+        }
+        critter_h = 0, critter_top = 0, critter_bot = 0;
+      }
+    }
+
     // Draw each row top to bottom
     for(int row = 0; row < SCREEN_H; row++)
     {
-      Ray r_y = r;
-      r.pixel.y = row;
+      r_critter.pixel.y = r.pixel.y = row;
 
-      r.hit.type = (row < wall_top) ? HIT_CEIL  : HIT_WALL;
-      r.hit.type = (row > wall_bot) ? HIT_FLOOR : r.hit.type;
-
-      Point vr = point_sub(r.end, r.start);
-      for (int i = 0; i < MAX_CRITTERS; i++) {
-        float radius = g_critters[i].body.radius;
-        Point c = g_critters[i].body.pos,
-              dir = point_sub(c, r.start);
-        float billboad_dir = point_dot(vr, dir);
-    
-        // a->b dot a->c is positive if the player is facing towards the billboard.
-        float circle_dist_sq = point_dist_squared(r.start, c);
-        if (circle_dist_sq < closest_d_sq && billboad_dir > 0) {
-          float circle_dist = sqrt(circle_dist_sq);
-          // Once per frame per critter
-          int critter_h = (WALL_H * SCREEN_H) / circle_dist;
-          int critter_top = SCREEN_HORIZON - (critter_h / 2);
-
-          if (r.pixel.y > critter_top && r.pixel.y < critter_top + critter_h) {
-            // Once per frame per critter
-            Point billboard_plane = point_mult(g_player.camera_plane, radius);
-            Point d = point_add(c, billboard_plane);
-            Point e = point_sub(c, billboard_plane);
-            Point vs = point_sub(d, e);
-            Point vq = point_sub(r.start, e);
-
-            float u = point_cross(vq, vr) / point_cross(vs, vr);
-
-#ifndef VIZ_RAY_CRITTER
-            viz_map_line(e, d, COLOR_MAGENTA);
-            viz_map_vector(e, vq, COLOR_RED);
-            viz_map_vector(r.start, vr, COLOR_YELLOW);
-            viz_map_vector(e, vs, COLOR_BLUE);
-#endif
-
-            if (u > 0 && u <= 1) {
-              r.hit.local.x = u;
-              r.hit.local.y = (r.pixel.y - critter_top) / critter_h;
-              r.dist = sqrt(circle_dist_sq);
-              r.end = point_add(e, point_mult(point_sub(d, e), u));
-
-              r.hit.type = HIT_CRITTER;
-              viz_map_ray_critter_hit(r);
-            }
-          }
-        }
+      Ray r_render = r;
+      if (row > critter_top && row < critter_bot) {
+        r_render = r_critter;
+        r_render.hit.local.y = (float)(r.pixel.y - critter_top) / critter_h;
+        r_render.hit.type = HIT_CRITTER;
       }
-
-      if (r.hit.type == HIT_CEIL || r.hit.type == HIT_FLOOR) {
-        r.dist = fabs(CAMERA_HEIGHT / (row - SCREEN_HORIZON));
-        r.end = point_add(g_player.body.pos, point_mult(r.dir, r.dist));
-        r.hit.local = point_fractional(r.end);
+      else if (row > wall_top && row < wall_bot) {
+        r_render.hit.local.y = (float)(row - wall_top) / wall_h;
+        r_render.hit.type = HIT_WALL;
       }
-      else if (r.hit.type == HIT_WALL)
+      else 
       {
-        r.hit.local.y = (float)(row - wall_top) / wall_h;
+        r_render.dist = fabs(CAMERA_HEIGHT / (row - SCREEN_HORIZON));
+        r_render.end = point_add(g_player.body.pos, point_mult(r.dir, r_render.dist));
+        r_render.hit.local = point_fractional(r_render.end);
+
+#ifndef NOVIZ_RAY_FLOOR
+        viz_map_dot(r_render.end, 5, COLOR_BLUE);
+#endif
+        r_render.hit.type = row < SCREEN_HORIZON ? HIT_CEIL : HIT_FLOOR;
       }
-      render_ray(r);
+
+      render_ray(r_render);
     }
   }
 }
