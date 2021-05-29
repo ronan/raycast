@@ -12,16 +12,22 @@
 #include "render.h"
 
 Pixel render_lights(Ray r, Pixel c) {
+  float dist;
   float intensity = .1;
 
   // Ambient
   float brightness = .1;
 
-  for (int i = 0; i < 16; i++) {
-    Point diff = point_sub(r.end, g_lights[i]);
-    float dist = diff.x * diff.x + diff.y * diff.y;
+  // Critter lights
+  for (int i = 0; i < MAX_CRITTERS; i++) {
+    dist = point_dist_squared(r.end, g_critters[i].body.pos);
+    brightness += g_critters[i].glow/dist;
+  }
 
-    brightness += (1.0/dist)*intensity;
+  // Ceiling lights
+  for (int i = 0; i < 16; i++) {
+    dist = point_dist_squared(r.end, g_critters[i].body.pos);
+    brightness += intensity/dist;
   }
 
   if (brightness > .999) {

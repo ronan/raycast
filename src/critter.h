@@ -6,6 +6,7 @@
 
 typedef struct Critter {
   Body body;
+  float glow;
 } Critter;
 
 extern Critter g_critters[MAX_CRITTERS];

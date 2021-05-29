@@ -20,6 +20,8 @@ typedef struct body
 
   float radius;
   float height;
+
+  float glow;
 } Body;
 
 extern Point g_camera_plane;

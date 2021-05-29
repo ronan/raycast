@@ -29,7 +29,6 @@ typedef struct Ray {
   RayHit hit;
 } Ray;
 
-#define DAMN_NEAR_INFINITY 10000
 #define RAY_HIT_OOB (RayHit) {.tile = MAP_TILE_OOB, .local = POINT_ORIGIN, .type = HIT_NONE}
 #define RAY_OOB (Ray) {.pos = POINT_OOB, .len = DAMN_NEAR_INFINITY, .hit = RAY_HIT_OOB};
 

@@ -20,6 +20,7 @@ void critters_init()
     g_critters[i].body.bouncy = 1;
     g_critters[i].body.radius = CRITTER_RADIUS;
     g_critters[i].body.speed = CRITTER_MAX_SPEED;
+    g_critters[i].glow = 0.02;
   }
 }
 

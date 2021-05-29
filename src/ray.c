@@ -121,7 +121,7 @@ void ray_scan() {
       if (circle_dist_sq < closest_d_sq && billboad_dir > 0) {
         float circle_dist = sqrt(circle_dist_sq);
         // Once per frame per critter
-        critter_h = (WALL_H * SCREEN_H) / circle_dist;
+        critter_h = (2 * radius * SCREEN_H) / circle_dist;
         critter_top = SCREEN_HORIZON - (critter_h / 2);
         critter_bot = critter_top + critter_h;
 
