@@ -6,6 +6,16 @@
 
 typedef struct Critter {
   Body body;
+
+  Point camera_left;
+  Point camera_right;
+  float camera_dist;
+  float camera_ang_cos;
+
+  int screen_top;
+  int screen_bot;
+  int screen_h;
+
   float glow;
 } Critter;
 

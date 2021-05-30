@@ -8,7 +8,7 @@ Player g_player;
 
 void player_init()
 {
-  body_init(&g_player.body, (Point){5.5, 5.5}, M_PI_2 - M_PI_4);
+  body_init(&g_player.body, (Point){2.0, 2.0}, M_PI_2);
   g_player.body.radius = .2;
   g_player.body.bouncy = 0;
 }
@@ -23,7 +23,7 @@ void player_tick(float t) {
     g_player.body.ang_velocity = ang;
   }
   
-  g_player.body.speed = 0;
+  g_player.body.speed = g_player.body.lateral_speed = 0;
   float speed = g_input.crawl ? PLAYER_SPEED / 5 : PLAYER_SPEED;
   if (g_input.move_f) {
     g_player.body.speed = speed;
@@ -32,9 +32,18 @@ void player_tick(float t) {
     g_player.body.speed = -speed;
   }
 
+  if (g_input.strafe_l) {
+    g_player.body.lateral_speed = -speed;
+  }
+  if (g_input.strafe_r) {
+    g_player.body.lateral_speed = speed;
+  }
+
   body_tick(&g_player.body, t);
 
   g_camera_plane = g_player.camera_plane = point_rotate((Point){0, 1}, g_player.body.ang);
+  g_camera_pos = g_player.body.pos;
+  g_camera_dir = g_player.body.dir;
 }
 
 void player_set_pos(float x, float y)

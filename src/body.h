@@ -7,9 +7,7 @@ typedef struct body
 {
   Point pos;
   Point dir;
-
-  Point camera_left;
-  Point camera_right;
+  Point lat;
 
   angle ang;
   angle ang_velocity;
@@ -17,14 +15,16 @@ typedef struct body
   int bouncy;
 
   float speed;
+  float lateral_speed;
 
   float radius;
   float height;
-
-  float glow;
 } Body;
 
 extern Point g_camera_plane;
+extern Point g_camera_pos;
+extern Point g_camera_dir;
+
 
 void body_init(Body *b, Point pos, float ang);
 void body_tick(Body *b, float t);

@@ -50,6 +50,10 @@ float point_vector_length(Point to)
   return point_dist((Point){0,0}, to);
 }
 
+Point point_vector_normalize(Point a) {
+  return point_mult(a, 1/point_vector_length(a));
+}
+
 float point_dot(Point a, Point b) {
   return a.x * b.x + a.y * b.y;
 }
@@ -57,6 +61,11 @@ float point_dot(Point a, Point b) {
 float point_cross(Point a, Point b) {
   return a.x * b.y - a.y * b.x;
 }
+
+Point point_dir(Point a, Point b) {
+  return point_mult(point_sub(b, a), 1/point_dist(a, b));
+}
+
 
 Point point_rotate(Point a, angle b) {
   // 𝑥2=cos𝛽𝑥1−sin𝛽𝑦1

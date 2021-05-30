@@ -49,6 +49,7 @@
     "__split_buffer": "c",
     "initializer_list": "c",
     "unordered_map": "c",
-    "vector": "c"
+    "vector": "c",
+    "__node_handle": "c"
   }
 }

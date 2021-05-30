@@ -4,6 +4,8 @@
 #include "map.h"
 
 Point g_camera_plane;
+Point g_camera_pos;
+Point g_camera_dir;
 
 void body_init(Body *b, Point pos, float ang)
 {
@@ -17,6 +19,9 @@ void body_init(Body *b, Point pos, float ang)
 void body_tick(Body *b, float t) {
   if (b->speed) {
     body_mv(b, point_mult(b->dir, b->speed * t));
+  }
+  if (b->lateral_speed) {
+    body_mv(b, point_mult(b->lat, b->lateral_speed * t));
   }
   if (b->ang_velocity) {
     body_modify_angle(b, b->ang_velocity * t);
@@ -32,11 +37,7 @@ void body_set_angle(Body *b, angle a)
 {
   b->ang = a;
   b->dir = point_rotate((Point){1, 0}, a);
-
-  Point billboard_plane = point_mult(g_camera_plane, b->radius);
-
-  b->camera_right = point_add(b->pos, billboard_plane);
-  b->camera_left = point_sub(b->pos, billboard_plane);
+  b->lat = point_rotate((Point){0, 1}, a);
 }
 
 void body_set_dir(Body *b, Point dir)

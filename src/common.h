@@ -29,11 +29,13 @@ extern int g_paused;
 #define SCREEN_Y 0
 
 
-#define CAMERA_HEIGHT (float)SCREEN_HORIZON
-#define FOCAL_LENGTH 0.6
+#define CAMERA_HEIGHT 0.5
+#define FOV 0.66
+#define FOCAL_LENGTH 0.66
 
-#define WALL_H FOCAL_LENGTH * SCREEN_W / SCREEN_H 
+#define WALL_H (1.0 / SCREEN_H)
 
+#define SCREEN_ROOM_H (WALL_H * SCREEN_H)
 
 #define MAP_CELLS_X 4
 #define MAP_CELLS_Y 4
@@ -48,7 +50,7 @@ extern int g_paused;
 #define CRITTER_MAX_TURN 0.5
 // #define CRITTER_MAX_SPEED 0
 #define CRITTER_MAX_SPEED 0.05
-#define CRITTER_RADIUS 0.1
+#define CRITTER_RADIUS 0.5
 
 
 

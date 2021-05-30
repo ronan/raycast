@@ -18,9 +18,11 @@ void critters_init()
     body_init(&g_critters[i].body, (Point){x, y}, (rand() % 64) * (M_2_PI / 64));
 
     g_critters[i].body.bouncy = 1;
-    g_critters[i].body.radius = CRITTER_RADIUS;
+    g_critters[i].body.radius = (rand() / (float)RAND_MAX) * 0.5;
+    g_critters[i].body.radius = 0.1;
+    g_critters[i].body.height = 2 * g_critters[i].body.radius;
     g_critters[i].body.speed = CRITTER_MAX_SPEED;
-    g_critters[i].glow = 0.02;
+    g_critters[i].glow = 0.0;
   }
 }
 
@@ -33,6 +35,7 @@ void critters_tick(float t)
   for (int i = 0; i < MAX_CRITTERS; i++) {
     g_critters[i].body.ang_velocity = ((float)rand()/RAND_MAX * CRITTER_MAX_TURN - (CRITTER_MAX_TURN/2));
     body_tick(&g_critters[i].body, t);
+    Critter *b = &g_critters[i];
   }
 }
 

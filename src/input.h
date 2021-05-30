@@ -5,6 +5,8 @@
 typedef struct InputState {
   int rotate_l;
   int rotate_r;
+  int strafe_l;
+  int strafe_r;
   int move_f;
   int move_b;
   int crawl;

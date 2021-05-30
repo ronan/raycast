@@ -102,8 +102,8 @@ void viz_map() {
   viz_put_dot(from, 1, COLOR_RED);
 
   // Draw the start/end rays for the floor scan sweep
-  Point ray_dir_from = point_sub(g_player.body.dir, point_mult(g_player.camera_plane, FOCAL_LENGTH));
-  Point ray_dir_to = point_add(g_player.body.dir, point_mult(g_player.camera_plane, FOCAL_LENGTH));
+  Point ray_dir_from = point_sub(g_player.body.dir, point_mult(g_player.camera_plane, FOV));
+  Point ray_dir_to = point_add(g_player.body.dir, point_mult(g_player.camera_plane, FOV));
   viz_map_line(g_player.body.pos, point_add(g_player.body.pos, ray_dir_from), COLOR_YELLOW);
   viz_map_line(g_player.body.pos, point_add(g_player.body.pos, ray_dir_to), COLOR_YELLOW);
 
