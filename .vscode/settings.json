@@ -50,6 +50,17 @@
     "initializer_list": "c",
     "unordered_map": "c",
     "vector": "c",
-    "__node_handle": "c"
+    "__node_handle": "c",
+    "__mutex_base": "c",
+    "__threading_support": "c",
+    "__undef_macros": "c",
+    "bit": "c",
+    "cmath": "c",
+    "functional": "c",
+    "memory_resource": "c",
+    "limits": "c",
+    "mutex": "c",
+    "ratio": "c",
+    "sstream": "c"
   }
 }
