@@ -12,6 +12,7 @@ void body_init(Body *b, Point pos, float ang)
   b->bouncy = 0;
   b->speed = 0;
   b->ang_velocity = 0;
+  b->lateral_speed = 0;
   body_set_pos(b, pos);
   body_set_angle(b, ang);
 }
@@ -72,7 +73,7 @@ void body_bounce_y(Body *b, int dir) {
 void body_mv(Body *b, Point delta)
 {
   MapTile tile;
-  Point body_pos, body_int, local_int, body_tile, diff;
+  Point body_pos, sensor, body_int, local_int, body_tile, diff;
 
   body_pos = point_add(b->pos, delta);
   if ((int)(body_pos.x + b->radius) > (int)b->pos.x && !map_tile_is_empty(map_tile_at_point((Point){body_pos.x + b->radius, body_pos.y}))) {
@@ -83,7 +84,7 @@ void body_mv(Body *b, Point delta)
     body_pos.x = floor(b->pos.x) + b->radius;
     body_bounce_x(b, -1);
   }
-  if ((int)(body_pos.y + b->radius) > (int)(b->pos.x) && !map_tile_is_empty(map_tile_at_point((Point){body_pos.x, body_pos.y + b->radius}))) {
+  if ((int)(body_pos.y + b->radius) > (int)(b->pos.y) && !map_tile_is_empty(map_tile_at_point((Point){body_pos.x, body_pos.y + b->radius}))) {
     body_pos.y = ceil(b->pos.y) - b->radius;
     body_bounce_y(b, -1);
   }
