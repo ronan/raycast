@@ -9,20 +9,17 @@
 
 void scn_draw_bg()
 {
-  gfx_clear(COLOR_CEILING);
+  gfx_clear(COLOR_BLACK);
 }
 
 void scn_draw()
 {
   // srand(g_player.body.pos.x*g_player.body.ang*1000 );
-  // srand(1);
   scn_draw_bg();
+  ray_scan();
 
   viz_draw();
 
-  ray_scan();
-
-  gfx_update();
   viz_update();
-
+  gfx_update();
 }

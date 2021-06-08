@@ -61,6 +61,8 @@
     "limits": "c",
     "mutex": "c",
     "ratio": "c",
-    "sstream": "c"
+    "sstream": "c",
+    "sdl.h": "c",
+    "sdl_image.h": "c"
   }
 }

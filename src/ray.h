@@ -43,8 +43,8 @@ typedef struct CritterHit {
 void ray_scan();
 
 #define NOVIZ_RAY_CRITTER
-// #define NOVIZ_RAY_WALL
-// #define NOVIZ_RAY_FLOOR
+#define NOVIZ_RAY_WALL
+#define NOVIZ_RAY_FLOOR
 
 
 #endif

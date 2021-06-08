@@ -23,15 +23,15 @@ extern int g_paused;
 #define SCREEN_H 128
 #define WINDOW_W 512
 #define WINDOW_H 512
-#define SCREEN_SCALE (WINDOW_W / SCREEN_W)
+#define SCREEN_SCALE_W (WINDOW_W / SCREEN_W)
+#define SCREEN_SCALE_H (WINDOW_H / SCREEN_H)
 #define SCREEN_HORIZON (SCREEN_H/2)
 #define SCREEN_X 0
 #define SCREEN_Y 0
 
 
 #define CAMERA_HEIGHT 0.5
-#define FOV 0.66
-#define FOCAL_LENGTH 0.66
+#define FOV 0.7
 
 #define WALL_H (1.0 / SCREEN_H)
 
@@ -46,7 +46,7 @@ extern int g_paused;
 
 
 
-#define MAX_CRITTERS 1
+#define MAX_CRITTERS 32
 #define CRITTER_MAX_TURN 0.5
 // #define CRITTER_MAX_SPEED 0
 #define CRITTER_MAX_SPEED 0.05

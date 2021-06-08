@@ -4,7 +4,7 @@
 #include "geometry.h"
 #include "ray.h"
 
-#define VIZ_MAP_SCALE 128
+#define VIZ_MAP_SCALE 64
 #define VIZ_MAP_W VIZ_MAP_SCALE * MAP_TILES_X
 #define VIZ_MAP_H VIZ_MAP_SCALE * MAP_TILES_Y
 

@@ -11,27 +11,36 @@
 
 #include "render.h"
 
+float clamp(float f) {
+  if (f > AAAAAAALMOST_ONE) return 1.0;
+  if (f < SOME_TINY_AMOUNT) return 0.0;
+  return f;
+}
+
 Pixel render_lights(Ray r, Pixel c) {
-  float intensity = .1;
 
   // Ambient
-  float brightness = .1;
+  float brightness = 0.1;
 
   // TODO: Prorperly calcualte light z-effect
   // TODO: Make light falloff more realistic
   // TODO: Blow out extremely bright areas by blending to pure light color
 
-  // Critter lights
-  for (int i = 0; i < MAX_CRITTERS; i++) {
-    float dist = point_dist_squared(r.end, g_critters[i].body.pos);
-    brightness += (1.0/dist)*g_critters[i].glow;
-  }
+  float intensity = .02;
+  float a = 1;
+  float b = .05;
 
-  // Ceiling lights
-  for (int i = 0; i < 16; i++) {
-    Point diff = point_sub(r.end, g_lights[i]);
-    float dist = diff.x * diff.x + diff.y * diff.y;
-    brightness += intensity/dist;
+  for (int i = 0; i < MAX_CRITTERS; i++) {
+    if (g_critters[i].glow > SOME_TINY_AMOUNT) {
+      float x = g_critters[i].body.pos.x - r.end.x;
+      float y = g_critters[i].body.pos.y - r.end.y;
+      float z = g_critters[i].body.z - r.z;
+
+      float dist_sq = (x * x) + (y * y) + (z * z);
+      float att = clamp(1 - ((dist_sq * 1) + (sqrt(dist_sq) * .1)));
+
+      brightness += att*g_critters[i].glow;
+    }
   }
 
   if (brightness > .999) {
@@ -57,15 +66,14 @@ void render_ray(Ray r) {
     break;
     case HIT_WALL:
       p = bitmap_sample(BITMAP_WALL, r.hit.local);
-    break;    
+    break;
     case HIT_CRITTER:
       p = bitmap_sample(BITMAP_CRITTER, r.hit.local);
     break;
-    case HIT_NONE:
-      p = COLOR_CLEAR;
+    default:
+      p = COLOR_BLACK;
     break;
   }
-
   p = render_lights(r, p);
 
   gfx_put_pixel(r.pixel.x, r.pixel.y, p);

@@ -8,6 +8,7 @@ typedef struct body
   Point pos;
   Point dir;
   Point lat;
+  float z;
 
   angle ang;
   angle ang_velocity;

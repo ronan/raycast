@@ -113,11 +113,13 @@ void viz_map() {
   }
 
   for (int i = 0; i < MAX_CRITTERS; i++) {
-    viz_put_dot(
-      point_mult(g_critters[i].body.pos, VIZ_MAP_SCALE), 
-      g_critters[i].body.radius * VIZ_MAP_SCALE,
-      COLOR_CYAN
-    );
+    if (g_critters[i].body.radius < 0.5) {
+      viz_put_dot(
+        point_mult(g_critters[i].body.pos, VIZ_MAP_SCALE), 
+        g_critters[i].body.radius * VIZ_MAP_SCALE,
+        COLOR_CYAN
+      );
+    }
   }
 
 }
@@ -234,9 +236,9 @@ void viz_draw() {
 
   viz_bitmap_x = VIZ_BITMAP_X;
   viz_bitmap_y = VIZ_BITMAP_Y;
-  viz_bitmap(BITMAP_BLUENOISE);
-  viz_bitmap(BITMAP_BAYER);
-  viz_bitmap(BITMAP_HATCH);
+  viz_bitmap(BITMAP_DITHER);
+  // viz_bitmap(BITMAP_BAYER);
+  // viz_bitmap(BITMAP_HATCH);
 
   viz_stats();
 

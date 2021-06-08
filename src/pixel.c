@@ -9,9 +9,28 @@
 #include "input.h"
 #include "player.h"
 
-#define COLOR_DARKEN (Pixel)(SDL_Color) { 0, 0, 0, 0 }
+#define COLOR_DARKEN (Pixel)(SDL_Color) { 0, 0, 0, 255 }
+#define COLOR_CLAMP(C) (C) > 255 ? 255 : (C)
 
 Point dither_sample;
+
+Pixel pixel_clamp(Pixel a) {
+  a.r = a.r > 255 ? 255 : a.r < 0 ? 0 : a.r;
+  a.g = a.g > 255 ? 255 : a.g < 0 ? 0 : a.g;
+  a.b = a.b > 255 ? 255 : a.b < 0 ? 0 : a.b;
+  a.a = a.a > 255 ? 255 : a.a < 0 ? 0 : a.a;
+  return a;
+}
+
+Pixel pixel_blend(Pixel a, Pixel b, float alpha) {
+  float alpha_inv = (1 - alpha);
+
+  a.r = ((a.r * alpha_inv) + (b.r * alpha));
+  a.g = ((a.g * alpha_inv) + (b.g * alpha));
+  a.b = ((a.b * alpha_inv) + (b.b * alpha));
+
+  return a;
+}
 
 Pixel pixel_lerp_linear(Pixel a, Pixel b, float t) {
   float t_inv = 1.0 - t;
@@ -19,6 +38,7 @@ Pixel pixel_lerp_linear(Pixel a, Pixel b, float t) {
   a.r = a.r * t_inv + b.r * t;
   a.g = a.g * t_inv + b.g * t;
   a.b = a.b * t_inv + b.b * t;
+  a.a = a.a * t_inv + b.a * t;
 
   return a;
 }
@@ -121,9 +141,12 @@ void pixel_lerp_smooth(Pixel *a, Pixel *b, float *t, float factor) {
 }
 
 Pixel pixel_lerp(Pixel a, Pixel b, float t) {
-  if (t >= .999) return b;
-  if (t <= 0.001) return a;
+  if (t >= AAAAAAALMOST_ONE) return b;
+  if (t <= SOME_TINY_AMOUNT) return a;
+  
+  // return pixel_lerp_linear(a, b, t);
 
+  
   // dither_sample = point_mult(g_gfx.screen_draw, 1/16);
   dither_sample = g_gfx.screen_draw;
 

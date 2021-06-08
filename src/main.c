@@ -17,6 +17,7 @@ int g_paused = 0;
 void init()
 {
     info("Initializing game");
+    srand(1);
     viz_init(VIZ_WINDOW_W, VIZ_WINDOW_H);
     bitmap_load_all();
     map_init();
@@ -40,6 +41,7 @@ void destroy()
 
 int main(int argc, char *argv[])
 {
+
     info("Loading everything... \n");
     if (gfx_init())
     {

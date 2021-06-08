@@ -114,8 +114,6 @@ void map_generate_maze() {
   int stack_idx = -1;
   int cell_size = 2;
   
-  srand(1);
-
   map_fill();
 
   stack[++stack_idx] = (Point){1,1};
@@ -161,18 +159,18 @@ void map_generate_maze() {
 
 
 void map_init() {
+  int idx = 0;
+  // for (int i = 1; i < MAP_TILES_Y; i +=2) {
+  //   for (int j = 1; j < MAP_TILES_X; j += 2) {
+  //     g_lights[idx++] = (Point){j + .5, i + .5};
+  //   }
+  // }
+
   map_generate_maze();
 
-  int idx = 0;
-  for (int i = 1; i < MAP_TILES_Y; i +=2) {
-    for (int j = 1; j < MAP_TILES_X; j += 2) {
-      g_lights[idx++] = (Point){j + .5, i + .5};
-    }
-  }
-
-  for (int y = 0; y < MAP_TILES_Y; y++) {
-    for (int x = 0; x < MAP_TILES_X; x++) {
-      g_map[y][x] = map_generate_tile(empty_map[y][x]);
-    }
-  }
+  // for (int y = 0; y < MAP_TILES_Y; y++) {
+  //   for (int x = 0; x < MAP_TILES_X; x++) {
+  //     g_map[y][x] = map_generate_tile(empty_map[y][x]);
+  //   }
+  // }
 }

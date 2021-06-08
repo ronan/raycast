@@ -17,6 +17,7 @@ typedef struct Critter {
   int screen_h;
 
   float glow;
+  float opacity;
 } Critter;
 
 extern Critter g_critters[MAX_CRITTERS];

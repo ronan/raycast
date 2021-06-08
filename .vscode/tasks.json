@@ -7,13 +7,12 @@
 			"command": "/usr/bin/clang",
 			"args": [
 				"-g",
-				"-o",
-				"main",
+				"-fsanitize=address", "-fno-omit-frame-pointer",
+				"-o","main",
+				"-I", "include/",
+				"-l", "SDL2_image",
+				"-l", "SDL2",
 				"src/*.c",
-				"-I",
-				"include/",
-				"-l",
-				"SDL2"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"

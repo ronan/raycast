@@ -85,10 +85,11 @@ void ray_scan() {
   }
 
   // Sort the critters by distance. Insertion sort works well on almost sorted arrays
-  for (int i = 0, j = -1; i < MAX_CRITTERS; i++, j++) {
+  for (int i = 1; i < MAX_CRITTERS; i++) {
     Critter c = g_critters[i];
     
-    while (j >= 0 && g_critters[j].camera_dist > c.camera_dist) {
+    int j = i - 1;
+    while (j >= 0 && g_critters[j].camera_dist < c.camera_dist) {
       g_critters[j + 1] = g_critters[j];
       g_critters[j] = c;
       j--;
@@ -98,7 +99,7 @@ void ray_scan() {
   for (int col = 0; col <= SCREEN_W; col++)
   {
     r = create_ray();
-    r.pixel.x = col;
+    g_gfx.screen_draw.x = r.pixel.x = col;
     r.hit.type = HIT_WALL;
 
     // Set the direction of the ray based on the camera properties and current column
@@ -132,14 +133,14 @@ void ray_scan() {
       if (map_tile_is_wall(r.hit.tile)) {
         if (d_sq_h < d_sq_v) {
           // The closest wall or critter at this column
-          closest_d_sq = d_sq_v;
+          closest_d_sq = d_sq_h;
           // The perpendicular distance avoids fisheye
           r.dist = (r.end.x - r.start.x) / r.dir.x;
           // Local wall coordinates of hit
           r.hit.local.x = (point_fractional(r.end)).y;
         }
         else {
-          closest_d_sq = d_sq_h;
+          closest_d_sq = d_sq_v;
           // The perpendicular distance avoids fisheye
           r.dist = (r.end.y - r.start.y) / r.dir.y;
           // Local wall coordinates of hit
@@ -156,15 +157,14 @@ void ray_scan() {
     float wall_dist = sqrt(closest_d_sq);
 
     int critter_hit_count = 0;
-    CritterHit critter_hits[16];
+    CritterHit critter_hits[MAX_CRITTERS];
 
     Ray r_critter = r;
     Point vr = point_sub(r.end, r.start);
     float critter_dist = wall_dist;
     for (int i = 0; i < MAX_CRITTERS; i++) {
-      // Critters are sorted by distance so we can stop looking when we reach a wall
       if (g_critters[i].camera_dist > wall_dist) {
-        break;
+        continue;
       }
 
       Point d = g_critters[i].camera_right;
@@ -200,53 +200,55 @@ void ray_scan() {
     // Draw each row top to bottom
     for(int row = 0; row < SCREEN_H; row++)
     {
-      r_critter.pixel.y = r.pixel.y = row;
-
+      g_gfx.screen_draw.y = r_critter.pixel.y = r.pixel.y = row;
       Ray r_render = r;
+
+      // // Wall
+      if (row > wall_top && row < wall_bot) {
+        r_render.hit.local.y = (r.pixel.y - wall_top) / wall_h;
+        r_render.z = 1 - r_render.hit.local.y;
+        r_render.hit.type = HIT_WALL;
+
+        render_ray(r_render);
+      }
+      // Floor/ceiling
+      else 
+      {
+        r_render.dist = fabs(CAMERA_HEIGHT * SCREEN_H / (r.pixel.y - SCREEN_HORIZON));
+        r_render.dist = fabs(0.5 / (r.pixel.y / SCREEN_H - 0.5));
+
+        if (row < SCREEN_HORIZON) {
+          r_render.hit.type = HIT_CEIL;
+          r_render.z = 1.0f;
+        }
+        else {
+          r_render.hit.type = HIT_FLOOR;
+          r_render.z = 0.0f;
+        }
+        r_render.end = point_add(g_player.body.pos, point_mult(r.dir, r_render.dist));
+        r_render.hit.local = point_fractional(r_render.end);
+        
+        render_ray(r_render);
+
+
+#ifndef NOVIZ_RAY_FLOOR
+        viz_map_dot(r_render.end, 5, COLOR_BLUE);
+#endif
+      }
+
 
       for (int i = 0; i < critter_hit_count; i++) {
         if (row > critter_hits[i].c.screen_top && row < critter_hits[i].c.screen_bot) {
           r_render = critter_hits[i].r;
-          r_render.z = (float)(row - critter_hits[i].c.screen_top) / (critter_hits[i].c.screen_h);
-
+          r_render.z = 0.5 - (float)(row - critter_hits[i].c.screen_top) / (critter_hits[i].c.screen_h);
           r_render.hit.local.y = (float)(row - critter_hits[i].c.screen_top) / (critter_hits[i].c.screen_h);
+          r_render.pixel.y = row;
           r_render.hit.type = HIT_CRITTER;
-          break;
+          render_ray(r_render);
         }
       }
 
-      if (r_render.hit.type != HIT_CRITTER) {
-        // Wall
-        if (row > wall_top && row < wall_bot) {
-          r_render.z = r_render.hit.local.y = (r.pixel.y - wall_top) / wall_h;
-          r_render.hit.type = HIT_WALL;
-        }
-        // Floor/ceiling
-        else {
-          r_render.dist = fabs(CAMERA_HEIGHT * SCREEN_H / (r.pixel.y - SCREEN_HORIZON));
-          r_render.dist = fabs(0.5 / (r.pixel.y / SCREEN_H - 0.5));
 
-
-          if (row < SCREEN_HORIZON) {
-            r_render.hit.type = HIT_CEIL;
-            r_render.z = 1.0f;
-          }
-          else {
-            r_render.hit.type = HIT_FLOOR;
-            r_render.z = 0.0f;
-          }
-          r_render.end = point_add(g_player.body.pos, point_mult(r.dir, r_render.dist));
-          r_render.hit.local = point_fractional(r_render.end);
-
-
-  #ifndef NOVIZ_RAY_FLOOR
-          viz_map_dot(r_render.end, 5, COLOR_BLUE);
-  #endif
-        }
-      }
-
-      r_render.pixel.y = row;
-      render_ray(r_render);
     }
   }
 }

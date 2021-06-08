@@ -1,3 +1,4 @@
+
 #include "common.h"
 #include "pixel.h"
 #include "bitmap.h"
@@ -12,10 +13,10 @@ int g_num_displays = 0;
 SDL_Rect g_display_bounds[MAX_DISPLAYS];
 
 SDL_Color WALL_COLORS[4] = {
-    (SDL_Color) { 200, 200, 200, 0 },
-    (SDL_Color) { 180, 180, 180, 0 },
-    (SDL_Color) { 100, 100, 100, 0 },
-    (SDL_Color) { 90, 90, 90, 0 }
+    (SDL_Color) { 200, 200, 200, 255 },
+    (SDL_Color) { 180, 180, 180, 255 },
+    (SDL_Color) { 100, 100, 100, 255 },
+    (SDL_Color) { 90, 90, 90, 255 }
 };
 
 gfx_err gfx_init()
@@ -37,6 +38,13 @@ gfx_err gfx_init()
     if (gfx_init_window(&g_gfx, WINDOW_W, WINDOW_H, 100, 100, "Game") != GFX_ERR_NONE)
     {
         err("Unable to create window");
+        return GFX_ERR;
+    }
+
+    int imgFlags = IMG_INIT_PNG;
+    if( !( IMG_Init( imgFlags ) & imgFlags ) )
+    {
+        err( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
         return GFX_ERR;
     }
 
@@ -128,10 +136,20 @@ gfx_err gfx_put_pixel(unsigned int x, unsigned int y, Pixel color)
         return GFX_ERR;
     }
     int offset = (g_gfx.buffer.pitch * y) + (x * g_gfx.buffer.bpp);
+    if (color.a < 128) {
+        return GFX_ERR_NONE;
+        // Pixel bufferPixel = (Pixel) {
+        //     g_gfx.buffer.data[ offset + 2 ],
+        //     g_gfx.buffer.data[ offset + 1 ],
+        //     g_gfx.buffer.data[ offset + 0 ],
+        //     255
+        // };
+        // color = pixel_blend(bufferPixel, color, color.a / 255.0);
+    }
     g_gfx.buffer.data[ offset + 0 ] = color.b;
     g_gfx.buffer.data[ offset + 1 ] = color.g;
     g_gfx.buffer.data[ offset + 2 ] = color.r;
-    g_gfx.buffer.data[ offset + 3 ] = color.a;
+    g_gfx.buffer.data[ offset + 3 ] = 255;
 
     return GFX_ERR_NONE;
 }
