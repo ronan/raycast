@@ -135,17 +135,8 @@ gfx_err gfx_put_pixel(unsigned int x, unsigned int y, Pixel color)
         err("Out of bounds pixel write. (%d, %d).\n", x, y);
         return GFX_ERR;
     }
+
     int offset = (g_gfx.buffer.pitch * y) + (x * g_gfx.buffer.bpp);
-    if (color.a < 128) {
-        return GFX_ERR_NONE;
-        // Pixel bufferPixel = (Pixel) {
-        //     g_gfx.buffer.data[ offset + 2 ],
-        //     g_gfx.buffer.data[ offset + 1 ],
-        //     g_gfx.buffer.data[ offset + 0 ],
-        //     255
-        // };
-        // color = pixel_blend(bufferPixel, color, color.a / 255.0);
-    }
     g_gfx.buffer.data[ offset + 0 ] = color.b;
     g_gfx.buffer.data[ offset + 1 ] = color.g;
     g_gfx.buffer.data[ offset + 2 ] = color.r;

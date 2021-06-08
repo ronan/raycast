@@ -8,8 +8,10 @@
 #include "viz.h"
 #include "input.h"
 #include "player.h"
+#include "utils.h"
 
 #define COLOR_DARKEN (Pixel)(SDL_Color) { 0, 0, 0, 255 }
+#define COLOR_LIGHT (Pixel)(SDL_Color) { 255, 0, 0, 255 }
 #define COLOR_CLAMP(C) (C) > 255 ? 255 : (C)
 
 Point dither_sample;
@@ -22,14 +24,21 @@ Pixel pixel_clamp(Pixel a) {
   return a;
 }
 
-Pixel pixel_blend(Pixel a, Pixel b, float alpha) {
-  float alpha_inv = (1 - alpha);
+Pixel pixel_blend(Pixel a, Pixel b) {
+  if (b.a > 0) {
+    return b;
+  }
+  else {
+    return a;
+  }
 
-  a.r = ((a.r * alpha_inv) + (b.r * alpha));
-  a.g = ((a.g * alpha_inv) + (b.g * alpha));
-  a.b = ((a.b * alpha_inv) + (b.b * alpha));
+  // float alpha_inv = (1 - alpha);
 
-  return a;
+  // a.r = ((a.r * alpha_inv) + (b.r * alpha));
+  // a.g = ((a.g * alpha_inv) + (b.g * alpha));
+  // a.b = ((a.b * alpha_inv) + (b.b * alpha));
+
+  // return a;
 }
 
 Pixel pixel_lerp_linear(Pixel a, Pixel b, float t) {
@@ -78,7 +87,7 @@ Pixel pixel_lerp_dither_bitmap(int bitmap_idx, Pixel a, Pixel b, float t) {
 }
 
 Pixel pixel_lerp_dither_rand(Pixel a, Pixel b, float t) {
-  if ((float)rand() / RAND_MAX > t) {
+  if (rand_unit() > t) {
     return a;
   }
   return b;
@@ -132,9 +141,9 @@ Pixel pixel_lerp_dither_pallete_sim(Pixel a, Pixel b, float t) {
 }
 
 // Smooth dithering by moving the endpoints closer to the target
-void pixel_lerp_smooth(Pixel *a, Pixel *b, float *t, float factor) {
-  Pixel a1 = pixel_lerp_linear(*a, *b, *t * factor);
-  Pixel b1 = pixel_lerp_linear(*b, *a, (1.0 - *t) * factor);
+void pixel_lerp_smooth(Pixel *a, Pixel *b, float t, float factor) {
+  Pixel a1 = pixel_lerp_linear(*a, *b, t * factor);
+  Pixel b1 = pixel_lerp_linear(*b, *a, (1.0 - t) * factor);
 
   *a = a1;
   *b = b1;
@@ -151,7 +160,7 @@ Pixel pixel_lerp(Pixel a, Pixel b, float t) {
   dither_sample = g_gfx.screen_draw;
 
   if (g_input.smooth_dither) {
-    pixel_lerp_smooth(&a, &b, &t, 0.95);
+    pixel_lerp_smooth(&a, &b, t, 0.95);
   }
 
   if (g_input.dither) {
@@ -162,4 +171,14 @@ Pixel pixel_lerp(Pixel a, Pixel b, float t) {
 
 Pixel pixel_darken(Pixel p, float t) {
   return pixel_lerp(p, COLOR_DARKEN, t);
+}
+
+Pixel pixel_light(Pixel p, Pixel c, float t) {
+  // Pixel c2 = pixel_lerp_linear(p, c, 1-t);
+  Pixel c2;
+  c2.r = p.r * (c.r/255.0);
+  c2.g = p.g * (c.g/255.0);
+  c2.b = p.b * (c.b/255.0);
+  
+  return pixel_lerp(c2, COLOR_DARKEN, 1 - t);
 }

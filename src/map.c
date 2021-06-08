@@ -1,6 +1,7 @@
 #include "common.h"
 #include "geometry.h"
 #include "viz.h"
+#include "utils.h"
 
 #include "map.h"
 
@@ -140,7 +141,7 @@ void map_generate_maze() {
     }
 
     if (neighbors_idx >= 0) {
-      MapDir next = neighbors[rand()%(neighbors_idx+1)];
+      MapDir next = neighbors[rand_int(neighbors_idx+1)];
       Point offset = direction_offsets[next];
       Point next_point = point_add(stack[stack_idx], offset);
       g_map[(int)next_point.y][(int)next_point.x] = MAP_TILE_EMPTY;

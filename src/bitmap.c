@@ -10,16 +10,17 @@ Pixel g_pixel_none = COLOR_CLEAR;
 
 void bitmap_load_all() {
   info("Loading bitmaps.", NULL);
-  g_bitmaps[BITMAP_TEST] = SDL_LoadBMP("assets/test.bmp");
-  g_bitmaps[BITMAP_WALL] = SDL_LoadBMP("assets/wall2.bmp");
-  g_bitmaps[BITMAP_FLOOR] = SDL_LoadBMP("assets/floor.bmp");
-  g_bitmaps[BITMAP_CEILING] = SDL_LoadBMP("assets/ceiling.bmp");
-  g_bitmaps[BITMAP_CRITTER] = IMG_Load("assets/critter.png");
+  g_bitmaps[BITMAP_TEST]      = SDL_LoadBMP("assets/test.bmp");
+  g_bitmaps[BITMAP_WALL]      = SDL_LoadBMP("assets/wall2.bmp");
+  g_bitmaps[BITMAP_FLOOR]     = SDL_LoadBMP("assets/floor.bmp");
+  g_bitmaps[BITMAP_CEILING]   = SDL_LoadBMP("assets/ceiling.bmp");
+  g_bitmaps[BITMAP_CRITTER]   = IMG_Load("assets/whiteorb.png");
+  g_bitmaps[BITMAP_LIGHT]     = IMG_Load("assets/torch.png");
   g_bitmaps[BITMAP_BLUENOISE] = SDL_LoadBMP("assets/dither/bluenoise.bmp");
-  g_bitmaps[BITMAP_BAYER] = SDL_LoadBMP("assets/dither/bayer.bmp");
-  g_bitmaps[BITMAP_HATCH] = SDL_LoadBMP("assets/dither/hatch.bmp");
-  g_bitmaps[BITMAP_HORIZ] = SDL_LoadBMP("assets/dither/horiz.bmp");
-  g_bitmaps[BITMAP_DITHER] = SDL_LoadBMP("assets/dither/dither.bmp");
+  g_bitmaps[BITMAP_BAYER]     = SDL_LoadBMP("assets/dither/bayer.bmp");
+  g_bitmaps[BITMAP_HATCH]     = SDL_LoadBMP("assets/dither/hatch.bmp");
+  g_bitmaps[BITMAP_HORIZ]     = SDL_LoadBMP("assets/dither/horiz.bmp");
+  g_bitmaps[BITMAP_DITHER]    = SDL_LoadBMP("assets/dither/dither.bmp");
 
   for (int i = 0; i < BITMAP_END; i++) {
     g_textures[i] = SDL_CreateTextureFromSurface(g_viz.renderer, g_bitmaps[i]);
@@ -34,7 +35,7 @@ void bitmap_unload_all() {
 }
 
 Pixel bitmap_sample(int bitmap_idx, Point p) {
-  SDL_Color *color;
+  Pixel color;
   SDL_Surface *surface = g_bitmaps[bitmap_idx];
 
   if (surface && surface->format) {
@@ -51,18 +52,16 @@ Pixel bitmap_sample(int bitmap_idx, Point p) {
       SDL_LockSurface(surface);
 
       Uint8 bpp = surface->format->BytesPerPixel;
-      // Uint16 allows for a max of 256x256 bitmap
-      Uint16 pixel_idx = (py * surface->pitch) + (px * bpp);
+      Uint8 *pixel_idx = (Uint8 *)surface->pixels + (py * surface->pitch) + (px * bpp);
 
       if (bpp == 1) {
-        Uint8 *pallet_idx = (Uint8 *)(surface->pixels + pixel_idx);
-        color = (Pixel *)&fmt->palette->colors[*pallet_idx];
+        color = (Pixel)fmt->palette->colors[*pixel_idx];
       }
       else {
-        color = (Pixel *)(surface->pixels + pixel_idx);
+        color = *(Pixel *)pixel_idx;
       }
       SDL_UnlockSurface(surface);
-      return *color;
+      return color;
     }
   }
 

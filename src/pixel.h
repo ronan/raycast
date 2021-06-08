@@ -7,6 +7,7 @@ typedef SDL_Color Pixel;
 
 Pixel pixel_darken(Pixel p, float amount);
 Pixel pixel_lerp_linear(Pixel a, Pixel b, float t);
-Pixel pixel_blend(Pixel a, Pixel b, float alpha);
+Pixel pixel_blend(Pixel a, Pixel b);
+Pixel pixel_light(Pixel p, Pixel c, float t);
 
 #endif

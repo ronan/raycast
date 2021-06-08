@@ -19,12 +19,13 @@ extern int g_paused;
 
 
 
-#define SCREEN_W 128
+#define SCREEN_W 256
 #define SCREEN_H 128
-#define WINDOW_W 512
+#define WINDOW_W 1024
 #define WINDOW_H 512
 #define SCREEN_SCALE_W (WINDOW_W / SCREEN_W)
 #define SCREEN_SCALE_H (WINDOW_H / SCREEN_H)
+#define SCREEN_RATIO ((float)WINDOW_W / (float)WINDOW_H)
 #define SCREEN_HORIZON (SCREEN_H/2)
 #define SCREEN_X 0
 #define SCREEN_Y 0
@@ -47,7 +48,7 @@ extern int g_paused;
 
 
 #define MAX_CRITTERS 32
-#define CRITTER_MAX_TURN 0.5
+#define CRITTER_MAX_TURN 0.2
 // #define CRITTER_MAX_SPEED 0
 #define CRITTER_MAX_SPEED 0.05
 #define CRITTER_RADIUS 0.5

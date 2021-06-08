@@ -91,6 +91,9 @@ int main(int argc, char *argv[])
         t = SDL_GetTicks();
         float t_delta = (t - t_last);
 
+        // Don't let the delta get to big or collision detection gets hard
+        t_delta = t_delta > 500 ? 500 : t_delta;
+
         input_scan();
         player_tick(t_delta / 33.33); // 30FPS as a standard for animation
         if (!g_paused) {

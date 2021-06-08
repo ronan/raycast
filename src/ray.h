@@ -18,6 +18,7 @@ typedef struct RayHit {
   MapDir wall;
   Point local;
   RayHitType type;
+  Critter *critter;
 } RayHit;
 
 typedef struct Ray {

@@ -101,3 +101,7 @@ Point point_integral(Point a)
 {
   return (Point) {.x = floor(a.x), .y = floor(a.y)};
 }
+
+int point_is_oob(Point p) {
+  return p.x == POINT_OOB.x;
+}

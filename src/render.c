@@ -19,8 +19,13 @@ float clamp(float f) {
 
 Pixel render_lights(Ray r, Pixel c) {
 
+  if (c.a == 0) {
+    return c;
+  }
+
   // Ambient
-  float brightness = 0.1;
+  float brightness = 0.2;
+  Pixel light_color = (SDL_Color) {255, 255, 255, 255};
 
   // TODO: Prorperly calcualte light z-effect
   // TODO: Make light falloff more realistic
@@ -37,20 +42,18 @@ Pixel render_lights(Ray r, Pixel c) {
       float z = g_critters[i].body.z - r.z;
 
       float dist_sq = (x * x) + (y * y) + (z * z);
-      float att = clamp(1 - ((dist_sq * 1) + (sqrt(dist_sq) * .1)));
+      // If the dropoff is to stark add a 'b' term (ie: b * sqrt(dist_sq)))
+      float att = clamp(1 - ((dist_sq * 1)));
 
       brightness += att*g_critters[i].glow;
+      light_color = pixel_lerp_linear(light_color, g_critters[i].glow_color, att*g_critters[i].glow);
     }
   }
-
-  if (brightness > .999) {
-    return c;
-  }
-  return pixel_darken(c, 1.0 - brightness);
+  return pixel_light(c, light_color, brightness);
 }
 
 // Render a ray
-void render_ray(Ray r) {
+Pixel render_ray(Ray r) {
   Pixel p;
 
   // Clamp the local sample point to account for floating point errors
@@ -68,7 +71,14 @@ void render_ray(Ray r) {
       p = bitmap_sample(BITMAP_WALL, r.hit.local);
     break;
     case HIT_CRITTER:
-      p = bitmap_sample(BITMAP_CRITTER, r.hit.local);
+      switch (r.hit.critter->type) {
+        case CRITTER_LIGHT:
+          p = bitmap_sample(BITMAP_LIGHT, r.hit.local);
+        break;
+        case CRITTER_ORB:
+          p = bitmap_sample(BITMAP_CRITTER, r.hit.local);
+        break;
+      }
     break;
     default:
       p = COLOR_BLACK;
@@ -76,5 +86,5 @@ void render_ray(Ray r) {
   }
   p = render_lights(r, p);
 
-  gfx_put_pixel(r.pixel.x, r.pixel.y, p);
+  return p;
 }

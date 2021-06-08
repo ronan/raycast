@@ -1,5 +1,7 @@
 #include "common.h"
 #include "critter.h"
+#include "utils.h"
+#include "map.h"
 
 Critter g_critters[MAX_CRITTERS];
 
@@ -15,38 +17,69 @@ void critters_init()
 
   for (int i = 0; i < MAX_CRITTERS; i++) {
 
-    // Lights
+    // Wall Lights
     if (i < 16) {
+      int x = i % 4 * 2 + 1;
+      int y = floor(i / 4) * 2 + 1;
+
+      Point p = POINT_OOB;
+      float radius = 0.1;
+
+      if (((x + y)/2) % 2 == 0) {
+        if (map_tile_is_wall(map_tile_at_point((Point){x, y - 1}))) {
+          p = (Point){x + 0.5, y + radius};
+        }
+        else if (map_tile_is_wall(map_tile_at_point((Point){x - 1, y}))) {
+          p = (Point){x + radius, y + 0.5};
+        }
+      }
+      else {
+        if (map_tile_is_wall(map_tile_at_point((Point){x, y + 1}))) {
+          p = (Point){x + 0.5, y + 1 - radius};
+        }
+        else if (map_tile_is_wall(map_tile_at_point((Point){x + 1, y}))) {
+          p = (Point){x + 1 - radius, y + 0.5};
+        }
+      }
+
+      g_critters[i] = (Critter) {};
+      g_critters[i].glow = 0.2;
+      g_critters[i].body = body_new(p, 0.0);
+      g_critters[i].glow_color = (SDL_Color) {255, 183, 80, 255};
+      g_critters[i].body.height = radius * 2;
+      g_critters[i].body.radius = radius;
+      g_critters[i].body.z = 0.6;
+      g_critters[i].opacity = 1.0;
+      g_critters[i].type = CRITTER_LIGHT;
+    }
+    // Ceiling Lights
+    else if (i < 16) {
       int x = floor(i / 4) * 2 + 1;
       int y = i % 4 * 2 + 1;
       g_critters[i] = (Critter) {};
       g_critters[i].glow = 0.2;
-      body_init(&g_critters[i].body, (Point){x + .5, y + .5}, 0.0);
-      g_critters[i].body.radius = 0.3;
-      g_critters[i].body.z = 0.75;
+      g_critters[i].body = body_new((Point){x + .5, y + .5}, 0.0);
+      g_critters[i].body.height = g_critters[i].body.radius = 0.2;
+      g_critters[i].body.z = 0.8;
       g_critters[i].opacity = 1.0;
+      g_critters[i].type = CRITTER_LIGHT;
     }
     else {
-      // float x = (rand() % (MAP_TILES_X / 2)) * 2 + .2;
-      // float y = (rand() % (MAP_TILES_Y / 2)) * 2 + .3;
-      float x = ((rand() % MAP_CELLS_X) * 2) + 1.5;
-      float y = ((rand() % MAP_CELLS_Y) * 2) + 1.5;
+      float x = (rand_int(MAP_CELLS_X) * 2) + 1.5;
+      float y = (rand_int(MAP_CELLS_Y) * 2) + 1.5;
 
       g_critters[i] = (Critter) {};
 
-      body_init(&g_critters[i].body, (Point){4.5, 3.5}, (rand() / (float)RAND_MAX) * M_PI * 2);
+      g_critters[i].body = body_new((Point){x, y}, rand_scaled(M_PI * 2));
 
       g_critters[i].body.bouncy = 1;
-      g_critters[i].body.radius = (rand() / (float)RAND_MAX) * 0.5;
       g_critters[i].body.radius = 0.2;
       g_critters[i].body.height = 2 * g_critters[i].body.radius;
       g_critters[i].body.speed = CRITTER_MAX_SPEED;
-      g_critters[i].glow = 0.9;
+      g_critters[i].glow = 0.0;
       g_critters[i].opacity = 1.0;
-
+      g_critters[i].type = CRITTER_ORB;
     }
-
-
   }
 }
 
@@ -57,9 +90,14 @@ void critters_destroy()
 void critters_tick(float t)
 {
   for (int i = 0; i < MAX_CRITTERS; i++) {
-    g_critters[i].body.ang_velocity = ((float)rand()/RAND_MAX * CRITTER_MAX_TURN - (CRITTER_MAX_TURN/2));
+    if (g_critters[i].type == CRITTER_ORB) {
+      g_critters[i].body.ang_velocity = rand_perturb(0, CRITTER_MAX_TURN);
+    }
+    if (g_critters[i].type == CRITTER_LIGHT) {
+      g_critters[i].glow = rand_perturb(0.6, 0.1);
+    }
+
     body_tick(&g_critters[i].body, t);
-    Critter *b = &g_critters[i];
   }
 }
 

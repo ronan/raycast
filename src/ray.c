@@ -48,6 +48,7 @@ Point ray_cast_step_point_inv(Ray r) {
 
 void ray_scan() {
   Ray r;
+  Pixel p;
 
   Point ray_dir_from = point_dir(g_player.camera_plane, g_player.body.dir);
   float view_cone_limit = point_dot(g_player.body.dir, ray_dir_from);
@@ -79,7 +80,7 @@ void ray_scan() {
       float wall_bot = wall_top + wall_h;
 
       g_critters[i].screen_h   = (g_critters[i].body.height * SCREEN_H) / g_critters[i].camera_dist;
-      g_critters[i].screen_bot = wall_bot;
+      g_critters[i].screen_bot = wall_bot - (g_critters[i].body.z * wall_h);
       g_critters[i].screen_top = g_critters[i].screen_bot - g_critters[i].screen_h;
     }
   }
@@ -104,7 +105,7 @@ void ray_scan() {
 
     // Set the direction of the ray based on the camera properties and current column
     float camera_x = (2.0 * (r.pixel.x / SCREEN_W)) - 1.0;
-    Point camera_plane = point_mult(g_player.camera_plane, FOV * camera_x);
+    Point camera_plane = point_mult(g_player.camera_plane, FOV * FOV * camera_x * SCREEN_RATIO);
 
     r.dir = point_add(r.dir, camera_plane);
     r.start = r.end = g_player.body.pos;
@@ -185,7 +186,8 @@ void ray_scan() {
         r_critter.hit.local.x = u;
         r_critter.end = point_add(e, point_mult(point_sub(d, e), u));
         critter_dist = r_critter.dist = g_critters[i].camera_dist;
-        
+        r_critter.hit.critter = &g_critters[i];
+
         critter_hits[critter_hit_count].r = r_critter;
         critter_hits[critter_hit_count].c = g_critters[i];
         
@@ -202,14 +204,15 @@ void ray_scan() {
     {
       g_gfx.screen_draw.y = r_critter.pixel.y = r.pixel.y = row;
       Ray r_render = r;
+      p = COLOR_BLACK;
 
-      // // Wall
+      // Wall
       if (row > wall_top && row < wall_bot) {
         r_render.hit.local.y = (r.pixel.y - wall_top) / wall_h;
         r_render.z = 1 - r_render.hit.local.y;
         r_render.hit.type = HIT_WALL;
 
-        render_ray(r_render);
+        p = render_ray(r_render);
       }
       // Floor/ceiling
       else 
@@ -228,27 +231,26 @@ void ray_scan() {
         r_render.end = point_add(g_player.body.pos, point_mult(r.dir, r_render.dist));
         r_render.hit.local = point_fractional(r_render.end);
         
-        render_ray(r_render);
-
+        p = render_ray(r_render);
 
 #ifndef NOVIZ_RAY_FLOOR
         viz_map_dot(r_render.end, 5, COLOR_BLUE);
 #endif
       }
 
-
+      // All critters
       for (int i = 0; i < critter_hit_count; i++) {
         if (row > critter_hits[i].c.screen_top && row < critter_hits[i].c.screen_bot) {
           r_render = critter_hits[i].r;
-          r_render.z = 0.5 - (float)(row - critter_hits[i].c.screen_top) / (critter_hits[i].c.screen_h);
-          r_render.hit.local.y = (float)(row - critter_hits[i].c.screen_top) / (critter_hits[i].c.screen_h);
+          r_render.hit.local.y = r_render.z = (float)(row - critter_hits[i].c.screen_top) / (critter_hits[i].c.screen_h);
+          r_render.z = critter_hits[i].c.body.z - (r_render.hit.local.y * critter_hits[i].c.body.height);
           r_render.pixel.y = row;
           r_render.hit.type = HIT_CRITTER;
-          render_ray(r_render);
+          p = pixel_blend(p, render_ray(r_render));
         }
       }
 
-
+      gfx_put_pixel(r.pixel.x, r.pixel.y, p);
     }
   }
 }

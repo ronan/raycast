@@ -43,4 +43,6 @@ Point point_dir(Point a, Point b);
 float point_vector_length(Point to);
 Point point_vector_normalize(Point a);
 
+int point_is_oob(Point p);
+
 #endif

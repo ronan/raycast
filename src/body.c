@@ -7,14 +7,18 @@ Point g_camera_plane;
 Point g_camera_pos;
 Point g_camera_dir;
 
-void body_init(Body *b, Point pos, float ang)
+Body body_new(Point pos, float ang)
 {
-  b->bouncy = 0;
-  b->speed = 0;
-  b->ang_velocity = 0;
-  b->lateral_speed = 0;
-  body_set_pos(b, pos);
-  body_set_angle(b, ang);
+  Body b;
+  b.bouncy = 0;
+  b.speed = 0;
+  b.ang_velocity = 0;
+  b.lateral_speed = 0;
+  b.z = 0;
+  b.height = 0;
+  body_set_pos(&b, pos);
+  body_set_angle(&b, ang);
+  return b;
 }
 
 void body_tick(Body *b, float t) {

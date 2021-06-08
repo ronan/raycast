@@ -1,6 +1,27 @@
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 
+
+float rand_unit() {
+  return (rand() / (float)RAND_MAX);
+}
+
+float rand_scaled(float scale) {
+  return rand_unit() * scale;
+}
+
+float rand_range(float min, float max) {
+  return min + rand_scaled(max - min);
+}
+
+float rand_perturb(float base, float scale) {
+  return base - scale + rand_scaled(2 * scale);
+}
+
+int rand_int(int max) {
+  return rand() % max;
+}
 
 void err(char const *fmt, ...)
 {

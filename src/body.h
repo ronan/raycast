@@ -8,7 +8,6 @@ typedef struct body
   Point pos;
   Point dir;
   Point lat;
-  float z;
 
   angle ang;
   angle ang_velocity;
@@ -20,6 +19,7 @@ typedef struct body
 
   float radius;
   float height;
+  float z;
 } Body;
 
 extern Point g_camera_plane;
@@ -27,7 +27,7 @@ extern Point g_camera_pos;
 extern Point g_camera_dir;
 
 
-void body_init(Body *b, Point pos, float ang);
+Body body_new(Point pos, float ang);
 void body_tick(Body *b, float t);
 
 void body_set_pos(Body *b, Point p);
