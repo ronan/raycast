@@ -63,6 +63,7 @@
     "ratio": "c",
     "sstream": "c",
     "sdl.h": "c",
-    "sdl_image.h": "c"
+    "sdl_image.h": "c",
+    "particle.h": "c"
   }
 }

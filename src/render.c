@@ -54,7 +54,7 @@ Pixel render_lights(Ray r, Pixel c) {
 
 // Render a ray
 Pixel render_ray(Ray r) {
-  Pixel p;
+  Pixel p = COLOR_CLEAR;
 
   // Clamp the local sample point to account for floating point errors
   r.hit.local.y = r.hit.local.y >= 1.0 ? 0.99 : r.hit.local.y;
@@ -77,6 +77,9 @@ Pixel render_ray(Ray r) {
         break;
         case CRITTER_ORB:
           p = bitmap_sample(BITMAP_CRITTER, r.hit.local);
+        break;
+        default:
+          p = COLOR_BLACK;
         break;
       }
     break;

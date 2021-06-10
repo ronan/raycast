@@ -9,6 +9,7 @@
 #include "scene.h"
 #include "input.h"
 #include "critter.h"
+#include "particle.h"
 #include "utils.h"
 #include "map.h"
 
@@ -18,23 +19,32 @@ void init()
 {
     info("Initializing game");
     srand(1);
+
     viz_init(VIZ_WINDOW_W, VIZ_WINDOW_H);
-    bitmap_load_all();
     map_init();
     player_init();
+
+    bitmap_load_all();
     critters_init();
+    particles_init();
     info("Finished initializing\n");
 }
 
 void reinit() {
-    critters_destroy();
+    particles_destroy();
+    particles_init();
+    bitmap_unload_all();
     bitmap_load_all();
     critters_init();
+    critters_destroy();
 }
 
 void destroy()
 {
     critters_destroy();
+    particles_destroy();
+    bitmap_unload_all();
+
     viz_destroy();
     gfx_destroy();
 }
@@ -54,7 +64,7 @@ int main(int argc, char *argv[])
     bool done = 0;
     SDL_Event event;
 
-    float t, t_last, t_last_fps = SDL_GetTicks();
+    float t, t_last, t_delta, t_last_fps = SDL_GetTicks();
     int fps_frames = 0;
 
     while(!done)
@@ -89,7 +99,7 @@ int main(int argc, char *argv[])
             }
         }
         t = SDL_GetTicks();
-        float t_delta = (t - t_last);
+        t_delta = (t - t_last);
 
         // Don't let the delta get to big or collision detection gets hard
         t_delta = t_delta > 500 ? 500 : t_delta;
@@ -98,6 +108,7 @@ int main(int argc, char *argv[])
         player_tick(t_delta / 33.33); // 30FPS as a standard for animation
         if (!g_paused) {
             critters_tick(t_delta / 33.33);
+            particles_tick(t_delta / 33.33);
         }
         scn_draw();
 

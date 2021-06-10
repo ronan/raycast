@@ -45,9 +45,11 @@ extern int g_paused;
 #define MAP_TILES_S 1 //map cube size
 #define MINIMAP_SCALE 32
 
+#define MAX_LIGHTS 32
+#define MAX_ORBS 0
+#define MAX_CRITTERS (MAX_ORBS + MAX_LIGHTS)
 
-
-#define MAX_CRITTERS 32
+#define MAX_PARTICLES 255
 #define CRITTER_MAX_TURN 0.2
 // #define CRITTER_MAX_SPEED 0
 #define CRITTER_MAX_SPEED 0.05

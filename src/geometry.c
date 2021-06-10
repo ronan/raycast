@@ -105,3 +105,12 @@ Point point_integral(Point a)
 int point_is_oob(Point p) {
   return p.x == POINT_OOB.x;
 }
+
+
+Point3 point3_add(Point3 a, Point3 b) {
+  return (Point3) {.x = a.x + b.x, .y = a.y + b.y, .z = a.z + b.z};
+}
+
+Point point3_to_point(Point3 a) {
+  return (Point) {.x = a.x, .y = a.y};
+}

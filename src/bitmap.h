@@ -32,5 +32,6 @@ void bitmap_unload_all();
 Pixel bitmap_sample(int bitmap_idx, Point p);
 Pixel bitmap_sample_index(int bitmap_idx, int px, int py, int wrap);
 void bitmap_draw_pixel(int bitmap_idx, Point p, int dest_x, int dest_y);
+Pixel bitmap_sample_xy(int bitmap_idx, float x, float y);
 
 #endif

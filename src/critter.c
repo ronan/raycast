@@ -1,4 +1,5 @@
 #include "common.h"
+#include "particle.h"
 #include "critter.h"
 #include "utils.h"
 #include "map.h"
@@ -18,7 +19,7 @@ void critters_init()
   for (int i = 0; i < MAX_CRITTERS; i++) {
 
     // Wall Lights
-    if (i < 16) {
+    if (i < MAX_LIGHTS) {
       int x = i % 4 * 2 + 1;
       int y = floor(i / 4) * 2 + 1;
 
@@ -27,18 +28,18 @@ void critters_init()
 
       if (((x + y)/2) % 2 == 0) {
         if (map_tile_is_wall(map_tile_at_point((Point){x, y - 1}))) {
-          p = (Point){x + 0.5, y + radius};
+          p = (Point){x + 0.5, y + (radius * 3)};
         }
         else if (map_tile_is_wall(map_tile_at_point((Point){x - 1, y}))) {
-          p = (Point){x + radius, y + 0.5};
+          p = (Point){x + (radius * 3), y + 0.5};
         }
       }
       else {
         if (map_tile_is_wall(map_tile_at_point((Point){x, y + 1}))) {
-          p = (Point){x + 0.5, y + 1 - radius};
+          p = (Point){x + 0.5, y + 1 - (radius * 3)};
         }
         else if (map_tile_is_wall(map_tile_at_point((Point){x + 1, y}))) {
-          p = (Point){x + 1 - radius, y + 0.5};
+          p = (Point){x + 1 - (radius * 3), y + 0.5};
         }
       }
 
@@ -53,17 +54,17 @@ void critters_init()
       g_critters[i].type = CRITTER_LIGHT;
     }
     // Ceiling Lights
-    else if (i < 16) {
-      int x = floor(i / 4) * 2 + 1;
-      int y = i % 4 * 2 + 1;
-      g_critters[i] = (Critter) {};
-      g_critters[i].glow = 0.2;
-      g_critters[i].body = body_new((Point){x + .5, y + .5}, 0.0);
-      g_critters[i].body.height = g_critters[i].body.radius = 0.2;
-      g_critters[i].body.z = 0.8;
-      g_critters[i].opacity = 1.0;
-      g_critters[i].type = CRITTER_LIGHT;
-    }
+    // else if (i < 16) {
+    //   int x = floor(i / 4) * 2 + 1;
+    //   int y = i % 4 * 2 + 1;
+    //   g_critters[i] = (Critter) {};
+    //   g_critters[i].glow = 0.2;
+    //   g_critters[i].body = body_new((Point){x + .5, y + .5}, 0.0);
+    //   g_critters[i].body.height = g_critters[i].body.radius = 0.2;
+    //   g_critters[i].body.z = 0.8;
+    //   g_critters[i].opacity = 1.0;
+    //   g_critters[i].type = CRITTER_LIGHT;
+    // }
     else {
       float x = (rand_int(MAP_CELLS_X) * 2) + 1.5;
       float y = (rand_int(MAP_CELLS_Y) * 2) + 1.5;
@@ -95,6 +96,8 @@ void critters_tick(float t)
     }
     if (g_critters[i].type == CRITTER_LIGHT) {
       g_critters[i].glow = rand_perturb(0.6, 0.1);
+      particles_emit_smoke((Point3){.x = g_critters[i].body.pos.x, .y = g_critters[i].body.pos.y, .z = g_critters[i].body.z + 0.1});
+      particles_emit_fire((Point3){.x = g_critters[i].body.pos.x, .y = g_critters[i].body.pos.y, .z = g_critters[i].body.z + 0.1});
     }
 
     body_tick(&g_critters[i].body, t);

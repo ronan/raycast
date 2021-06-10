@@ -10,6 +10,7 @@
 #include "render.h"
 #include "pixel.h"
 #include "critter.h"
+#include "particle.h"
 
 #include "ray.h"
 
@@ -50,9 +51,6 @@ void ray_scan() {
   Ray r;
   Pixel p;
 
-  Point ray_dir_from = point_dir(g_player.camera_plane, g_player.body.dir);
-  float view_cone_limit = point_dot(g_player.body.dir, ray_dir_from);
-
   // Pre-process each critter outside of the inner-loops
   for (int i = 0; i < MAX_CRITTERS; i++) {
     g_critters[i].camera_dist = DAMN_NEAR_INFINITY;
@@ -60,7 +58,7 @@ void ray_scan() {
 
     Point dir = point_dir(g_camera_pos, g_critters[i].body.pos);
     g_critters[i].camera_ang_cos = point_dot(dir, g_camera_dir);
-    if (g_critters[i].camera_ang_cos > view_cone_limit) {
+    if (g_critters[i].camera_ang_cos > 0) {
       Point billboard_plane = point_mult(g_camera_plane, g_critters[i].body.radius);
       g_critters[i].camera_dist    = point_dist(g_camera_pos, g_critters[i].body.pos);
       g_critters[i].camera_right   = point_add(g_critters[i].body.pos, billboard_plane);
@@ -97,6 +95,40 @@ void ray_scan() {
     }
   }
 
+  // Preprocess the particles
+  Point cam_plane = point_mult(g_player.camera_plane, FOV);
+  Point ray_camera = (Point) {
+    (r.pixel.x / SCREEN_H) - 0.5,
+    r.pixel.y / SCREEN_H
+  };
+  // The y pos of the current ray in camera space (0-1)
+  float cam_y = r.pixel.y / SCREEN_H;
+  // The x pos of the current ray in camera space (0-1)
+  float cam_x = r.pixel.x / SCREEN_W;
+
+  for (int i = 0; i < MAX_PARTICLES; i++) {
+    g_particles[i].camera_space_radius = 0;
+    g_particles[i].camera_space_dist = DAMN_NEAR_INFINITY;
+    if (particle_is_alive(&g_particles[i])) {
+      Point pos = point3_to_point(g_particles[i].pos);
+      Point particle_dir = point_dir(g_camera_pos, pos);
+      float d = point_dist(g_camera_pos, pos);
+
+      // Particle is closer than the nearest wall and is in front of the camera
+      if (point_dot(particle_dir, g_camera_dir) > 0) {
+        // The current particle height in camera space (0-1)
+        g_particles[i].camera_space_radius = (((g_particles[i].radius) / d) / 2);
+
+        // The current particle position in camera space (0-1)
+        g_particles[i].camera_space_pos = (Point){
+          0.5 + point_dot(particle_dir, cam_plane) * SCREEN_RATIO,
+          0.5 + (0.5 / d) - (g_particles[i].pos.z / d)
+        };
+        g_particles[i].camera_space_dist = d;
+      }
+    }
+  }
+
   for (int col = 0; col <= SCREEN_W; col++)
   {
     r = create_ray();
@@ -105,7 +137,8 @@ void ray_scan() {
 
     // Set the direction of the ray based on the camera properties and current column
     float camera_x = (2.0 * (r.pixel.x / SCREEN_W)) - 1.0;
-    Point camera_plane = point_mult(g_player.camera_plane, FOV * FOV * camera_x * SCREEN_RATIO);
+    float camera_plane_length = FOV * FOV * camera_x * SCREEN_RATIO;
+    Point camera_plane = point_mult(g_player.camera_plane, camera_plane_length);
 
     r.dir = point_add(r.dir, camera_plane);
     r.start = r.end = g_player.body.pos;
@@ -198,7 +231,7 @@ void ray_scan() {
 #endif
       }
     }
-
+        
     // Draw each row top to bottom
     for(int row = 0; row < SCREEN_H; row++)
     {
@@ -249,6 +282,60 @@ void ray_scan() {
           p = pixel_blend(p, render_ray(r_render));
         }
       }
+
+      // Particles
+      Point cam_plane = point_mult(g_player.camera_plane, FOV);
+      Point ray_camera = (Point) {
+        (r.pixel.x / SCREEN_H) - 0.5,
+        r.pixel.y / SCREEN_H
+      };
+      // The y pos of the current ray in camera space (0-1)
+      float cam_y = r.pixel.y / SCREEN_H;
+      // The x pos of the current ray in camera space (0-1)
+      float cam_x = r.pixel.x / SCREEN_W;
+
+      for (int i = 0; i < MAX_PARTICLES; i++) {
+        if (particle_is_alive(&g_particles[i])) {
+          Point pos = point3_to_point(g_particles[i].pos);
+          Point particle_dir = point_dir(g_camera_pos, pos);
+          float d = point_dist(g_camera_pos, pos);
+
+          // Particle is closer than the nearest wall and is in front of the camera
+          if (d < r_render.dist && point_dot(particle_dir, g_camera_dir) > 0) {
+            if (point_dot(particle_dir, g_camera_dir) > 0) {
+              // The current particle height in camera space (0-1)
+              float particle_camera_radius = (((g_particles[i].radius) / d) / 2);
+
+              // The current particle position in camera space (0-1)
+              Point particle_camera = (Point){
+                0.5 + point_dot(particle_dir, cam_plane) * SCREEN_RATIO,
+                0.5 + (0.5 / d) - (g_particles[i].pos.z / d)
+              };
+
+              if (point_dist(ray_camera, particle_camera) < particle_camera_radius) {
+                  p = pixel_blend(p, g_particles[i].color);
+              }
+            }
+          }
+        }
+      }
+      // Point ray_camera = (Point) {
+      //   (r.pixel.x / SCREEN_H) - 0.5,
+      //   r.pixel.y / SCREEN_H
+      // };
+      // for (int i = 0; i < MAX_PARTICLES; i++) {
+      //   if (
+      //     particle_is_alive(&g_particles[i]) && 
+      //     g_particles[i].camera_space_dist < 2.0 && 
+      //     g_particles[i].camera_space_dist < r_render.dist
+      //     g_particles[i].camera_space_radius > SOME_TINY_AMOUNT &&
+      //     particle_is_alive(&g_particles[i]) && 
+      //     point_dist(ray_camera, g_particles[i].camera_space_pos) < g_particles[i].camera_space_radius
+      //     ) {
+      //       //p = pixel_blend(p, g_particles[i].color);
+      //     }
+      // }
+
 
       gfx_put_pixel(r.pixel.x, r.pixel.y, p);
     }

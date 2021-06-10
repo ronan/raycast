@@ -10,6 +10,7 @@
 #include "scene.h"
 #include "bitmap.h"
 #include "critter.h"
+#include "particle.h"
 #include "utils.h"
 
 #include "viz.h"
@@ -93,13 +94,9 @@ void viz_map() {
   }
 
   // Draw player
-  float line_l = g_player.body.radius * VIZ_MAP_SCALE;
-  Point from = point_mult(g_player.body.pos, VIZ_MAP_SCALE);
-  Point to = point_add(from, point_mult(g_player.body.dir, line_l));
-  viz_put_line(from.x, from.y, to.x, to.y, COLOR_GREEN);
-  to = point_add(from, point_mult(g_player.camera_plane, line_l));
-  viz_put_line(from.x, from.y, to.x, to.y, COLOR_BLUE);
-  viz_put_dot(from, 1, COLOR_RED);
+  viz_map_body(g_player.body, COLOR_RED);
+  viz_map_vector(g_player.body.pos, point_mult(g_player.camera_plane, FOV), COLOR_CYAN);
+  viz_map_vector(g_player.body.pos, g_player.body.dir, COLOR_GREEN);
 
   // Draw the start/end rays for the floor scan sweep
   Point ray_dir_from = point_sub(g_player.body.dir, point_mult(g_player.camera_plane, FOV));
@@ -108,15 +105,21 @@ void viz_map() {
   viz_map_line(g_player.body.pos, point_add(g_player.body.pos, ray_dir_to), COLOR_YELLOW);
 
 
-  for (int i = 0; i < 16; i++) {
-    viz_put_dot(point_mult(g_lights[i], VIZ_MAP_SCALE), 5, COLOR_YELLOW);
+  for (int i = 0; i < MAX_LIGHTS; i++) {
+    viz_map_dot_scaled(g_critters[i].body.pos, g_critters[i].body.radius, COLOR_YELLOW);
   }
 
-  for (int i = 0; i < MAX_CRITTERS; i++) {
+  for (int i = MAX_PARTICLES - 1; i >= 0; i--) {
+    if (particle_is_alive(&g_particles[i])) {
+      viz_map_dot_scaled(point3_to_point(g_particles[i].pos), g_particles[i].radius, g_particles[i].color);
+    }
+  }
+
+  for (int i = MAX_LIGHTS; i < MAX_CRITTERS; i++) {
     if (g_critters[i].body.radius < 0.5) {
-      viz_put_dot(
-        point_mult(g_critters[i].body.pos, VIZ_MAP_SCALE), 
-        g_critters[i].body.radius * VIZ_MAP_SCALE,
+      viz_map_dot_scaled(
+        g_critters[i].body.pos,
+        g_critters[i].body.radius,
         COLOR_CYAN
       );
     }
@@ -145,6 +148,15 @@ void viz_map_dot(Point a, float size, SDL_Color c) {
   a = point_mult(a, VIZ_MAP_SCALE);
   viz_put_dot(a, size, c);
 }
+
+void viz_map_dot_scaled(Point a, float size, SDL_Color c) {
+  viz_put_dot(point_mult(a, VIZ_MAP_SCALE), size * VIZ_MAP_SCALE, c);
+}
+
+void viz_map_body(Body b, SDL_Color c) {
+  viz_put_dot(point_mult(b.pos, VIZ_MAP_SCALE), b.radius * VIZ_MAP_SCALE, c);
+}
+
 
 void viz_map_floor_ray(Ray r, SDL_Color c) {
   // return;
@@ -214,7 +226,7 @@ void viz_stats() {
   vis_stats_frames++;
   vis_stats_t = SDL_GetTicks();
   float viz_time_since_last_displayed = vis_stats_t - vis_stats_last_t;
-  if (viz_time_since_last_displayed >= 5000.0){
+  if (viz_time_since_last_displayed >= 500.0){
     float mspf = (viz_time_since_last_displayed)/(float)vis_stats_frames;
     getrusage(0, &snapshot);
 
@@ -234,9 +246,9 @@ void viz_stats() {
 void viz_draw() {
   viz_map();
 
-  viz_bitmap_x = VIZ_BITMAP_X;
-  viz_bitmap_y = VIZ_BITMAP_Y;
-  viz_bitmap(BITMAP_DITHER);
+  // viz_bitmap_x = VIZ_BITMAP_X;
+  // viz_bitmap_y = VIZ_BITMAP_Y;
+  // viz_bitmap(BITMAP_DITHER);
   // viz_bitmap(BITMAP_BAYER);
   // viz_bitmap(BITMAP_HATCH);
 

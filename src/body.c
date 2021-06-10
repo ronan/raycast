@@ -11,9 +11,9 @@ Body body_new(Point pos, float ang)
 {
   Body b;
   b.bouncy = 0;
-  b.speed = 0;
-  b.ang_velocity = 0;
-  b.lateral_speed = 0;
+  b.speed = 0.0;
+  b.ang_velocity = 0.0;
+  b.lateral_speed = 0.0;
   b.z = 0;
   b.height = 0;
   body_set_pos(&b, pos);

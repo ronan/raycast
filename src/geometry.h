@@ -1,8 +1,7 @@
-#include <math.h>
-
 #ifndef _GEOM_H_
 #define _GEOM_H_
 
+#include <math.h>
 
 #define ANG_E 0
 #define ANG_N 1.57079632679 
@@ -11,6 +10,7 @@
 
 #define POINT_ORIGIN (Point) {.x = 0, .y = 0}
 #define POINT_OOB (Point) {.x = -1, .y = -1}
+#define POINT3_OOB (Point3) {.x = -1, .y = -1, .z = -1}
 
 // An angle in radians
 typedef float angle;
@@ -22,6 +22,12 @@ typedef struct Point
   float y;
 } Point;
 
+typedef struct Point3
+{
+  float x;
+  float y;
+  float z;
+} Point3;
 
 angle ang_add(angle a, angle b);
 Point ang_vector(angle a, float scale);
@@ -44,5 +50,9 @@ float point_vector_length(Point to);
 Point point_vector_normalize(Point a);
 
 int point_is_oob(Point p);
+
+
+Point3 point3_add(Point3 a, Point3 b);
+Point point3_to_point(Point3 a);
 
 #endif

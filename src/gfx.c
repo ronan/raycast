@@ -101,8 +101,6 @@ gfx_err gfx_destroy()
     
     SDL_Quit();
 
-    bitmap_unload_all();
-
     return GFX_ERR_NONE;
 }
 

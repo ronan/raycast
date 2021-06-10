@@ -7,12 +7,41 @@
 			"command": "/usr/bin/clang",
 			"args": [
 				"-g",
-				"-fsanitize=address", "-fno-omit-frame-pointer",
-				"-o","main",
-				"-I", "include/",
-				"-l", "SDL2_image",
-				"-l", "SDL2",
-				"src/*.c",
+				// "-fsanitize=address",
+				// "-fno-omit-frame-pointer",
+				"-o",
+				"main",
+				"-I",
+				"include/",
+				"-l",
+				"SDL2_image",
+				"-l",
+				"SDL2",
+				"src/*.c"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build",
+			"detail": "compiler: /usr/bin/clang"
+		},
+		{
+			"type": "cppbuild",
+			"label": "Build Without Debug",
+			"command": "/usr/bin/clang",
+			"args": [
+				"-o",
+				"main",
+				"-I",
+				"include/",
+				"-l",
+				"SDL2_image",
+				"-l",
+				"SDL2",
+				"src/*.c"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"
