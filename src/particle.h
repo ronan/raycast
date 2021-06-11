@@ -8,8 +8,6 @@
 
 typedef struct Particle
 {
-  int alive;
-
   Point3 pos;
   Point3 vel;
   Point3 acc;
@@ -27,9 +25,6 @@ typedef struct Particle
   float radius_end;
   float radius;
 
-  float camera_space_radius;
-  float camera_space_dist;
-  Point camera_space_pos;
 } Particle;
 
 extern Particle g_particles[MAX_PARTICLES];

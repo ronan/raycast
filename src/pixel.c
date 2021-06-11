@@ -30,12 +30,12 @@ Uint8 pixel_color_add(Uint8 a, Uint8 b) {
 }
 
 Pixel pixel_blend(Pixel a, Pixel b) {
-  // if (b.a > 0) {
-  //   return b;
-  // }
-  // else {
-  //   return a;
-  // }
+  if (b.a > 0) {
+    return b;
+  }
+  else {
+    return a;
+  }
 
   float alpha = b.a / 255.0;
   float alpha_inv = (1 - alpha);
@@ -50,22 +50,14 @@ Pixel pixel_blend(Pixel a, Pixel b) {
 
 
 Pixel pixel_overlay(Pixel a, Pixel b) {
-  // if (b.a > 0) {
-  //   return b;
-  // }
-  // else {
-  //   return a;
-  // }
-
   Pixel out;
-  float alpha_inv = (1 - b.a);
 
-  out.r = ((a.r * alpha_inv) + (b.r * b.a));
-  if (out.r < a.r) out.r = 255;
-  out.g = ((a.g * alpha_inv) + (b.g * b.a));
-  if (out.g < a.g) out.g = 255;
-  out.b = ((a.b * alpha_inv) + (b.b * b.a));
-  if (out.b < a.b) out.b = 255;
+  float alpha = b.a / 255.0;
+  float alpha_inv = (1 - alpha);
+
+  a.r = pixel_color_add((a.r * alpha_inv), (b.r * alpha));
+  a.g = pixel_color_add((a.g * alpha_inv), (b.g * alpha));
+  a.b = pixel_color_add((a.b * alpha_inv), (b.b * alpha));
 
   return a;
 }

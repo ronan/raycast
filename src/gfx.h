@@ -6,6 +6,7 @@
 
 
 #include "geometry.h"
+#include "pixel.h"
 
 typedef struct Pixel_Buffer
 {
@@ -38,9 +39,12 @@ gfx_err gfx_init();
 gfx_err gfx_init_window(gfx_ctx *ctx, int width, int height, int x, int y, const char *title);
 gfx_err gfx_clear(SDL_Color);
 gfx_err gfx_put_pixel(unsigned int, unsigned int, SDL_Color);
+gfx_err gfx_overlay_pixel(unsigned int x, unsigned int y, Pixel color);
+
 gfx_err gfx_put_line(int x1, int y1, int x2, int y2, SDL_Color color);
 gfx_err gfx_put_rect(int x1, int y1, int x2, int y2, SDL_Color color);
 gfx_err gfx_put_square_centered(Point center, float size, SDL_Color color);
+
 gfx_err gfx_update();
 gfx_err gfx_destroy();
 gfx_err gfx_draw_screen();

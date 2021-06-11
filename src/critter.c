@@ -25,21 +25,22 @@ void critters_init()
 
       Point p = POINT_OOB;
       float radius = 0.1;
+      float wall_offset = radius;
 
       if (((x + y)/2) % 2 == 0) {
         if (map_tile_is_wall(map_tile_at_point((Point){x, y - 1}))) {
-          p = (Point){x + 0.5, y + (radius * 3)};
+          p = (Point){x + 0.5, y + wall_offset};
         }
         else if (map_tile_is_wall(map_tile_at_point((Point){x - 1, y}))) {
-          p = (Point){x + (radius * 3), y + 0.5};
+          p = (Point){x + wall_offset, y + 0.5};
         }
       }
       else {
         if (map_tile_is_wall(map_tile_at_point((Point){x, y + 1}))) {
-          p = (Point){x + 0.5, y + 1 - (radius * 3)};
+          p = (Point){x + 0.5, y + 1 - wall_offset};
         }
         else if (map_tile_is_wall(map_tile_at_point((Point){x + 1, y}))) {
-          p = (Point){x + 1 - (radius * 3), y + 0.5};
+          p = (Point){x + 1 - wall_offset, y + 0.5};
         }
       }
 
@@ -49,7 +50,7 @@ void critters_init()
       g_critters[i].glow_color = (SDL_Color) {255, 183, 80, 255};
       g_critters[i].body.height = radius * 2;
       g_critters[i].body.radius = radius;
-      g_critters[i].body.z = 0.6;
+      g_critters[i].body.z = 0.5;
       g_critters[i].opacity = 1.0;
       g_critters[i].type = CRITTER_LIGHT;
     }

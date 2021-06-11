@@ -54,5 +54,6 @@ int point_is_oob(Point p);
 
 Point3 point3_add(Point3 a, Point3 b);
 Point point3_to_point(Point3 a);
+Point3 point3_mult(Point3 a, float scale);
 
 #endif

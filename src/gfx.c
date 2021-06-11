@@ -142,3 +142,30 @@ gfx_err gfx_put_pixel(unsigned int x, unsigned int y, Pixel color)
 
     return GFX_ERR_NONE;
 }
+
+gfx_err gfx_overlay_pixel(unsigned int x, unsigned int y, Pixel color)
+{
+    if (x < 0 || y < 0 || x >= g_gfx.buffer.w || y >= g_gfx.buffer.h) {
+        err("Out of bounds pixel write. (%d, %d).\n", x, y);
+        return GFX_ERR;
+    }
+
+    int offset = (g_gfx.buffer.pitch * y) + (x * g_gfx.buffer.bpp);
+
+    color = pixel_overlay(
+        (Pixel) {
+            .b = g_gfx.buffer.data[ offset + 0 ],
+            .g = g_gfx.buffer.data[ offset + 1 ],
+            .r = g_gfx.buffer.data[ offset + 2 ],
+            .a = 255,
+        },
+        color
+    );
+
+    g_gfx.buffer.data[ offset + 0 ] = color.b;
+    g_gfx.buffer.data[ offset + 1 ] = color.g;
+    g_gfx.buffer.data[ offset + 2 ] = color.r;
+    g_gfx.buffer.data[ offset + 3 ] = 255;
+
+    return GFX_ERR_NONE;
+}

@@ -19,20 +19,20 @@ extern int g_paused;
 
 
 
-#define SCREEN_W 256
-#define SCREEN_H 128
-#define WINDOW_W 1024
-#define WINDOW_H 512
+#define SCREEN_W 640
+#define SCREEN_H 480
+#define WINDOW_W 640
+#define WINDOW_H 480
 #define SCREEN_SCALE_W (WINDOW_W / SCREEN_W)
 #define SCREEN_SCALE_H (WINDOW_H / SCREEN_H)
 #define SCREEN_RATIO ((float)WINDOW_W / (float)WINDOW_H)
 #define SCREEN_HORIZON (SCREEN_H/2)
 #define SCREEN_X 0
 #define SCREEN_Y 0
-
+#define PX_STEP (Point) {1.0 / SCREEN_W, 1.0 / SCREEN_H}
 
 #define CAMERA_HEIGHT 0.5
-#define FOV 0.7
+#define FOV 0.66
 
 #define WALL_H (1.0 / SCREEN_H)
 
@@ -45,16 +45,17 @@ extern int g_paused;
 #define MAP_TILES_S 1 //map cube size
 #define MINIMAP_SCALE 32
 
-#define MAX_LIGHTS 32
+#define MAX_LIGHTS 2
 #define MAX_ORBS 0
 #define MAX_CRITTERS (MAX_ORBS + MAX_LIGHTS)
 
-#define MAX_PARTICLES 255
+#define MAX_PARTICLES 1000
 #define CRITTER_MAX_TURN 0.2
 // #define CRITTER_MAX_SPEED 0
 #define CRITTER_MAX_SPEED 0.05
 #define CRITTER_RADIUS 0.5
 
+#define RENDER_LIGHTS 1
 
 
 #endif

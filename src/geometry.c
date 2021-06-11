@@ -111,6 +111,10 @@ Point3 point3_add(Point3 a, Point3 b) {
   return (Point3) {.x = a.x + b.x, .y = a.y + b.y, .z = a.z + b.z};
 }
 
+Point3 point3_mult(Point3 a, float scale) {
+  return (Point3) {.x = a.x * scale, .y = a.y * scale, .z = a.z * scale};
+}
+
 Point point3_to_point(Point3 a) {
   return (Point) {.x = a.x, .y = a.y};
 }

@@ -816,3 +816,36 @@ void ray_scan2() {
     }
   }
 }
+
+
+
+              // Screen space calculations
+              // int particle_screen_x = (SCREEN_W/2) + (point_dot(particle_dir, cam_plane) * SCREEN_W);
+              // int particle_screen_y = (SCREEN_H/2) + ((0.5 / d) + (-g_particles[i].pos.z / d)) * SCREEN_H;
+
+              // // Particle height in screen space (0-SCREEN_H)
+              // int particle_screen_radius = round((((g_particles[i].radius) / d) / 2) * SCREEN_H);
+              // int particle_screen_radius_sq = particle_screen_radius * particle_screen_radius;
+      
+
+              // int from_y = particle_screen_y - particle_screen_radius;
+              // from_y = from_y < 0 ? 0 : from_y;
+              // int to_y = particle_screen_y + particle_screen_radius;
+              // to_y = to_y > SCREEN_H ? SCREEN_H : to_y;
+              // int from_x = particle_screen_x - particle_screen_radius;
+              // from_x = from_x < 0 ? 0 : from_x;
+              // int to_x = particle_screen_x + particle_screen_radius;
+              // to_x = to_x > SCREEN_W ? SCREEN_W : to_x;
+
+              // if (
+              //   particle_screen_x > 0 && particle_screen_x < SCREEN_W &&
+              //   particle_screen_y > 0 && particle_screen_y < SCREEN_H
+              // ) {
+              //   for (int y = from_y; y < to_y; y++) {
+              //     for (int x = from_x; x < to_x; x++) {
+              //       // if (point_dist(px, particle_camera) < particle_camera_radius) {
+              //         gfx_overlay_pixel(x, y, g_particles[i].color);
+              //       // }
+              //     }
+              //   }
+              // }

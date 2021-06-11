@@ -8,7 +8,7 @@ Player g_player;
 
 void player_init()
 {
-  g_player.body = body_new((Point){3.0, 3.5}, 0);
+  g_player.body = body_new((Point){4.5, 3.5}, -M_PI_2);
   g_player.body.radius = .2;
   g_player.body.bouncy = 0;
 }

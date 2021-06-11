@@ -18,8 +18,7 @@ float clamp(float f) {
 }
 
 Pixel render_lights(Ray r, Pixel c) {
-
-  if (c.a == 0) {
+  if (!RENDER_LIGHTS || c.a == 0) {
     return c;
   }
 
