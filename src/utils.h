@@ -13,5 +13,5 @@ int rand_int(int max);
 float rand_scaled(float scale);
 float rand_range(float min, float max);
 float rand_perturb(float base, float scale);
-
+int clamp_int(int i, int min, int max);
 #endif

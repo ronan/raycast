@@ -28,6 +28,7 @@ typedef struct Particle
 } Particle;
 
 extern Particle g_particles[MAX_PARTICLES];
+extern int g_particle_order[MAX_PARTICLES];
 
 Particle partices_new();
 void partices_emit(Particle p);

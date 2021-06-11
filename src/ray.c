@@ -1,6 +1,7 @@
 #include <math.h>
 
 #include "common.h"
+#include "utils.h"
 #include "gfx.h"
 #include "player.h"
 #include "scene.h"
@@ -50,7 +51,7 @@ Point ray_cast_step_point_inv(Ray r) {
 void ray_scan() {
   Ray r;
   Pixel p;
-  float z_buffer[SCREEN_W];
+  float z_buffer[SCREEN_W][SCREEN_H];
 
   // Pre-process each critter outside of the inner-loops
   for (int i = 0; i < MAX_CRITTERS; i++) {
@@ -96,7 +97,7 @@ void ray_scan() {
     }
   }
 
-  for (int col = 0; col <= SCREEN_W; col++)
+  for (int col = 0; col < SCREEN_W; col++)
   {
     r = create_ray();
     g_gfx.screen_draw.x = r.pixel.x = col;
@@ -157,7 +158,6 @@ void ray_scan() {
     float wall_top = SCREEN_HORIZON - (wall_h / 2.0);
     float wall_bot = wall_top + wall_h;
     float wall_dist = sqrt(closest_d_sq);
-    z_buffer[col] = r.dist;
 
     int critter_hit_count = 0;
     CritterHit critter_hits[MAX_CRITTERS];
@@ -214,6 +214,9 @@ void ray_scan() {
         r_render.z = 1 - r_render.hit.local.y;
         r_render.hit.type = HIT_WALL;
 
+
+        z_buffer[col][row] = r.dist;
+
         p = render_ray(r_render);
       }
       // Floor/ceiling
@@ -221,6 +224,10 @@ void ray_scan() {
       {
         r_render.dist = fabs(CAMERA_HEIGHT * SCREEN_H / (r.pixel.y - SCREEN_HORIZON));
         r_render.dist = fabs(0.5 / (r.pixel.y / SCREEN_H - 0.5));
+
+
+        z_buffer[col][row] = r_render.dist;
+
 
         if (row < SCREEN_HORIZON) {
           r_render.hit.type = HIT_CEIL;
@@ -256,7 +263,6 @@ void ray_scan() {
     }
   }
 
-
   // Particles
   for (int i = 0; i < MAX_PARTICLES; i++) {
     if (particle_is_alive(&g_particles[i])) {
@@ -281,19 +287,14 @@ void ray_scan() {
 
         int screen_pos_x = (SCREEN_W/2) - (transform_x / transform_y) * FOV * SCREEN_W;
         int screen_pos_y = (SCREEN_H/2) + (SCREEN_H/d/2) - (g_particles[i].pos.z * SCREEN_H / d);
-        int fr_x = screen_pos_x - radius / SCREEN_RATIO * SCREEN_W;
-        int to_x = screen_pos_x + radius / SCREEN_RATIO * SCREEN_W;
-        int fr_y = screen_pos_y - radius * SCREEN_H;
-        int to_y = screen_pos_y + radius * SCREEN_H;
-
-        fr_x = fr_x < 0 ? 0 : fr_x;
-        to_x = to_x > SCREEN_W ? SCREEN_W : to_x;
-        fr_y = fr_y < 0 ? 0 : fr_y;
-        to_y = to_y > SCREEN_H ? SCREEN_H : to_y;
+        int fr_x = clamp_int(screen_pos_x - radius / SCREEN_RATIO * SCREEN_W, 0, SCREEN_W);
+        int to_x = clamp_int(screen_pos_x + radius / SCREEN_RATIO * SCREEN_W, 0, SCREEN_W);
+        int fr_y = clamp_int(screen_pos_y - radius * SCREEN_H, 0, SCREEN_H);
+        int to_y = clamp_int(screen_pos_y + radius * SCREEN_H, 0, SCREEN_H);
 
         for (int x = fr_x; x < to_x; x++) {
           for (int y = fr_y; y < to_y; y++) {
-            if (z_buffer[x] > d) {
+            if (z_buffer[x][y] >= d) {
             // if (point_dist_squared(px, particle_camera) < particle_camera_radius_sq) {
               gfx_overlay_pixel(x, y, g_particles[i].color);
             // }

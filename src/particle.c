@@ -4,6 +4,7 @@
 #include "utils.h"
 
 Particle g_particles[MAX_PARTICLES];
+int g_particle_order[MAX_PARTICLES];
 int g_particle_write_idx = 0;
 int g_particle_read_idx = 0;
 
@@ -56,7 +57,7 @@ void particles_emit_smoke(Point3 emitter) {
     p.acc = (Point3){.x = rand_perturb(0, 0.0001), .y = rand_perturb(0, 0.0001), .z = rand_perturb(0.0005, 0.00001)};
     p.radius_end = p.radius_start = p.radius = rand_range(0.005, 0.05);
     p.radius_end = p.radius * 5;
-    p.color_end = p.color = p.color_start = (SDL_Color){ 0, 0, 0, 128 };
+    p.color_end = p.color = p.color_start = (SDL_Color){ 0, 0, 0, 255 };
     p.color_end = (SDL_Color){ 255, 255, 255, 0 };
     p.t_start = g_particle_tick;
     p.t_end = p.t_start + 60;
@@ -68,7 +69,7 @@ void particles_emit_fire(Point3 emitter) {
     p.pos = emitter;
     p.vel = (Point3){.x = rand_perturb(0, 0.001), .y = rand_perturb(0, 0.001), .z = rand_perturb(0.01, 0.01)};
     p.acc = (Point3){.x = rand_perturb(0, 0.0001), .y = rand_perturb(0, 0.0001), .z = rand_perturb(0.002, 0.0001)};
-    p.radius_end = p.radius_start = p.radius = rand_range(0.01, 0.1);
+    p.radius_end = p.radius_start = p.radius = rand_range(0.03, 0.1);
     p.radius_end = p.radius_end / 2;
     p.color_end = p.color = p.color_start = COLOR_YELLOW;
     p.color_end = COLOR_RED;

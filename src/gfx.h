@@ -7,6 +7,7 @@
 
 #include "geometry.h"
 #include "pixel.h"
+#include "common.h"
 
 typedef struct Pixel_Buffer
 {

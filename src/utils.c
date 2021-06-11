@@ -23,12 +23,19 @@ int rand_int(int max) {
   return rand() % max;
 }
 
+int clamp_int(int i, int min, int max) {
+  i = i < min ? min : i;
+  i = i > max ? max : i;
+  return i;
+}
+
 void err(char const *fmt, ...)
 {
   va_list args;
   va_start(args, fmt);
-  // fprintf(stderr, fmt, args);
-  va_end(args);  char logmsg;
+  fprintf(stderr, fmt, args);
+  va_end(args);  
+  char logmsg;
 }
 
 void fatal(char const *fmt, ...)
