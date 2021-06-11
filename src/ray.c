@@ -270,59 +270,37 @@ void ray_scan() {
 
       // Particle is in front of the camera
       if (point_dot(particle_diff, g_camera_dir) > 0) {
-          // Camera space calculation
-          float camera_plane_length = FOV * SCREEN_RATIO;
-          Point cam_plane = point_mult(g_camera_plane, camera_plane_length);
-          float radius = (((g_particles[i].radius) / d) / 2);
+        // Camera space calculation
+        float camera_plane_length = FOV * SCREEN_RATIO;
+        Point cam_plane = point_mult(g_camera_plane, camera_plane_length);
+        float radius = (((g_particles[i].radius) / d) / 2);
 
-          double inv_det = 1.0 / point_cross(cam_plane, g_camera_dir);
-          double transform_x = inv_det * point_cross(particle_diff, g_camera_dir);
-          double transform_y = inv_det * point_cross(particle_diff, cam_plane);
-          
-          // The current particle position in screen space (0-1)
-          Point particle_camera = (Point){
-            0.5 - (FOV * (transform_x / transform_y)),
-            0.5 + (0.5 / d) - (g_particles[i].pos.z / d)
-          };
+        double inv_det = 1.0 / point_cross(cam_plane, g_camera_dir);
+        double transform_x = inv_det * point_cross(particle_diff, g_camera_dir);
+        double transform_y = inv_det * point_cross(particle_diff, cam_plane);
 
-          if (
-            d < z_buffer[(int)(particle_camera.x)] &&
-            particle_camera.x > -radius && particle_camera.x < camera_plane_length + radius &&
-            particle_camera.y > -radius && particle_camera.y < 1.0 + radius
-          ) {
-            Point px;
-          for (px.x = -(radius/SCREEN_RATIO); px.x < (radius/SCREEN_RATIO); px.x += 1.0 / SCREEN_W) {
-            for (px.y = -radius; px.y < radius; px.y += 1.0 / SCREEN_H) {
-                // if (point_dist_squared(px, particle_camera) < particle_camera_radius_sq) {
-                  gfx_overlay_pixel((particle_camera.x + px.x) * SCREEN_W, (particle_camera.y + px.y) * SCREEN_H, g_particles[i].color);
-                // }
-              }
+        int screen_pos_x = (SCREEN_W/2) - (transform_x / transform_y) * FOV * SCREEN_W;
+        int screen_pos_y = (SCREEN_H/2) + (SCREEN_H/d/2) - (g_particles[i].pos.z * SCREEN_H / d);
+        int fr_x = screen_pos_x - radius / SCREEN_RATIO * SCREEN_W;
+        int to_x = screen_pos_x + radius / SCREEN_RATIO * SCREEN_W;
+        int fr_y = screen_pos_y - radius * SCREEN_H;
+        int to_y = screen_pos_y + radius * SCREEN_H;
+
+        fr_x = fr_x < 0 ? 0 : fr_x;
+        to_x = to_x > SCREEN_W ? SCREEN_W : to_x;
+        fr_y = fr_y < 0 ? 0 : fr_y;
+        to_y = to_y > SCREEN_H ? SCREEN_H : to_y;
+
+        for (int x = fr_x; x < to_x; x++) {
+          for (int y = fr_y; y < to_y; y++) {
+            if (z_buffer[x] > d) {
+            // if (point_dist_squared(px, particle_camera) < particle_camera_radius_sq) {
+              gfx_overlay_pixel(x, y, g_particles[i].color);
+            // }
             }
           }
         }
-
-          // Point screen_pos = (Point){
-          //   0.5 - (FOV * (transform_x / transform_y)) * SCREEN_W,
-          //   0.5 + (0.5 / d) - (g_particles[i].pos.z / d) * SCREEN_W
-          // };
-          // int screen_pos_x = (SCREEN_W/2) - (FOV * (transform_x / transform_y)) * SCREEN_W;
-          // int screen_pos_y = (SCREEN_H/2) - (SCREEN_H/d) - (g_particles[i].pos.z / d) * SCREEN_W;
-          // int fr_x = screen_pos_x - radius * SCREEN_W / SCREEN_RATIO;
-          // int to_x = screen_pos_x + radius * SCREEN_W / SCREEN_RATIO;
-          // int fr_y = screen_pos_y - radius * SCREEN_H;
-          // int to_y = screen_pos_y + radius * SCREEN_H;
-
-          // for (int x = fr_x; x < to_x; x++) {
-          //   for (int y = fr_y; y < to_y; y++) {
-          //     // if (point_dist_squared(px, particle_camera) < particle_camera_radius_sq) {
-          //       gfx_overlay_pixel(x, y, g_particles[i].color);
-          //     // }
-          //   }
-          // }
-
-
-
-
+      }
     }
   }
 }

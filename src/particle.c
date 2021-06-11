@@ -85,7 +85,7 @@ void particles_tick(float t)
   // if (!g_particles[0].t_start) {
   //   Particle p = partices_new();
   //   // p.pos = (Point3){.x = rand_scaled(15), .y = rand_scaled(15), .z = 0};
-  //   p.pos = (Point3){.x = 3.5, .y = 1, .z = 0.5};
+  //   p.pos = (Point3){.x = 4, .y = 1.5, .z = 0.5};
   //   // p.vel = (Point3){.x = rand_range(-0.3, 0.3), .y = rand_range(-0.3, 0.3), .z = 0};
   //   // p.vel = (Point3){.x = rand_range(-0.1, 0.1), .y = rand_range(-0.1, 0.1), .z = 0};
   //   p.radius_end = p.radius_start = p.radius = 1.0;//rand_range(0.01, 0.02);
