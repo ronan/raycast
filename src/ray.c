@@ -53,50 +53,6 @@ void ray_scan() {
   Pixel p;
   float z_buffer[SCREEN_W][SCREEN_H];
 
-  // Pre-process each critter outside of the inner-loops
-  for (int i = 0; i < MAX_CRITTERS; i++) {
-    g_critters[i].camera_dist = DAMN_NEAR_INFINITY;
-    g_critters[i].screen_h = g_critters[i].screen_top = g_critters[i].screen_bot = 0;
-
-    Point dir = point_dir(g_camera_pos, g_critters[i].body.pos);
-    g_critters[i].camera_ang_cos = point_dot(dir, g_camera_dir);
-    if (g_critters[i].camera_ang_cos > 0) {
-      Point billboard_plane = point_mult(g_camera_plane, g_critters[i].body.radius);
-      g_critters[i].camera_dist    = point_dist(g_camera_pos, g_critters[i].body.pos);
-      g_critters[i].camera_right   = point_add(g_critters[i].body.pos, billboard_plane);
-      g_critters[i].camera_left    = point_sub(g_critters[i].body.pos, billboard_plane);
-
-      // Todo clean up this mess:
-      Point p = g_critters[i].body.pos;
-      Point l1 = g_camera_pos;
-      Point l2 = point_add(g_camera_pos, g_camera_plane);
-
-      float u = (((p.x - l1.x) * (l2.x - l1.x)) + ((p.y - l1.y)* (l2.y - l1.y)));
-      Point x = point_add(g_camera_pos, point_mult(g_camera_plane, u));
-      g_critters[i].camera_dist = point_dist(g_critters[i].body.pos, x);
-
-      float wall_h = SCREEN_H / g_critters[i].camera_dist;
-      float wall_top = SCREEN_HORIZON - (wall_h / 2.0);
-      float wall_bot = wall_top + wall_h;
-
-      g_critters[i].screen_h   = (g_critters[i].body.height * SCREEN_H) / g_critters[i].camera_dist;
-      g_critters[i].screen_bot = wall_bot - (g_critters[i].body.z * wall_h);
-      g_critters[i].screen_top = g_critters[i].screen_bot - g_critters[i].screen_h;
-    }
-  }
-
-  // Sort the critters by distance. Insertion sort works well on almost sorted arrays
-  for (int i = 1; i < MAX_CRITTERS; i++) {
-    Critter c = g_critters[i];
-    
-    int j = i - 1;
-    while (j >= 0 && g_critters[j].camera_dist < c.camera_dist) {
-      g_critters[j + 1] = g_critters[j];
-      g_critters[j] = c;
-      j--;
-    }
-  }
-
   for (int col = 0; col < SCREEN_W; col++)
   {
     r = create_ray();
@@ -158,53 +114,11 @@ void ray_scan() {
     float wall_top = SCREEN_HORIZON - (wall_h / 2.0);
     float wall_bot = wall_top + wall_h;
     float wall_dist = sqrt(closest_d_sq);
-
-    int critter_hit_count = 0;
-    CritterHit critter_hits[MAX_CRITTERS];
-
-    Ray r_critter = r;
-    Point vr = point_sub(r.end, r.start);
-    float critter_dist = wall_dist;
-    for (int i = 0; i < MAX_CRITTERS; i++) {
-      if (g_critters[i].camera_dist > wall_dist) {
-        continue;
-      }
-
-      Point d = g_critters[i].camera_right;
-      Point e = g_critters[i].camera_left;
-      Point vs = point_sub(d, e);
-      Point vq = point_sub(r.start, e);
-
-      float u = point_cross(vq, vr) / point_cross(vs, vr);
-
-#ifndef NOVIZ_RAY_CRITTER
-      viz_map_line(e, d, COLOR_MAGENTA);
-      viz_map_vector(e, vq, COLOR_RED);
-      viz_map_vector(r.start, vr, COLOR_YELLOW);
-      viz_map_vector(e, vs, COLOR_BLUE);
-#endif
-
-      if (u > 0 && u <= 1) {
-        r_critter.hit.local.x = u;
-        r_critter.end = point_add(e, point_mult(point_sub(d, e), u));
-        critter_dist = r_critter.dist = g_critters[i].camera_dist;
-        r_critter.hit.critter = &g_critters[i];
-
-        critter_hits[critter_hit_count].r = r_critter;
-        critter_hits[critter_hit_count].c = g_critters[i];
-        
-        critter_hit_count++;
-
-#ifndef NOVIZ_RAY_CRITTER
-        viz_map_dot(r_critter.end, 10, COLOR_GREEN);
-#endif
-      }
-    }
-        
+    
     // Draw each row top to bottom
     for(int row = 0; row < SCREEN_H; row++)
     {
-      g_gfx.screen_draw.y = r_critter.pixel.y = r.pixel.y = row;
+      g_gfx.screen_draw.y = r.pixel.y = row;
       Ray r_render = r;
       p = COLOR_BLACK;
 
@@ -215,7 +129,7 @@ void ray_scan() {
         r_render.hit.type = HIT_WALL;
 
 
-        z_buffer[col][row] = r.dist;
+        z_buffer[col][row] = wall_dist;
 
         p = render_ray(r_render);
       }
@@ -247,57 +161,92 @@ void ray_scan() {
 #endif
       }
 
-      // All critters
-      for (int i = 0; i < critter_hit_count; i++) {
-        if (row > critter_hits[i].c.screen_top && row < critter_hits[i].c.screen_bot) {
-          r_render = critter_hits[i].r;
-          r_render.hit.local.y = r_render.z = (float)(row - critter_hits[i].c.screen_top) / (critter_hits[i].c.screen_h);
-          r_render.z = critter_hits[i].c.body.z - (r_render.hit.local.y * critter_hits[i].c.body.height);
-          r_render.pixel.y = row;
-          r_render.hit.type = HIT_CRITTER;
-          p = pixel_blend(p, render_ray(r_render));
-        }
-      }
-
       gfx_put_pixel(r.pixel.x, r.pixel.y, p);
     }
   }
 
-  // Particles
-  for (int i = 0; i < MAX_PARTICLES; i++) {
-    if (particle_is_alive(&g_particles[i])) {
-      Point pos = point3_to_point(g_particles[i].pos);
-      Point particle_diff = point_sub(pos, g_camera_pos);
+  float camera_plane_length = FOV * SCREEN_RATIO;
+  Point cam_plane = point_mult(g_camera_plane, camera_plane_length);
+
+  double inv_det = 1.0 / point_cross(cam_plane, g_camera_dir);
+
+  if (RENDER_CRITTERS) {
+    for (int i = 0; i < MAX_CRITTERS; i++) {
+      Point pos_diff = point_sub(g_critters[i].body.pos, g_camera_pos);
 
       // Get the paralel distance by projecting the ray from the camera to the particle onto the camera plane.
-      float t = point_dot(particle_diff, g_camera_plane);
+      float t = point_dot(pos_diff, g_camera_plane);
       Point par = point_add(g_camera_pos, point_mult(g_camera_plane, t));
-      float d = point_dist(pos, par);
+      float d = point_dist(g_critters[i].body.pos, par);
 
       // Particle is in front of the camera
-      if (point_dot(particle_diff, g_camera_dir) > 0) {
+      if (point_dot(pos_diff, g_camera_dir) > 0) {
+        float width = (((g_critters[i].body.radius * 2) / d)) * SCREEN_H;
+        float height = (((g_critters[i].body.height) / d)) * SCREEN_H;
+
         // Camera space calculation
-        float camera_plane_length = FOV * SCREEN_RATIO;
-        Point cam_plane = point_mult(g_camera_plane, camera_plane_length);
-        float radius = (((g_particles[i].radius) / d) / 2);
+        double transform_x = inv_det * point_cross(pos_diff, g_camera_dir);
+        double transform_y = inv_det * point_cross(pos_diff, cam_plane);
 
-        double inv_det = 1.0 / point_cross(cam_plane, g_camera_dir);
-        double transform_x = inv_det * point_cross(particle_diff, g_camera_dir);
-        double transform_y = inv_det * point_cross(particle_diff, cam_plane);
+        int screen_pos_x = (SCREEN_W/2) - (width/2) - (transform_x / transform_y) * FOV * SCREEN_W;
+        int screen_pos_y = (SCREEN_H/2) + (SCREEN_H/d/2) - ((g_critters[i].body.z * SCREEN_H / d) + (height));
 
-        int screen_pos_x = (SCREEN_W/2) - (transform_x / transform_y) * FOV * SCREEN_W;
-        int screen_pos_y = (SCREEN_H/2) + (SCREEN_H/d/2) - (g_particles[i].pos.z * SCREEN_H / d);
-        int fr_x = clamp_int(screen_pos_x - radius / SCREEN_RATIO * SCREEN_W, 0, SCREEN_W);
-        int to_x = clamp_int(screen_pos_x + radius / SCREEN_RATIO * SCREEN_W, 0, SCREEN_W);
-        int fr_y = clamp_int(screen_pos_y - radius * SCREEN_H, 0, SCREEN_H);
-        int to_y = clamp_int(screen_pos_y + radius * SCREEN_H, 0, SCREEN_H);
+        for (int x = 0; x < width; x++) {
+          int px_x = screen_pos_x + x;
+          if (px_x > 0 && px_x < SCREEN_W) {
+            for (int y = 0; y < height; y++) {
+              int px_y = screen_pos_y + y;
+              if (px_y > 0 && px_y < SCREEN_H) {
+                if (z_buffer[px_x][px_y] >= d) {
+                  Point sample_pt = (Point){x/width, y/height};
+                  Pixel p = render_critter(g_critters[i].type, sample_pt);
+                  gfx_overlay_pixel(px_x, px_y, p);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
-        for (int x = fr_x; x < to_x; x++) {
-          for (int y = fr_y; y < to_y; y++) {
-            if (z_buffer[x][y] >= d) {
-            // if (point_dist_squared(px, particle_camera) < particle_camera_radius_sq) {
-              gfx_overlay_pixel(x, y, g_particles[i].color);
-            // }
+  // Particles
+  if (RENDER_PARTICLES) {
+    for (int i = 0; i < MAX_PARTICLES; i++) {
+      if (particle_is_alive(&g_particles[i])) {
+        Point pos = point3_to_point(g_particles[i].pos);
+        Point particle_diff = point_sub(pos, g_camera_pos);
+
+        // Get the paralel distance by projecting the ray from the camera to the particle onto the camera plane.
+        float t = point_dot(particle_diff, g_camera_plane);
+        Point par = point_add(g_camera_pos, point_mult(g_camera_plane, t));
+        float d = point_dist(pos, par);
+
+        // Particle is in front of the camera
+        if (point_dot(particle_diff, g_camera_dir) > 0) {
+          // Camera space calculation
+          float camera_plane_length = FOV * SCREEN_RATIO;
+          Point cam_plane = point_mult(g_camera_plane, camera_plane_length);
+          float radius = (((g_particles[i].radius) / d) / 2);
+
+          double inv_det = 1.0 / point_cross(cam_plane, g_camera_dir);
+          double transform_x = inv_det * point_cross(particle_diff, g_camera_dir);
+          double transform_y = inv_det * point_cross(particle_diff, cam_plane);
+
+          int screen_pos_x = (SCREEN_W/2) - (transform_x / transform_y) * FOV * SCREEN_W;
+          int screen_pos_y = (SCREEN_H/2) + (SCREEN_H/d/2) - (g_particles[i].pos.z * SCREEN_H / d);
+          int fr_x = clamp_int(screen_pos_x - radius / SCREEN_RATIO * SCREEN_W, 0, SCREEN_W);
+          int to_x = clamp_int(screen_pos_x + radius / SCREEN_RATIO * SCREEN_W, 0, SCREEN_W);
+          int fr_y = clamp_int(screen_pos_y - radius * SCREEN_H, 0, SCREEN_H);
+          int to_y = clamp_int(screen_pos_y + radius * SCREEN_H, 0, SCREEN_H);
+
+          for (int x = fr_x; x < to_x; x++) {
+            for (int y = fr_y; y < to_y; y++) {
+              if (z_buffer[x][y] >= d) {
+              // if (point_dist_squared(px, particle_camera) < particle_camera_radius_sq) {
+                gfx_overlay_pixel(x, y, g_particles[i].color);
+              // }
+              }
             }
           }
         }

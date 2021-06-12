@@ -13,7 +13,9 @@
 #include "utils.h"
 #include "map.h"
 
+
 int g_paused = 0;
+Uint32 g_tick = 0;
 
 void init()
 {
@@ -64,6 +66,7 @@ int main(int argc, char *argv[])
     bool done = 0;
     SDL_Event event;
 
+    g_tick = SDL_GetTicks();
     float t, t_last, t_delta, t_last_fps = SDL_GetTicks();
     int fps_frames = 0;
 

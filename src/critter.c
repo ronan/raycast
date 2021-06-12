@@ -6,25 +6,29 @@
 
 Critter g_critters[MAX_CRITTERS];
 
-// Critter critter_init(Point pos, float ang) {
-//   Critter out = (Critter) {};
-//   body_init(&g_critters[i].body, (Point){4.5, 3.5}, (rand() / (float)RAND_MAX) * M_PI * 2);
-//   return out;
-// }
-
 void critters_init()
 {
+  int i = 0;
+  g_critters[i] = (Critter) {};
 
+  // g_critters[i].body = body_new((Point){1.5, 1.5}, rand_scaled(M_PI * 2));
+  // g_critters[i].body.bouncy = 1;
+  // g_critters[i].body.radius = 0.5;
+  // g_critters[i].body.height = 2 * g_critters[i].body.radius;
+  // g_critters[i].body.speed = 0;
+  // g_critters[i].glow = 0.0;
+  // g_critters[i].opacity = 1.0;
+  // g_critters[i].type = CRITTER_ORB;
+  // return;
 
   for (int i = 0; i < MAX_CRITTERS; i++) {
-
     // Wall Lights
     if (i < MAX_LIGHTS) {
       int x = i % 4 * 2 + 1;
       int y = floor(i / 4) * 2 + 1;
 
       Point p = POINT_OOB;
-      float radius = 0.1;
+      float radius = 0.04;
       float wall_offset = radius;
 
       if (((x + y)/2) % 2 == 0) {
@@ -97,8 +101,13 @@ void critters_tick(float t)
     }
     if (g_critters[i].type == CRITTER_LIGHT) {
       g_critters[i].glow = rand_perturb(0.6, 0.1);
-      particles_emit_smoke((Point3){.x = g_critters[i].body.pos.x, .y = g_critters[i].body.pos.y, .z = g_critters[i].body.z + 0.1});
-      particles_emit_fire((Point3){.x = g_critters[i].body.pos.x, .y = g_critters[i].body.pos.y, .z = g_critters[i].body.z + 0.1});
+
+      if (g_tick % 200) {
+        particles_emit_smoke((Point3){.x = g_critters[i].body.pos.x, .y = g_critters[i].body.pos.y, .z = g_critters[i].body.z + 0.11});
+      }
+      if (g_tick % 500) {
+        particles_emit_fire((Point3){.x = g_critters[i].body.pos.x, .y = g_critters[i].body.pos.y, .z = g_critters[i].body.z + 0.11});
+      }
     }
 
     body_tick(&g_critters[i].body, t);

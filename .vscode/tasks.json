@@ -6,7 +6,7 @@
 			"label": "Build All",
 			"command": "/usr/bin/clang",
 			"args": [
-				// "-g",
+				"-g",
 				// "-fsanitize=address",
 				// "-fno-omit-frame-pointer",
 				"-o",

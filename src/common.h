@@ -6,6 +6,7 @@
 extern gfx_ctx g_gfx;
 
 extern int g_paused;
+extern Uint32 g_tick;
 
 
 #define DAMN_NEAR_INFINITY 10000
@@ -19,8 +20,8 @@ extern int g_paused;
 
 
 
-#define SCREEN_W 640
-#define SCREEN_H 480
+#define SCREEN_W 320
+#define SCREEN_H 240
 #define WINDOW_W 640
 #define WINDOW_H 480
 #define SCREEN_SCALE_W (WINDOW_W / SCREEN_W)
@@ -46,16 +47,20 @@ extern int g_paused;
 #define MINIMAP_SCALE 32
 
 #define MAX_LIGHTS 16
-#define MAX_ORBS 0
+#define MAX_ORBS 32
 #define MAX_CRITTERS (MAX_ORBS + MAX_LIGHTS)
 
-#define MAX_PARTICLES 255
+#define MAX_PARTICLES 1024
 #define CRITTER_MAX_TURN 0.2
 // #define CRITTER_MAX_SPEED 0
 #define CRITTER_MAX_SPEED 0.05
 #define CRITTER_RADIUS 0.5
 
 #define RENDER_LIGHTS 1
+#define RENDER_CEILING_FLOOR 1
+#define RENDER_WALLS 1
+#define RENDER_CRITTERS 1
+#define RENDER_PARTICLES 1
 
 
 #endif

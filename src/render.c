@@ -41,14 +41,35 @@ Pixel render_lights(Ray r, Pixel c) {
       float z = g_critters[i].body.z - r.z;
 
       float dist_sq = (x * x) + (y * y) + (z * z);
-      // If the dropoff is to stark add a 'b' term (ie: b * sqrt(dist_sq)))
-      float att = clamp(1 - ((dist_sq * 1)));
 
-      brightness += att*g_critters[i].glow;
-      light_color = pixel_lerp_linear(light_color, g_critters[i].glow_color, att*g_critters[i].glow);
+      // Limit the effect light can have.
+      if (dist_sq < 4) {
+        // If the dropoff is to stark add a 'b' term (ie: b * sqrt(dist_sq)))
+        float att = clamp(1 - ((dist_sq * 1)));
+
+        brightness += att*g_critters[i].glow;
+        light_color = pixel_lerp_linear(light_color, g_critters[i].glow_color, att*g_critters[i].glow);
+      }
     }
   }
   return pixel_light(c, light_color, brightness);
+}
+
+
+Pixel render_critter(int type, Point sample_pt) {
+  Pixel p = COLOR_CLEAR;
+  switch (type) {
+    case CRITTER_LIGHT:
+      p = bitmap_sample(BITMAP_LIGHT, sample_pt);
+    break;
+    case CRITTER_ORB:
+      p = bitmap_sample(BITMAP_CRITTER, sample_pt);
+    break;
+    default:
+      p = COLOR_BLACK;
+    break;
+  }
+  return p;
 }
 
 // Render a ray
