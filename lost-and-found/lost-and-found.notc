@@ -849,3 +849,30 @@ void ray_scan2() {
               //     }
               //   }
               // }
+
+
+  //     // Calculate the wall top and bottom.
+  //     int wall_h = SCREEN_H / d;
+  //     int wall_top = SCREEN_HORIZON - (wall_h / 2.0);
+  //     int wall_bottom = wall_top + wall_h;
+  //     wall_bottom = wall_bottom > SCREEN_H ? SCREEN_H : wall_bottom;
+  //     wall_top = wall_top < 0 ? 0 : wall_top;
+      
+  //     // Draw each row top to bottom
+  //     for(int i = 0; i < wall_h; i++)
+  //     {
+  //       int row = i + wall_top;
+  //       if (row < 0) continue;
+  //       if (row > SCREEN_H) break;
+
+  //       z_buffer[col][row] = sqrt(closest_d_sq);
+  //       g_gfx.screen_draw = (Point){ col, row };
+
+  //       sample_pt.y = (float)i / wall_h;
+  //       z = 1 - sample_pt.y;
+
+  //       c = bitmap_sample(BITMAP_WALL, sample_pt);
+  //       c = render_lights_at_point(c, (Point3){r.end.x, r.end.y, z});
+  //       gfx_put_pixel(col, row, c);
+  //     }
+    // }
