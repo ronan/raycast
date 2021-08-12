@@ -162,12 +162,25 @@ Pixel pixel_lerp_dither_pallete_sim(Pixel a, Pixel b, float t) {
 }
 
 // Smooth dithering by moving the endpoints closer to the target
-void pixel_lerp_smooth(Pixel *a, Pixel *b, float t, float factor) {
+// Performance of this technique is pretty much garbage and I can't
+// say I fully understand the math.
+void pixel_lerp_smooth(Pixel *a, Pixel *b, float t) {
+  float factor =  0.95; // Trial and error.
   Pixel a1 = pixel_lerp_linear(*a, *b, t * factor);
   Pixel b1 = pixel_lerp_linear(*b, *a, (1.0 - t) * factor);
 
   *a = a1;
   *b = b1;
+}
+
+// Smooth dithering by moving the endpoints closer to the target
+void pixel_lerp_jaggy(Pixel *a, Pixel *b, float t) {
+  a->g = (a->g >> 1) << 1;
+  a->r = (a->r >> 1) << 1;
+  a->b = (a->b >> 1) << 1;
+  b->r = (b->r >> 1) << 1;
+  b->g = (b->g >> 1) << 1;
+  b->b = (b->b >> 1) << 1;
 }
 
 Pixel pixel_lerp(Pixel a, Pixel b, float t) {
@@ -180,13 +193,16 @@ Pixel pixel_lerp(Pixel a, Pixel b, float t) {
   // dither_sample = point_mult(g_gfx.screen_draw, 1/16);
   dither_sample = g_gfx.screen_draw;
 
-  if (g_input.smooth_dither) {
-    pixel_lerp_smooth(&a, &b, t, 0.95);
-  }
+  // if (g_input.smooth_dither) {
+  //   pixel_lerp_jaggy(&a, &b, t);
+  // }
+  
 
   if (g_input.dither) {
-    return pixel_lerp_dither_bitmap(BITMAP_DITHER, a, b, t);
+    // return pixel_lerp_dither_bitmap(BITMAP_DITHER, a, b, t);
   }
+
+
   return pixel_lerp_linear(a, b, t);
 }
 

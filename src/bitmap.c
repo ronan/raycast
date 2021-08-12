@@ -46,7 +46,7 @@ Pixel bitmap_sample(int bitmap_idx, Point p) {
     int py = (int)(surface->h * p.y);
 
     if (px > surface->w || py > surface->h || px < 0 || py < 0) {
-      err("Invalid bitmap index: (%d, %d). Bitmap is (%d, %d)\n", px, py, surface->w, surface->h);
+      err("Invalid bitmap index: (%d, %d). Bitmap #%d is (%d, %d)\n", px, py, bitmap_idx, surface->w, surface->h);
     }
     else {
       SDL_LockSurface(surface);
@@ -77,7 +77,7 @@ Pixel bitmap_sample_index(int bitmap_idx, int px, int py, int wrap) {
     py = py % surface->h;
   }
   else if (px > surface->w || py > surface->h || px < 0 || py < 0) {
-    err("Invalid bitmap index: (%d, %d). Bitmap is (%d, %d)\n", px, py, surface->w, surface->h);
+    err("Invalid bitmap index: (%d, %d). Bitmap #%d is (%d, %d)\n", px, py, bitmap_idx, surface->w, surface->h);
     return g_pixel_none;
   }
  

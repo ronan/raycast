@@ -18,4 +18,5 @@ void input_scan() {
 
     g_input.dither = !currentKeyStates[ SDL_SCANCODE_1 ];
     g_input.smooth_dither = !currentKeyStates[ SDL_SCANCODE_2 ];
+    g_input.lights_off = currentKeyStates[ SDL_SCANCODE_3 ];
 }

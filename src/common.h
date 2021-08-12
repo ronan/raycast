@@ -22,8 +22,8 @@ extern Uint32 g_tick;
 
 #define SCREEN_W 320
 #define SCREEN_H 240
-#define WINDOW_W 640
-#define WINDOW_H 480
+#define WINDOW_W 1260
+#define WINDOW_H 960
 #define SCREEN_SCALE_W (WINDOW_W / SCREEN_W)
 #define SCREEN_SCALE_H (WINDOW_H / SCREEN_H)
 #define SCREEN_RATIO ((float)WINDOW_W / (float)WINDOW_H)
@@ -56,11 +56,11 @@ extern Uint32 g_tick;
 #define CRITTER_MAX_SPEED 0.05
 #define CRITTER_RADIUS 0.5
 
-#define RENDER_LIGHTS 1
 #define RENDER_CEILING_FLOOR 1
 #define RENDER_WALLS 1
 #define RENDER_CRITTERS 1
 #define RENDER_PARTICLES 1
+#define RENDER_LIGHTS 1
 
 
 #endif

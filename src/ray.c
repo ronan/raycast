@@ -61,15 +61,8 @@ void ray_scan() {
   Point ray_delta = point_mult(point_sub(ray_to, ray_from), 1.0/SCREEN_W);
 
   if (RENDER_CEILING_FLOOR) {
-    for(int row = 0; row < SCREEN_H; row++) {
-      d = fabs(CAMERA_HEIGHT * SCREEN_H / (row - SCREEN_HORIZON));      
-      z = 1.0;
-      int bitmap = BITMAP_CEILING;
-      if (row > SCREEN_HORIZON) {
-        z = 0.0f;
-        bitmap = BITMAP_FLOOR;
-      }
-
+    for(int row = 0; row < SCREEN_H / 2; row++) {
+      d = fabs(CAMERA_HEIGHT * SCREEN_H / (row - SCREEN_HORIZON));
       Point ray = ray_from;
       for (int col = 0; col < SCREEN_W; col++) {
         z_buffer[col][row] = d;
@@ -78,9 +71,13 @@ void ray_scan() {
         Point p = point_add(g_camera_pos, point_mult(ray, d));
         sample_pt = point_fractional(p);
 
-        c = bitmap_sample(bitmap, sample_pt);
-        c = render_lights_at_point(c, (Point3){p.x, p.y, z});
+        c = bitmap_sample(BITMAP_CEILING, sample_pt);
+        c = render_lights_at_point(c, (Point3){p.x, p.y, 1.0});
         gfx_put_pixel(col, row, c);
+
+        c = bitmap_sample(BITMAP_FLOOR, sample_pt);
+        c = render_lights_at_point(c, (Point3){p.x, p.y, 0});
+        gfx_put_pixel(col, SCREEN_H - 1 - row, c);
 
         ray = point_add(ray, ray_delta);
       }
@@ -229,12 +226,14 @@ void ray_scan() {
           int fr_y = clamp_int(screen_pos_y - radius * SCREEN_H, 0, SCREEN_H);
           int to_y = clamp_int(screen_pos_y + radius * SCREEN_H, 0, SCREEN_H);
 
+          int screen_radius_sq = radius * radius * SCREEN_H * SCREEN_H;
+
           for (int x = fr_x; x < to_x; x++) {
             for (int y = fr_y; y < to_y; y++) {
               if (z_buffer[x][y] >= d) {
-              // if (point_dist_squared(px, particle_camera) < particle_camera_radius_sq) {
-                gfx_overlay_pixel(x, y, g_particles[i].color);
-              // }
+                if (point_dist_squared((Point){x, y}, (Point){screen_pos_x, screen_pos_y}) < screen_radius_sq) {
+                  gfx_overlay_pixel(x, y, g_particles[i].color);
+                }
               }
             }
           }

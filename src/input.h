@@ -13,6 +13,7 @@ typedef struct InputState {
 
   int dither;
   int smooth_dither;
+  int lights_off;
 } InputState;
 
 extern InputState g_input;
