@@ -102,11 +102,11 @@ void critters_tick(float t)
     if (g_critters[i].type == CRITTER_LIGHT) {
       g_critters[i].glow = rand_perturb(0.6, 0.1);
 
-      if (g_tick % 200) {
-        particles_emit_smoke((Point3){.x = g_critters[i].body.pos.x, .y = g_critters[i].body.pos.y, .z = g_critters[i].body.z + 0.11});
-      }
       if (g_tick % 500) {
-        particles_emit_fire((Point3){.x = g_critters[i].body.pos.x, .y = g_critters[i].body.pos.y, .z = g_critters[i].body.z + 0.11});
+        particles_emit_smoke((Point3){.x = g_critters[i].body.pos.x, .y = g_critters[i].body.pos.y, .z = g_critters[i].body.z + 0.10});
+      }
+      if (g_tick % 200) {
+        particles_emit_fire((Point3){.x = g_critters[i].body.pos.x, .y = g_critters[i].body.pos.y, .z = g_critters[i].body.z + 0.10});
       }
     }
 

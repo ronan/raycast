@@ -54,12 +54,12 @@ void particles_emit_smoke(Point3 emitter) {
     Particle p = partices_new();
     p.pos = emitter;
     p.pos.z += 0.05;
-    p.vel = (Point3){.x = rand_perturb(0, 0.0001), .y = rand_perturb(0, 0.001), .z = rand_perturb(0.001, 0.0001)};
+    p.vel = (Point3){.x = rand_perturb(0, 0.0001), .y = rand_perturb(0, 0.001), .z = rand_perturb(0.0001, 0.00001)};
     p.acc = (Point3){.x = rand_perturb(0, 0.0001), .y = rand_perturb(0, 0.0001), .z = rand_perturb(0.0005, 0.00001)};
     p.radius_end = p.radius_start = p.radius = rand_range(0.009, 0.05);
     p.radius_end = p.radius * 5;
-    p.color_end = p.color = p.color_start = COLOR_BLACK;
-    p.color_end = (SDL_Color){ 255, 255, 255, 0 };
+    p.color_end = p.color = p.color_start = COLOR_WHITE;
+    p.color_end = (SDL_Color){ 0, 0, 0, 0 };
     p.t_start = g_particle_tick;
     p.t_end = p.t_start + 90;
     particles_emit(p);
