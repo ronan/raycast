@@ -226,13 +226,13 @@ void viz_stats() {
   vis_stats_frames++;
   vis_stats_t = SDL_GetTicks();
   float viz_time_since_last_displayed = vis_stats_t - vis_stats_last_t;
-  if (viz_time_since_last_displayed >= 500.0){
+  if (viz_time_since_last_displayed >= 1000.0){
     float mspf = (viz_time_since_last_displayed)/(float)vis_stats_frames;
     getrusage(0, &snapshot);
 
     info("********************************************");
     info("* Ticks:         %u                     ", SDL_GetTicks());
-    info("* MS/Frame:     %5.2f                     ", mspf);
+    info("* MS/Frame:      %5.2f                     ", mspf);
     info("* FPS:           %5.2f                     ", 1000/mspf);
     info("* Memory:        %5.2FMB                   ", (float)snapshot.ru_maxrss / 1048576);
     info("********************************************");
@@ -252,7 +252,6 @@ void viz_draw() {
   // viz_bitmap(BITMAP_BAYER);
   // viz_bitmap(BITMAP_HATCH);
 
-  viz_stats();
 
-  // viz_update();
+  viz_update();
 }

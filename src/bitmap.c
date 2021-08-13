@@ -38,34 +38,29 @@ Pixel bitmap_sample(int bitmap_idx, Point p) {
   Pixel color;
   SDL_Surface *surface = g_bitmaps[bitmap_idx];
 
-  if (surface && surface->format) {
-    SDL_PixelFormat *fmt = surface->format;
-
-    // Convert u,v coordinates (0.0 - 1.0) to a bitmap pixel memory offset
-    int px = (int)(surface->w * p.x);
-    int py = (int)(surface->h * p.y);
-
-    if (px > surface->w || py > surface->h || px < 0 || py < 0) {
-      err("Invalid bitmap index: (%d, %d). Bitmap #%d is (%d, %d)\n", px, py, bitmap_idx, surface->w, surface->h);
-    }
-    else {
-      SDL_LockSurface(surface);
-
-      Uint8 bpp = surface->format->BytesPerPixel;
-      Uint8 *pixel_idx = (Uint8 *)surface->pixels + (py * surface->pitch) + (px * bpp);
-
-      if (bpp == 1) {
-        color = (Pixel)fmt->palette->colors[*pixel_idx];
-      }
-      else {
-        color = *(Pixel *)pixel_idx;
-      }
-      SDL_UnlockSurface(surface);
-      return color;
-    }
+  if (!surface || !surface->format) {
+    err("Invalid bitmap: #%d\n", bitmap_idx);
+    return g_pixel_none;
   }
 
-  return g_pixel_none;
+  SDL_PixelFormat *fmt = surface->format;
+
+  // Convert u,v coordinates (0.0 - 1.0) to a bitmap pixel memory offset
+  int px = abs((int)(surface->w * p.x) % surface->w);
+  int py = abs((int)(surface->h * p.y) % surface->h);
+
+  Uint8 bpp = surface->format->BytesPerPixel;
+
+  SDL_LockSurface(surface);
+  Uint8 *pixel_idx = (Uint8 *)surface->pixels + (py * surface->pitch) + (px * bpp);
+  if (bpp == 1) {
+    color = (Pixel)fmt->palette->colors[*pixel_idx];
+  }
+  else {
+    color = *(Pixel *)pixel_idx;
+  }
+  SDL_UnlockSurface(surface);
+  return color;
 }
 
 Pixel bitmap_sample_index(int bitmap_idx, int px, int py, int wrap) {

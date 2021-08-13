@@ -15,6 +15,8 @@
 
 #include "ray.h"
 
+// Pixel g_lightmap[LIGHTMAP_W][LIGHTMAP_H];
+
 Ray ray_invert(Ray r) {
   r.dir = point_invert(r.dir);
   r.end = point_invert(r.end);
@@ -54,36 +56,27 @@ void ray_scan() {
   float z_buffer[SCREEN_W][SCREEN_H];
   float z;
   float d;
+  double ignore;
   Point sample_pt;
   
   Point ray_from = point_sub(g_camera_dir, point_mult(g_camera_plane, FOV));
   Point ray_to = point_sub(g_camera_dir, point_mult(g_camera_plane, -FOV));
   Point ray_delta = point_mult(point_sub(ray_to, ray_from), 1.0/SCREEN_W);
 
-  if (RENDER_CEILING_FLOOR) {
-    for(int row = 0; row < SCREEN_H / 2; row++) {
-      d = fabs(CAMERA_HEIGHT * SCREEN_H / (row - SCREEN_HORIZON));
-      Point ray = ray_from;
-      for (int col = 0; col < SCREEN_W; col++) {
-        z_buffer[col][row] = d;
-        g_gfx.screen_draw = (Point){col, row};
+  for(int row = 0; row < SCREEN_H; row++)
+    for (int col = 0; col < SCREEN_W; col++)
+      z_buffer[col][row] = DAMN_NEAR_INFINITY;
 
-        Point p = point_add(g_camera_pos, point_mult(ray, d));
-        sample_pt = point_fractional(p);
 
-        c = bitmap_sample(BITMAP_CEILING, sample_pt);
-        c = render_lights_at_point(c, (Point3){p.x, p.y, 1.0});
-        gfx_put_pixel(col, row, c);
+  // Pixel lightmap[LIGHTMAP_W][LIGHTMAP_H] = {(Pixel) {51, 51, 51, 0}};
+  // for (int i = 0; i < MAX_CRITTERS; i++) {
+  //   int x = (u_int8_t)(g_critters[i].body.pos.x * LIGHTMAP_RESOLUTION);
+  //   int y = (u_int8_t)(g_critters[i].body.pos.y * LIGHTMAP_RESOLUTION);
+    
+  //   lightmap[x][y].r = lightmap[x][y].r + g_critters[i].glow_color.r * g_critters[i].glow;
+  // }
 
-        c = bitmap_sample(BITMAP_FLOOR, sample_pt);
-        c = render_lights_at_point(c, (Point3){p.x, p.y, 0});
-        gfx_put_pixel(col, SCREEN_H - 1 - row, c);
-
-        ray = point_add(ray, ray_delta);
-      }
-    }
-  }
-
+  d = DAMN_NEAR_INFINITY;
   if (RENDER_WALLS) {
     Point ray = ray_from;
     for (int col = 0; col < SCREEN_W; col++)
@@ -133,11 +126,12 @@ void ray_scan() {
       // Draw each row top to bottom
       for(int row = 0; row < SCREEN_H; row++)
       {
-        z_buffer[col][row] = sqrt(closest_d_sq);
         g_gfx.screen_draw = (Point){ col, row };
 
         // Wall
         if (row > wall_top && row < wall_bottom) {
+          z_buffer[col][row] = d;
+  
           sample_pt.y = (float)(row - wall_top) / wall_h;
           z = 1 - sample_pt.y;
           
@@ -148,6 +142,32 @@ void ray_scan() {
       }
     }
   }
+
+  if (RENDER_CEILING_FLOOR) {
+    d = DAMN_NEAR_INFINITY;
+    for(int row = 0; row < SCREEN_H / 2; row++) {
+      d = fabs(CAMERA_HEIGHT * SCREEN_H / (row - SCREEN_HORIZON));
+      Point ray = ray_from;
+      for (int col = 0; col < SCREEN_W; col++) {
+        ray = point_add(ray, ray_delta);
+        if (z_buffer[col][row] < d) continue;
+        
+        z_buffer[col][row] = d;
+        g_gfx.screen_draw = (Point){col, row};
+
+        Point p = point_add(g_camera_pos, point_mult(ray, d));
+
+        c = bitmap_sample(BITMAP_CEILING, p);
+        c = render_lights_at_point(c, (Point3){p.x, p.y, 1.0});
+        gfx_put_pixel(col, row, c);
+
+        c = bitmap_sample(BITMAP_FLOOR, p);
+        c = render_lights_at_point(c, (Point3){p.x, p.y, 0});
+        gfx_put_pixel(col, SCREEN_H - 1 - row, c);
+      }
+    }
+  }
+
 
   float camera_plane_length = FOV * SCREEN_RATIO;
   Point cam_plane = point_mult(g_camera_plane, camera_plane_length);

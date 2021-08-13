@@ -209,13 +209,3 @@ Pixel pixel_lerp(Pixel a, Pixel b, float t) {
 Pixel pixel_darken(Pixel p, float t) {
   return pixel_lerp(p, COLOR_DARKEN, t);
 }
-
-Pixel pixel_light(Pixel p, Pixel c, float t) {
-  // Pixel c2 = pixel_lerp_linear(p, c, 1-t);
-  Pixel c2;
-  c2.r = p.r * (c.r/255.0);
-  c2.g = p.g * (c.g/255.0);
-  c2.b = p.b * (c.b/255.0);
-  
-  return pixel_lerp(c2, COLOR_DARKEN, 1 - t);
-}

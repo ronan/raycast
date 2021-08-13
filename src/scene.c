@@ -15,11 +15,7 @@ void scn_draw_bg()
 void scn_draw()
 {
   // srand(g_player.body.pos.x*g_player.body.ang*1000 );
-  scn_draw_bg();
+  // scn_draw_bg();
   ray_scan();
-
-  viz_draw();
-
-  viz_update();
   gfx_update();
 }
