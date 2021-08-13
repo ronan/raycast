@@ -210,7 +210,7 @@ void ray_scan() {
       Point par = point_add(g_camera_pos, point_mult(g_camera_plane, t));
       float d = point_dist(g_critters[i].body.pos, par);
 
-      // Particle is in front of the camera
+      // Item is in front of the camera
       if (point_dot(pos_diff, g_camera_dir) > 0) {
         float width = (((g_critters[i].body.radius * 2) / d)) * SCREEN_H;
         float height = (((g_critters[i].body.height) / d)) * SCREEN_H;
@@ -230,9 +230,8 @@ void ray_scan() {
               if (px_y > 0 && px_y < SCREEN_H) {
                 if (z_buffer[px_x][px_y] >= d) {
                   g_gfx.screen_draw = (Point){px_x, px_y};
-                  Point sample_pt = (Point){x/width, y/height};
-                  Pixel p = render_critter(g_critters[i].type, sample_pt);
-                  p = render_lights_at_point(p, (Point3){r.end.x, r.end.y, g_critters[i].body.z});
+                  Pixel p = render_critter(g_critters[i].type, (Point){x/width, y/height});
+                  p = render_lights_at_point(p, (Point3){g_critters[i].body.pos.x, g_critters[i].body.pos.y, g_critters[i].body.z});
                   gfx_overlay_pixel(px_x, px_y, p);
                 }
               }
