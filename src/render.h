@@ -10,6 +10,6 @@ Pixel render_ray(Ray r);
 Pixel render_critter(int type, Point sample_pt);
 Pixel render_lights_at_point(Pixel c, Point3 pt);
 
-// Pixel g_lightmap[LIGHTMAP_W][LIGHTMAP_H];
+float g_lightmap[LIGHTMAP_X][LIGHTMAP_Y][LIGHTMAP_Z][3];
 
 #endif

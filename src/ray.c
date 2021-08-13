@@ -15,7 +15,7 @@
 
 #include "ray.h"
 
-// Pixel g_lightmap[LIGHTMAP_W][LIGHTMAP_H];
+float g_lightmap[LIGHTMAP_X][LIGHTMAP_Y][LIGHTMAP_Z][3];
 
 Ray ray_invert(Ray r) {
   r.dir = point_invert(r.dir);
@@ -54,8 +54,7 @@ void ray_scan() {
   Ray r;
   Pixel c;
   float z_buffer[SCREEN_W][SCREEN_H];
-  float z;
-  float d;
+  // float d;
   double ignore;
   Point sample_pt;
   
@@ -67,16 +66,45 @@ void ray_scan() {
     for (int col = 0; col < SCREEN_W; col++)
       z_buffer[col][row] = DAMN_NEAR_INFINITY;
 
+  for (int x = 0; x < LIGHTMAP_X; x++) {
+    for (int y = 0; y < LIGHTMAP_Y; y++) {
+      for (int z = 0; z < LIGHTMAP_Z; z++) {
+        g_lightmap[x][y][z][0] = 0.1;
+        g_lightmap[x][y][z][1] = 0.1;
+        g_lightmap[x][y][z][2] = 0.1;
+      }
+    }
+  }
 
-  // Pixel lightmap[LIGHTMAP_W][LIGHTMAP_H] = {(Pixel) {51, 51, 51, 0}};
-  // for (int i = 0; i < MAX_CRITTERS; i++) {
-  //   int x = (u_int8_t)(g_critters[i].body.pos.x * LIGHTMAP_RESOLUTION);
-  //   int y = (u_int8_t)(g_critters[i].body.pos.y * LIGHTMAP_RESOLUTION);
-    
-  //   lightmap[x][y].r = lightmap[x][y].r + g_critters[i].glow_color.r * g_critters[i].glow;
-  // }
+  for (int i = 0; i < MAX_CRITTERS; i++) {
+    if (g_critters[i].glow < SOME_TINY_AMOUNT) continue;
 
-  d = DAMN_NEAR_INFINITY;
+    float r = (g_critters[i].glow_color.r/255.0f) * g_critters[i].glow;
+    float g = (g_critters[i].glow_color.g/255.0f) * g_critters[i].glow;
+    float b = (g_critters[i].glow_color.b/255.0f) * g_critters[i].glow;
+
+    int lx = (u_int8_t)(g_critters[i].body.pos.x * LIGHTMAP_RESOLUTION);
+    int ly = (u_int8_t)(g_critters[i].body.pos.y * LIGHTMAP_RESOLUTION);
+    int lz = (u_int8_t)(g_critters[i].body.z * LIGHTMAP_RESOLUTION);
+
+    for (int x = fmaxf(0, lx - LIGHTMAP_MAX_LIGHT_RADIUS); x < fminf(LIGHTMAP_X, lx + LIGHTMAP_MAX_LIGHT_RADIUS); x++) {
+      float dx = (float)(lx - x) / LIGHTMAP_RESOLUTION;
+      for (int y = fmaxf(0, ly - LIGHTMAP_MAX_LIGHT_RADIUS); y < fminf(LIGHTMAP_Y, ly + LIGHTMAP_MAX_LIGHT_RADIUS); y++) {
+        float dy = (float)(ly - y) / LIGHTMAP_RESOLUTION;
+        for (int z = fmaxf(0, lz - LIGHTMAP_MAX_LIGHT_RADIUS); z < fminf(LIGHTMAP_Z, lz + LIGHTMAP_MAX_LIGHT_RADIUS); z++) {
+          float dz = (float)(lz - z) / LIGHTMAP_RESOLUTION;
+          float dist2 = (dx * dx) + (dy * dy) + (dz * dz);
+          float att = 1 / (1 + (dist2 * dist2 * dist2));
+
+          g_lightmap[x][y][z][0] += r * att;
+          g_lightmap[x][y][z][1] += g * att;
+          g_lightmap[x][y][z][2] += b * att;
+        }
+      }
+    }
+  }
+
+  float d = DAMN_NEAR_INFINITY;
   if (RENDER_WALLS) {
     Point ray = ray_from;
     for (int col = 0; col < SCREEN_W; col++)
@@ -133,10 +161,9 @@ void ray_scan() {
           z_buffer[col][row] = d;
   
           sample_pt.y = (float)(row - wall_top) / wall_h;
-          z = 1 - sample_pt.y;
           
           c = bitmap_sample(BITMAP_WALL, sample_pt);
-          c = render_lights_at_point(c, (Point3){r.end.x, r.end.y, z});
+          c = render_lights_at_point(c, (Point3){r.end.x, r.end.y, 1 - sample_pt.y});
           gfx_put_pixel(col, row, c);
         }
       }
@@ -205,7 +232,7 @@ void ray_scan() {
                   g_gfx.screen_draw = (Point){px_x, px_y};
                   Point sample_pt = (Point){x/width, y/height};
                   Pixel p = render_critter(g_critters[i].type, sample_pt);
-                  c = render_lights_at_point(c, (Point3){r.end.x, r.end.y, z});
+                  p = render_lights_at_point(p, (Point3){r.end.x, r.end.y, g_critters[i].body.z});
                   gfx_overlay_pixel(px_x, px_y, p);
                 }
               }

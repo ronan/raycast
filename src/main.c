@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
         }
         scn_draw();
 
-        // viz_draw();
+        viz_draw();
         viz_stats();
 
 
