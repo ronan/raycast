@@ -19,12 +19,12 @@ Point direction_offsets[4] = {
 int map_sample[MAP_TILES_Y][MAP_TILES_X] =
 {
  {1,1,1,1,1,1,1,1,1},
- {1,0,1,0,1,0,0,0,1},
- {1,0,1,0,1,1,1,0,1},
- {1,0,1,0,0,0,1,0,1},
- {1,0,0,0,0,0,1,0,1},
  {1,0,0,0,0,0,0,0,1},
- {1,0,0,0,0,1,0,0,1},
+ {1,0,0,0,0,0,0,0,1},
+ {1,0,0,1,0,1,0,0,1},
+ {1,0,0,0,0,0,0,0,1},
+ {1,0,0,1,0,1,0,0,1},
+ {1,0,0,0,0,0,0,0,1},
  {1,0,0,0,0,0,0,0,1},
  {1,1,1,1,1,1,1,1,1},
 };
@@ -83,6 +83,10 @@ void map_fill() {
       g_map[i][j] = MAP_TILE_WALL;
     }
   }
+}
+
+int map_point_is_solid(Point p) {
+  return map_tile_is_wall(map_tile_at_point(p));
 }
 
 int map_is_dir_visited(Point p, MapDir dir) {
@@ -169,9 +173,9 @@ void map_init() {
 
   map_generate_maze();
 
-  // for (int y = 0; y < MAP_TILES_Y; y++) {
-  //   for (int x = 0; x < MAP_TILES_X; x++) {
-  //     g_map[y][x] = map_generate_tile(empty_map[y][x]);
-  //   }
-  // }
+  for (int y = 0; y < MAP_TILES_Y; y++) {
+    for (int x = 0; x < MAP_TILES_X; x++) {
+      g_map[y][x] = map_generate_tile(map_sample[y][x]);
+    }
+  }
 }

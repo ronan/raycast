@@ -11,15 +11,16 @@ void critters_init()
   int i = 0;
   g_critters[i] = (Critter) {};
 
-  // g_critters[i].body = body_new((Point){1.5, 1.5}, rand_scaled(M_PI * 2));
-  // g_critters[i].body.bouncy = 1;
-  // g_critters[i].body.radius = 0.5;
-  // g_critters[i].body.height = 2 * g_critters[i].body.radius;
-  // g_critters[i].body.speed = 0;
-  // g_critters[i].glow = 0.0;
-  // g_critters[i].opacity = 1.0;
-  // g_critters[i].type = CRITTER_ORB;
-  // return;
+  g_critters[i].body = body_new((Point){3.8, 6.4291563}, rand_scaled(M_PI * 2));
+  g_critters[i].body.bouncy = 1;
+  g_critters[i].body.radius = 0.25;
+  g_critters[i].body.height = 2 * g_critters[i].body.radius;
+  g_critters[i].body.speed = 0.0;
+  g_critters[i].glow = 0.8;
+  g_critters[i].glow_color = (SDL_Color) {255, 255, 255, 255};
+  g_critters[i].opacity = 1.0;
+  g_critters[i].type = CRITTER_ORB;
+  return;
 
   for (int i = 0; i < MAX_CRITTERS; i++) {
     // Wall Lights
@@ -49,8 +50,8 @@ void critters_init()
       }
 
       g_critters[i] = (Critter) {};
-      g_critters[i].glow = 0.1;
       g_critters[i].body = body_new(p, 0.0);
+      g_critters[i].glow = 0.1;
       g_critters[i].glow_color = (SDL_Color) {255, 183, 80, 255};
       g_critters[i].body.height = radius * 2;
       g_critters[i].body.radius = radius;

@@ -33,6 +33,7 @@ void viz_bitmap(int bitmap_idx);
 void viz_map_ray_critter(Ray r);
 void viz_map_ray_critter_hit(Ray r);
 void viz_map_body(Body b, SDL_Color c);
+void viz_lightmap();
 
 void viz_draw();
 void viz_stats();

@@ -876,3 +876,39 @@ void ray_scan2() {
   //       gfx_put_pixel(col, row, c);
   //     }
     // }
+
+
+    /// This lightmap rendering algoritm attempted to draw lines in a circle in order to
+    // cover the area with rays. But there were gaps of course. And a weird bug with viz
+
+    for (int i = 0; i < MAX_CRITTERS; i++) {
+    if (g_critters[i].glow < SOME_TINY_AMOUNT) continue;
+
+    float r = (g_critters[i].glow_color.r/255.0f) * g_critters[i].glow;
+    float g = (g_critters[i].glow_color.g/255.0f) * g_critters[i].glow;
+    float b = (g_critters[i].glow_color.b/255.0f) * g_critters[i].glow;
+
+    int lx = (u_int8_t)(g_critters[i].body.pos.x * LIGHTMAP_RESOLUTION);
+    int ly = (u_int8_t)(g_critters[i].body.pos.y * LIGHTMAP_RESOLUTION);
+    int lz = (u_int8_t)(g_critters[i].body.z * LIGHTMAP_RESOLUTION);
+
+    float a = 0.0f;
+    int z = 0;
+    for (float a = 0.0f; a < 4.5; a += 0.1) {
+      float att = 1.0;
+      Point p = (Point){lx, ly};
+      Point v = point_rotate((Point){1.0, 0.0}, a);
+      while (att > SOME_TINY_AMOUNT) {
+        int x = p.x,
+            y = p.y;
+
+        if (x < 0 || y < 0 || x > LIGHTMAP_X || y > LIGHTMAP_Y) break;
+
+        g_lightmap[x][y][z][0] += r * att;
+        g_lightmap[x][y][z][1] += g * att;
+        g_lightmap[x][y][z][2] += b * att;
+
+        p = point_add(p, v);
+        att /= 1.1;
+      }
+    }

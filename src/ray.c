@@ -75,7 +75,6 @@ void ray_scan() {
       }
     }
   }
-
   for (int i = 0; i < MAX_CRITTERS; i++) {
     if (g_critters[i].glow < SOME_TINY_AMOUNT) continue;
 
@@ -90,6 +89,25 @@ void ray_scan() {
     for (int x = fmaxf(0, lx - LIGHTMAP_MAX_LIGHT_RADIUS); x < fminf(LIGHTMAP_X, lx + LIGHTMAP_MAX_LIGHT_RADIUS); x++) {
       float dx = (float)(lx - x) / LIGHTMAP_RESOLUTION;
       for (int y = fmaxf(0, ly - LIGHTMAP_MAX_LIGHT_RADIUS); y < fminf(LIGHTMAP_Y, ly + LIGHTMAP_MAX_LIGHT_RADIUS); y++) {
+        
+        // Does the ray have line of sight with the source.
+        Point end = (Point){(float)x / LIGHTMAP_RESOLUTION, (float)y / LIGHTMAP_RESOLUTION};
+        Point start = g_critters[i].body.pos;
+        if ((int)start.x != (int)end.x && (int)start.y != (int)end.y) {
+          Ray r = (Ray) {
+            .start = g_critters[i].body.pos,
+            .end = g_critters[i].body.pos,
+            .dir = point_sub(end, start),
+          };
+          Point h_end = ray_cast_step_point(r);
+          if(g_map[(int)h_end.x][(int)h_end.y] == MAP_TILE_WALL) continue;
+          Point v_end = ray_cast_step_point_inv(r);
+          if(g_map[(int)v_end.x][(int)v_end.y] == MAP_TILE_WALL) continue;
+        };
+
+
+        // if (!map_tile_is_empty(map_tile_at_point((Point){round((float)x / LIGHTMAP_RESOLUTION), round((float)y / LIGHTMAP_RESOLUTION)}))) continue;
+        
         float dy = (float)(ly - y) / LIGHTMAP_RESOLUTION;
         for (int z = fmaxf(0, lz - LIGHTMAP_MAX_LIGHT_RADIUS); z < fminf(LIGHTMAP_Z, lz + LIGHTMAP_MAX_LIGHT_RADIUS); z++) {
           float dz = (float)(lz - z) / LIGHTMAP_RESOLUTION;

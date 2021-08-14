@@ -12,6 +12,7 @@
 #include "critter.h"
 #include "particle.h"
 #include "utils.h"
+#include "render.h"
 
 #include "viz.h"
 
@@ -84,14 +85,19 @@ void viz_map() {
   SDL_SetRenderDrawColor(g_viz.renderer, bg.r, bg.g, bg.b, bg.a);
   SDL_RenderClear(g_viz.renderer);
 
+
+  viz_lightmap();
+
   for (y = 0; y < MAP_TILES_Y; y++)
   {
     for (x = 0; x < MAP_TILES_X; x++)
     {
-      color = (g_map[y][x] ? &COLOR_WALL : &COLOR_FLOOR);
-      viz_put_rect(x * VIZ_MAP_SCALE + 1, y * VIZ_MAP_SCALE + 1, VIZ_MAP_SCALE - 1, VIZ_MAP_SCALE - 1, *color);
+      if (g_map[y][x]) {
+        viz_put_rect(x * VIZ_MAP_SCALE + 1, y * VIZ_MAP_SCALE + 1, VIZ_MAP_SCALE - 1, VIZ_MAP_SCALE - 1, COLOR_WALL);
+      }
     }
   }
+
 
   // Draw player
   viz_map_body(g_player.body, COLOR_RED);
@@ -124,6 +130,7 @@ void viz_map() {
       );
     }
   }
+
 
 }
 
@@ -199,6 +206,25 @@ void viz_bitmap(int bitmap_idx)
   viz_bitmap_y += VIZ_BITMAP_W;
 
   SDL_RenderCopy(g_viz.renderer, g_textures[bitmap_idx], NULL, &r);
+}
+
+void viz_lightmap() {
+  for (int x = 0; x < LIGHTMAP_X; x++) {
+    for (int y = 0; y < LIGHTMAP_Y; y++) {
+      SDL_Rect rect;
+      rect.x = x / (float)LIGHTMAP_RESOLUTION * VIZ_MAP_SCALE;
+      rect.y = y / (float)LIGHTMAP_RESOLUTION * VIZ_MAP_SCALE;
+      rect.w = 1.0 / LIGHTMAP_RESOLUTION * VIZ_MAP_SCALE;
+      rect.h = 1.0 / LIGHTMAP_RESOLUTION * VIZ_MAP_SCALE;
+
+      int r = fminf(255, 255 * g_lightmap[x][y][0][0]);
+      int g = fminf(255, 255 * g_lightmap[x][y][0][1]);
+      int b = fminf(255, 255 * g_lightmap[x][y][0][2]);
+      SDL_SetRenderDrawColor(g_viz.renderer, r, g, b, 128);
+      SDL_RenderFillRect(g_viz.renderer, &rect);
+    }
+  }
+
 }
 
 void viz_stats() {
