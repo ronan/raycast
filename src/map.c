@@ -173,9 +173,9 @@ void map_init() {
 
   map_generate_maze();
 
-  for (int y = 0; y < MAP_TILES_Y; y++) {
-    for (int x = 0; x < MAP_TILES_X; x++) {
-      g_map[y][x] = map_generate_tile(map_sample[y][x]);
-    }
-  }
+  // for (int y = 0; y < MAP_TILES_Y; y++) {
+  //   for (int x = 0; x < MAP_TILES_X; x++) {
+  //     g_map[y][x] = map_generate_tile(map_sample[y][x]);
+  //   }
+  // }
 }

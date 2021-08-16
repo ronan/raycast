@@ -35,6 +35,18 @@ Ray create_ray() {
   };
 }
 
+
+Point ray_cast_step(Point p, Point dir) {
+  Point d;
+
+  d.x = dir.x > 0 ?
+    ceil(p.x) + 0.0001 - p.x:
+    floor(p.x) - 0.0001 - p.x;
+
+  d.y = d.x * (p.y / p.x);
+  return point_add(p, d);
+}
+
 Point ray_cast_step_point(Ray r) {
   Point d;
 
@@ -45,6 +57,7 @@ Point ray_cast_step_point(Ray r) {
   d.y = d.x * (r.dir.y / r.dir.x);
   return point_add(r.end, d);
 }
+
 
 Point ray_cast_step_point_inv(Ray r) {
   return point_invert(ray_cast_step_point(ray_invert(r)));
@@ -75,52 +88,61 @@ void ray_scan() {
       }
     }
   }
-  for (int i = 0; i < MAX_CRITTERS; i++) {
-    if (g_critters[i].glow < SOME_TINY_AMOUNT) continue;
 
-    float r = (g_critters[i].glow_color.r/255.0f) * g_critters[i].glow;
-    float g = (g_critters[i].glow_color.g/255.0f) * g_critters[i].glow;
-    float b = (g_critters[i].glow_color.b/255.0f) * g_critters[i].glow;
+  if (RENDER_LIGHTS) {
+    for (int i = 0; i < MAX_CRITTERS; i++) {
+      if (g_critters[i].glow < SOME_TINY_AMOUNT) continue;
 
-    int lx = (u_int8_t)(g_critters[i].body.pos.x * LIGHTMAP_RESOLUTION);
-    int ly = (u_int8_t)(g_critters[i].body.pos.y * LIGHTMAP_RESOLUTION);
-    int lz = (u_int8_t)(g_critters[i].body.z * LIGHTMAP_RESOLUTION);
+      float r = (g_critters[i].glow_color.r/255.0f) * g_critters[i].glow;
+      float g = (g_critters[i].glow_color.g/255.0f) * g_critters[i].glow;
+      float b = (g_critters[i].glow_color.b/255.0f) * g_critters[i].glow;
 
-    for (int x = fmaxf(0, lx - LIGHTMAP_MAX_LIGHT_RADIUS); x < fminf(LIGHTMAP_X, lx + LIGHTMAP_MAX_LIGHT_RADIUS); x++) {
-      float dx = (float)(lx - x) / LIGHTMAP_RESOLUTION;
-      for (int y = fmaxf(0, ly - LIGHTMAP_MAX_LIGHT_RADIUS); y < fminf(LIGHTMAP_Y, ly + LIGHTMAP_MAX_LIGHT_RADIUS); y++) {
-        
-        // Does the ray have line of sight with the source.
-        Point end = (Point){(float)x / LIGHTMAP_RESOLUTION, (float)y / LIGHTMAP_RESOLUTION};
-        Point start = g_critters[i].body.pos;
-        if ((int)start.x != (int)end.x && (int)start.y != (int)end.y) {
-          Ray r = (Ray) {
-            .start = g_critters[i].body.pos,
-            .end = g_critters[i].body.pos,
-            .dir = point_sub(end, start),
-          };
-          Point h_end = ray_cast_step_point(r);
-          if(g_map[(int)h_end.x][(int)h_end.y] == MAP_TILE_WALL) continue;
-          Point v_end = ray_cast_step_point_inv(r);
-          if(g_map[(int)v_end.x][(int)v_end.y] == MAP_TILE_WALL) continue;
-        };
+      int lx = (u_int8_t)(g_critters[i].body.pos.x * LIGHTMAP_RESOLUTION);
+      int ly = (u_int8_t)(g_critters[i].body.pos.y * LIGHTMAP_RESOLUTION);
+      int lz = (u_int8_t)(g_critters[i].body.z * LIGHTMAP_RESOLUTION);
 
+      for (int x = fmaxf(0, lx - LIGHTMAP_MAX_LIGHT_RADIUS); x < fminf(LIGHTMAP_X, lx + LIGHTMAP_MAX_LIGHT_RADIUS); x++) {
+        float dx = (float)(lx - x) / LIGHTMAP_RESOLUTION;
+        for (int y = fmaxf(0, ly - LIGHTMAP_MAX_LIGHT_RADIUS); y < fminf(LIGHTMAP_Y, ly + LIGHTMAP_MAX_LIGHT_RADIUS); y++) {
+          
+          // Does the ray have line of sight with the source.
+          Point end = (Point){(float)x / LIGHTMAP_RESOLUTION, (float)y / LIGHTMAP_RESOLUTION};
+          Point start = g_critters[i].body.pos;
+          if ((int)start.x != (int)end.x && (int)start.y != (int)end.y) {
+            Ray r = (Ray) {
+              .start = g_critters[i].body.pos,
+              .end   = g_critters[i].body.pos,
+              .dir   = point_sub(end, start),
+            };
+            r.end = ray_cast_step_point(r);
+            if(g_map[(int)r.end.y][(int)r.end.x] == MAP_TILE_WALL) continue;
 
-        // if (!map_tile_is_empty(map_tile_at_point((Point){round((float)x / LIGHTMAP_RESOLUTION), round((float)y / LIGHTMAP_RESOLUTION)}))) continue;
-        
-        float dy = (float)(ly - y) / LIGHTMAP_RESOLUTION;
-        for (int z = fmaxf(0, lz - LIGHTMAP_MAX_LIGHT_RADIUS); z < fminf(LIGHTMAP_Z, lz + LIGHTMAP_MAX_LIGHT_RADIUS); z++) {
-          float dz = (float)(lz - z) / LIGHTMAP_RESOLUTION;
-          float dist2 = (dx * dx) + (dy * dy) + (dz * dz);
-          float att = 1 / (1 + (dist2 * dist2 * dist2));
+            Ray r = (Ray) {
+              .start = g_critters[i].body.pos,
+              .end   = g_critters[i].body.pos,
+              .dir   = point_sub(end, start),
+            };
+            r.end = ray_cast_step_point_inv(r);
+            if(g_map[(int)r.end.y][(int)r.end.x] == MAP_TILE_WALL) continue;
+          }
 
-          g_lightmap[x][y][z][0] += r * att;
-          g_lightmap[x][y][z][1] += g * att;
-          g_lightmap[x][y][z][2] += b * att;
+          // if (!map_tile_is_empty(map_tile_at_point((Point){round((float)x / LIGHTMAP_RESOLUTION), round((float)y / LIGHTMAP_RESOLUTION)}))) continue;
+          
+          float dy = (float)(ly - y) / LIGHTMAP_RESOLUTION;
+          for (int z = fmaxf(0, lz - LIGHTMAP_MAX_LIGHT_RADIUS); z < fminf(LIGHTMAP_Z, lz + LIGHTMAP_MAX_LIGHT_RADIUS); z++) {
+            float dz = (float)(lz - z) / LIGHTMAP_RESOLUTION;
+            float dist2 = (dx * dx) + (dy * dy) + (dz * dz);
+            float att = 1 / (1 + (dist2 * dist2 * dist2));
+
+            g_lightmap[x][y][z][0] += r * att;
+            g_lightmap[x][y][z][1] += g * att;
+            g_lightmap[x][y][z][2] += b * att;
+          }
         }
       }
     }
   }
+
 
   float d = DAMN_NEAR_INFINITY;
   if (RENDER_WALLS) {
@@ -226,19 +248,19 @@ void ray_scan() {
       // Get the paralel distance by projecting the ray from the camera to the particle onto the camera plane.
       float t = point_dot(pos_diff, g_camera_plane);
       Point par = point_add(g_camera_pos, point_mult(g_camera_plane, t));
-      float d = point_dist(g_critters[i].body.pos, par);
+      float dist = point_dist(g_critters[i].body.pos, par);
 
       // Item is in front of the camera
-      if (point_dot(pos_diff, g_camera_dir) > 0) {
-        float width = (((g_critters[i].body.radius * 2) / d)) * SCREEN_H;
-        float height = (((g_critters[i].body.height) / d)) * SCREEN_H;
+      if (dist > 0 && point_dot(pos_diff, g_camera_dir) > 0) {
+        float width = (((g_critters[i].body.radius * 2.0) / dist)) * SCREEN_H;
+        float height = (((g_critters[i].body.height) / dist)) * SCREEN_H;
 
         // Camera space calculation
-        double transform_x = inv_det * point_cross(pos_diff, g_camera_dir);
-        double transform_y = inv_det * point_cross(pos_diff, cam_plane);
+        float transform_x = inv_det * point_cross(pos_diff, g_camera_dir);
+        float transform_y = inv_det * point_cross(pos_diff, cam_plane);
 
         int screen_pos_x = (SCREEN_W/2) - (width/2) - (transform_x / transform_y) * FOV * SCREEN_W;
-        int screen_pos_y = (SCREEN_H/2) + (SCREEN_H/d/2) - ((g_critters[i].body.z * SCREEN_H / d) + (height));
+        int screen_pos_y = (SCREEN_H/2) + (SCREEN_H/dist/2) - ((g_critters[i].body.z * SCREEN_H / dist) + (height));
 
         for (int x = 0; x < width; x++) {
           int px_x = screen_pos_x + x;
@@ -246,7 +268,7 @@ void ray_scan() {
             for (int y = 0; y < height; y++) {
               int px_y = screen_pos_y + y;
               if (px_y > 0 && px_y < SCREEN_H) {
-                if (z_buffer[px_x][px_y] >= d) {
+                if (z_buffer[px_x][px_y] >= dist) {
                   g_gfx.screen_draw = (Point){px_x, px_y};
                   Pixel p = render_critter(g_critters[i].type, (Point){x/width, y/height});
                   p = render_lights_at_point(p, (Point3){g_critters[i].body.pos.x, g_critters[i].body.pos.y, g_critters[i].body.z});

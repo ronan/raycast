@@ -29,7 +29,6 @@ typedef struct Critter {
 
   float glow;
   Pixel glow_color;
-  float opacity;
 } Critter;
 
 extern Critter g_critters[MAX_CRITTERS];

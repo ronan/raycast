@@ -9,7 +9,7 @@ Player g_player;
 
 void player_init()
 {
-  g_player.body = body_new((Point){7.5, 5.5}, 0);
+  g_player.body = body_new((Point){6.5, 7.5}, 0);
   player_set_angle(-M_PI_2);
   g_player.body.radius = .2;
   g_player.body.bouncy = 0;
@@ -42,6 +42,8 @@ void player_tick(float t) {
   }
 
   body_tick(&g_player.body, t);
+
+  // Follow light
   g_critters[0].body.pos = g_player.body.pos;
 
   g_camera_plane = g_player.camera_plane = point_rotate((Point){0, 1}, g_player.body.ang);
