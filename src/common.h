@@ -54,8 +54,8 @@ extern Uint32 g_tick;
 
 #define LIGHTMAP_MAX_LIGHT_RADIUS LIGHTMAP_RESOLUTION * 2
 
-#define MAX_LIGHTS 16
-#define MAX_ORBS 20
+#define MAX_LIGHTS 0
+#define MAX_ORBS 1
 #define MAX_CRITTERS (MAX_ORBS + MAX_LIGHTS)
 
 #define MAX_PARTICLES 1024

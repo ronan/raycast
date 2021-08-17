@@ -108,10 +108,9 @@ void ray_scan() {
           // Does the ray have line of sight with the source.
           Point end = (Point){(float)x / LIGHTMAP_RESOLUTION, (float)y / LIGHTMAP_RESOLUTION};
           Point start = g_critters[i].body.pos;
-          Point dir = point_sub(end, start);
-          Point d;
           if ((int)start.x != (int)end.x && (int)start.y != (int)end.y) {
             float mapx, mapy;
+            Point dir = point_sub(end, start);
 
             // Find where the ray exits the source tile horizontally
             mapx = end.x > start.x ? ceil(start.x) + 0.0001 : floor(start.x) - 0.0001;
