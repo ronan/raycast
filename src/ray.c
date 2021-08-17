@@ -108,25 +108,21 @@ void ray_scan() {
           // Does the ray have line of sight with the source.
           Point end = (Point){(float)x / LIGHTMAP_RESOLUTION, (float)y / LIGHTMAP_RESOLUTION};
           Point start = g_critters[i].body.pos;
+          Point dir = point_sub(end, start);
+          Point d;
           if ((int)start.x != (int)end.x && (int)start.y != (int)end.y) {
-            Ray r = (Ray) {
-              .start = g_critters[i].body.pos,
-              .end   = g_critters[i].body.pos,
-              .dir   = point_sub(end, start),
-            };
-            r.end = ray_cast_step_point(r);
-            if(g_map[(int)r.end.y][(int)r.end.x] == MAP_TILE_WALL) continue;
+            float mapx, mapy;
 
-            Ray r = (Ray) {
-              .start = g_critters[i].body.pos,
-              .end   = g_critters[i].body.pos,
-              .dir   = point_sub(end, start),
-            };
-            r.end = ray_cast_step_point_inv(r);
-            if(g_map[(int)r.end.y][(int)r.end.x] == MAP_TILE_WALL) continue;
+            // Find where the ray exits the source tile horizontally
+            mapx = end.x > start.x ? ceil(start.x) + 0.0001 : floor(start.x) - 0.0001;
+            mapy = start.y + (mapx - start.x) * (dir.y / dir.x);
+            if(g_map[(int)mapy][(int)mapx] == MAP_TILE_WALL) continue;
+
+            // Find where the ray exits the source tile vertically
+            mapy = end.y > start.y ? ceil(start.y) + 0.0001 : floor(start.y) - 0.0001;
+            mapx = start.x + (mapy - start.y) * (dir.x / dir.y);
+            if(g_map[(int)mapy][(int)mapx] == MAP_TILE_WALL) continue;
           }
-
-          // if (!map_tile_is_empty(map_tile_at_point((Point){round((float)x / LIGHTMAP_RESOLUTION), round((float)y / LIGHTMAP_RESOLUTION)}))) continue;
           
           float dy = (float)(ly - y) / LIGHTMAP_RESOLUTION;
           for (int z = fmaxf(0, lz - LIGHTMAP_MAX_LIGHT_RADIUS); z < fminf(LIGHTMAP_Z, lz + LIGHTMAP_MAX_LIGHT_RADIUS); z++) {
