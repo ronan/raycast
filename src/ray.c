@@ -101,10 +101,18 @@ void ray_scan() {
       int ly = (u_int8_t)(g_critters[i].body.pos.y * LIGHTMAP_RESOLUTION);
       int lz = (u_int8_t)(g_critters[i].body.z * LIGHTMAP_RESOLUTION);
 
-      for (int x = fmaxf(0, lx - LIGHTMAP_MAX_LIGHT_RADIUS); x < fminf(LIGHTMAP_X, lx + LIGHTMAP_MAX_LIGHT_RADIUS); x++) {
+      int x_frm = fmaxf(0, lx - LIGHTMAP_MAX_LIGHT_RADIUS);
+      int x_to = fminf(LIGHTMAP_X, lx + LIGHTMAP_MAX_LIGHT_RADIUS);
+        
+      int y_frm = fmaxf(0, ly - LIGHTMAP_MAX_LIGHT_RADIUS);
+      int y_to = fminf(LIGHTMAP_Y, ly + LIGHTMAP_MAX_LIGHT_RADIUS);
+
+      int z_frm = fmaxf(0, lz - LIGHTMAP_MAX_LIGHT_RADIUS);
+      int z_to = fminf(LIGHTMAP_Z, lz + LIGHTMAP_MAX_LIGHT_RADIUS);
+
+      for (int x = x_frm; x < x_to; x++) {
         float dx = (float)(lx - x) / LIGHTMAP_RESOLUTION;
-        for (int y = fmaxf(0, ly - LIGHTMAP_MAX_LIGHT_RADIUS); y < fminf(LIGHTMAP_Y, ly + LIGHTMAP_MAX_LIGHT_RADIUS); y++) {
-          
+        for (int y = y_frm; y < y_to; y++) {         
           // Does the ray have line of sight with the source.
           Point end = (Point){(float)x / LIGHTMAP_RESOLUTION, (float)y / LIGHTMAP_RESOLUTION};
           Point start = g_critters[i].body.pos;
@@ -124,7 +132,7 @@ void ray_scan() {
           }
           
           float dy = (float)(ly - y) / LIGHTMAP_RESOLUTION;
-          for (int z = fmaxf(0, lz - LIGHTMAP_MAX_LIGHT_RADIUS); z < fminf(LIGHTMAP_Z, lz + LIGHTMAP_MAX_LIGHT_RADIUS); z++) {
+          for (int z = z_frm; z < z_to; z++) {
             float dz = (float)(lz - z) / LIGHTMAP_RESOLUTION;
             float dist2 = (dx * dx) + (dy * dy) + (dz * dz);
             float att = 1 / (1 + (dist2 * dist2 * dist2));
