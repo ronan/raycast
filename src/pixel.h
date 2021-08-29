@@ -9,5 +9,6 @@ Pixel pixel_darken(Pixel p, float amount);
 Pixel pixel_lerp_linear(Pixel a, Pixel b, float t);
 Pixel pixel_blend(Pixel a, Pixel b);
 Pixel pixel_overlay(Pixel a, Pixel b);
+Pixel pixel_postprocess(unsigned int x, unsigned int y, Pixel color);
 
 #endif

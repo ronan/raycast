@@ -60,7 +60,7 @@ void critters_init()
 
       g_critters[g_num_critters] = (Critter) {};
       g_critters[g_num_critters].body = body_new(p, 0.0);
-      g_critters[g_num_critters].glow = 0.1;
+      g_critters[g_num_critters].glow = 1.0;
       g_critters[g_num_critters].glow_color = (SDL_Color) {255, 183, 80, 255};
       g_critters[g_num_critters].body.height = radius * 2;
       g_critters[g_num_critters].body.radius = radius;
@@ -106,7 +106,7 @@ void critters_tick(float t)
       g_critters[i].body.ang_velocity = rand_perturb(0, CRITTER_MAX_TURN);
     }
     if (g_critters[i].type == CRITTER_LIGHT) {
-      g_critters[i].glow = rand_perturb(0.5, 0.05);
+      // g_critters[i].glow = rand_perturb(0.5, 0.05);
 
       if (g_tick % 500) {
         particles_emit_smoke((Point3){.x = g_critters[i].body.pos.x, .y = g_critters[i].body.pos.y, .z = g_critters[i].body.z + 0.10});

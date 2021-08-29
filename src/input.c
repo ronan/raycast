@@ -16,7 +16,8 @@ void input_scan() {
     g_input.strafe_r = currentKeyStates[ SDL_SCANCODE_D ];
     g_input.crawl = currentKeyStates[ SDL_SCANCODE_LSHIFT ];
 
-    g_input.dither = !currentKeyStates[ SDL_SCANCODE_1 ];
-    g_input.smooth_dither = !currentKeyStates[ SDL_SCANCODE_2 ];
+    g_input.reduce_color = !currentKeyStates[ SDL_SCANCODE_1 ];
+    g_input.dither = !currentKeyStates[ SDL_SCANCODE_2 ];
     g_input.lights_off = currentKeyStates[ SDL_SCANCODE_3 ];
+    g_input.smooth_lights = !currentKeyStates[ SDL_SCANCODE_4 ];
 }

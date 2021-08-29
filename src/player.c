@@ -9,7 +9,7 @@ Player g_player;
 
 void player_init()
 {
-  g_player.body = body_new((Point){6.5, 7.5}, 0);
+  g_player.body = body_new((Point){7.5, 7.5}, 0);
   player_set_angle(-M_PI_2);
   g_player.body.radius = .2;
   g_player.body.bouncy = 0;

@@ -12,8 +12,9 @@ typedef struct InputState {
   int crawl;
 
   int dither;
-  int smooth_dither;
+  int reduce_color;
   int lights_off;
+  int smooth_lights;
 } InputState;
 
 extern InputState g_input;

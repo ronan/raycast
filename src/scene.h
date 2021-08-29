@@ -10,9 +10,9 @@ void scn_draw();
 #define COLOR_TILE \
   (SDL_Color) { 10, 10, 10, 0 }
 #define COLOR_CEILING \
-  (SDL_Color) { 70, 80, 170, 0 }
+  (SDL_Color) { 70, 80, 170, 255 }
 #define COLOR_FLOOR \
-  (SDL_Color) { 10, 100, 10, 0 }
+  (SDL_Color) { 10, 100, 10, 255 }
 #define COLOR_WALL \
   (SDL_Color) { 200, 200, 200, 0 }
 #define COLOR_WALL_LIT \
