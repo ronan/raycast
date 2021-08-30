@@ -224,7 +224,17 @@ void viz_lightmap() {
       SDL_RenderFillRect(g_viz.renderer, &rect);
     }
   }
+}
 
+void viz_dither() {
+  for (int x = 0; x <= 255; x++) {
+    for (int y = VIZ_MAP_H; y < VIZ_MAP_H + 32; y ++) {
+      Pixel c = (Pixel) (SDL_Color) {x, x, x, 255};
+      c = pixel_postprocess(x, y, c);
+      SDL_SetRenderDrawColor(g_viz.renderer, c.r, c.g, c.b, 128);
+      SDL_RenderDrawPoint(g_viz.renderer, x, y);
+    }
+  }
 }
 
 void viz_stats() {
@@ -271,6 +281,8 @@ void viz_stats() {
 
 void viz_draw() {
   viz_map();
+
+  viz_dither();
 
   // viz_bitmap_x = VIZ_BITMAP_X;
   // viz_bitmap_y = VIZ_BITMAP_Y;

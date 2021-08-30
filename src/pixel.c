@@ -212,36 +212,23 @@ Pixel pixel_darken(Pixel p, float t) {
 
 Pixel pixel_postprocess(unsigned int x, unsigned int y, Pixel c) {
   // Fake lower-bit color
-    u_int8_t bits = 4;
-    u_int8_t mask = ~(0xff >> bits);
-    u_int8_t error = 0x80 >> bits;
-    u_int8_t rem = (0xff >> bits);
+  u_int8_t bits = 4;
+  u_int8_t rem = (0xff >> bits);
+  u_int8_t mask = ~rem;
   
   Pixel out = c;
   if (g_input.reduce_color) {
-    Pixel a, b;
-    a.r = c.r & mask;
-    a.g = c.g & mask;
-    a.b = c.b & mask;
-    b.r = c.r & mask | rem;
-    b.g = c.g & mask | rem;
-    b.b = c.b & mask | rem;
+    out.r = c.r & mask;
+    out.g = c.g & mask;
+    out.b = c.b & mask;
 
     if (g_input.dither) {
-      dither_sample.x = x;
-      dither_sample.y = y;
-      // out = pixel_lerp_dither_bayer_4x4(a, b, c.r & error);
-      // out = ((int)dither_sample.y % 2) ? a : b;
-      // (c.r & rem) / (rem + 1)
-      // float t = (float)(c.r & rem + c.g & rem + c.b & rem) / (rem * 3);
-      float t = (float)(c.r & rem) / (rem);
-      out = pixel_lerp_dither_bitmap(BITMAP_BLUENOISE, a, b, t);
-    }
-    else {
-      out = b;
-      // out.r = c.r & mask | (rem * (c.r & error));
-      // out.g = c.g & mask | (rem * (c.g & error));
-      // out.b = c.b & mask | (rem * (c.b & error));
+      Pixel dither_value = bitmap_sample_index(BITMAP_BLUENOISE, x, y, 1);
+      float threshold = dither_value.r / 255.0;
+
+      out.r = ((float)(c.r & rem) / (rem + 1) > threshold) ? out.r | rem : out.r;
+      out.g = ((float)(c.g & rem) / (rem + 1) > threshold) ? out.g | rem : out.g;
+      out.b = ((float)(c.b & rem) / (rem + 1) > threshold) ? out.b | rem : out.b;
     }
   }
 

@@ -20,8 +20,8 @@ extern Uint32 g_tick;
 
 
 
-#define SCREEN_W 640
-#define SCREEN_H 480
+#define SCREEN_W 256
+#define SCREEN_H 192
 #define WINDOW_W 1280
 #define WINDOW_H 960
 #define SCREEN_SCALE_W (WINDOW_W / SCREEN_W)
@@ -55,7 +55,7 @@ extern Uint32 g_tick;
 #define LIGHTMAP_MAX_LIGHT_RADIUS LIGHTMAP_RESOLUTION * 2
 
 #define MAX_LIGHTS 16
-#define MAX_ORBS 0
+#define MAX_ORBS 10
 #define MAX_CRITTERS (MAX_ORBS + MAX_LIGHTS)
 
 #define MAX_PARTICLES 1024

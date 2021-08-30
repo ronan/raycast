@@ -13,7 +13,7 @@
 #define VIZ_BITMAP_W 128
 
 #define VIZ_WINDOW_W VIZ_MAP_W + VIZ_BITMAP_W
-#define VIZ_WINDOW_H VIZ_MAP_H
+#define VIZ_WINDOW_H VIZ_MAP_H + 32
 
 gfx_err viz_init(unsigned int width, unsigned int height);
 void viz_destroy();

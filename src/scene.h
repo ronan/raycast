@@ -14,7 +14,7 @@ void scn_draw();
 #define COLOR_FLOOR \
   (SDL_Color) { 10, 100, 10, 255 }
 #define COLOR_WALL \
-  (SDL_Color) { 200, 200, 200, 0 }
+  (SDL_Color) { 200, 200, 200, 255 }
 #define COLOR_WALL_LIT \
   (SDL_Color) { 240, 240, 240, 0 }
 
