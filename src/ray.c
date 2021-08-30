@@ -228,12 +228,12 @@ void ray_scan() {
         Point p = point_add(g_camera_pos, point_mult(ray, d));
 
         c = bitmap_sample(BITMAP_CEILING, p);
-        c = COLOR_CEILING;
+        // c = COLOR_CEILING;
         c = render_lights_at_point(c, (Point3){p.x, p.y, 1.0});
         render_pixel(col, row, c);
 
         c = bitmap_sample(BITMAP_FLOOR, p);
-        c = COLOR_FLOOR;
+        // c = COLOR_FLOOR;
         c = render_lights_at_point(c, (Point3){p.x, p.y, 0});
         render_pixel(col, SCREEN_H - 1 - row, c);
       }
